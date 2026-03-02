@@ -15,12 +15,12 @@ export default function Home() {
           </div>
 
           <div className="flex gap-4 items-center">
-            {/* 💡 새로 추가된 학생 관리 버튼 */}
+            {/* 💡 새로 추가된 학생 관리 버튼 (모바일 최적화) */}
             <Link
               href="/students"
-              className="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl sm:rounded-2xl hover:bg-slate-50 transition-all shadow-sm flex items-center gap-1.5 text-[12px] sm:text-[14px]"
             >
-              <UserPlus size={18} className="text-indigo-600" />
+              <UserPlus size={16} className="text-indigo-600 sm:w-[18px] sm:h-[18px]" />
               <span>학생 관리</span>
             </Link>
 
