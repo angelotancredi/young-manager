@@ -15,6 +15,8 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        {/* 💡 학원 로고 파비콘 설정 */}
+        <link rel="icon" href="/icon.png" />
         {/* 💡 프리텐다드 폰트 불러오기 (CDN 방식) */}
         <link
           rel="stylesheet"

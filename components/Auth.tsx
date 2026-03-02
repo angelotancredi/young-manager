@@ -27,8 +27,8 @@ export default function Auth() {
         <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-6">
             <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/60 p-10 border border-slate-100 font-sans">
                 <div className="text-center mb-10">
-                    <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
-                        <Lock className="text-white" size={28} />
+                    <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 scale-110 drop-shadow-sm">
+                        <img src="/icon.png" alt="Young Manager Logo" className="w-full h-full object-contain" />
                     </div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Young Manager</h1>
                     <p className="text-slate-400 font-bold mt-2 text-sm uppercase tracking-widest text-black">Admin Login</p>

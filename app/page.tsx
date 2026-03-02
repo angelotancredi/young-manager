@@ -42,9 +42,12 @@ export default function Home() {
       <div className="max-w-6xl mx-auto">
         {/* 헤더 영역 */}
         <div className="flex justify-between items-center mb-8 px-2 mt-2">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight italic">Young Manager</h1>
-            <p className="text-slate-500 text-sm font-bold mt-1 uppercase tracking-tighter">Admin Dashboard</p>
+          <div className="flex items-center gap-3">
+            <img src="/icon.png" alt="Logo" className="w-10 h-10 object-contain drop-shadow-sm" />
+            <div>
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight italic">Young Manager</h1>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter">Admin Dashboard</p>
+            </div>
           </div>
 
           <div className="flex gap-3 items-center">
