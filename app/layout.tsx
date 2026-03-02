@@ -1,9 +1,10 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Young Manager",
-  description: "스마트한 학원 관리 시스템",
+  description: "학원 관리 시스템",
 };
 
 export default function RootLayout({
@@ -13,7 +14,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="antialiased font-sans">
+      <head>
+        {/* 💡 프리텐다드 폰트 불러오기 (CDN 방식) */}
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin=""
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+        />
+      </head>
+      <body className="font-sans antialiased">
         {children}
       </body>
     </html>
