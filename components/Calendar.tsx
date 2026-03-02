@@ -82,7 +82,7 @@ export default function Calendar() {
                     <div
                         key={day.toString()}
                         onClick={() => handleDateClick(cloneDay)}
-                        className={`min-h-[80px] flex flex-col items-start p-1.5 border-b border-slate-50 cursor-pointer transition-all relative
+                        className={`min-h-[90px] flex flex-col items-start p-1.5 border-b border-slate-50 cursor-pointer transition-all relative
               ${isSelected ? 'bg-indigo-50/30' : ''} active:bg-slate-100
               ${!isSameMonth(day, monthStart) ? 'text-gray-400' : ''}`}
                     >
