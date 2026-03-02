@@ -45,7 +45,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <img src="/icon.png" alt="Logo" className="w-10 h-10 object-contain drop-shadow-sm" />
             <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight italic">Young Manager</h1>
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight italic">Young.심</h1>
               <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter">Admin Dashboard</p>
             </div>
           </div>

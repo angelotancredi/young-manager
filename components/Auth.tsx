@@ -30,7 +30,7 @@ export default function Auth() {
                     <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 scale-110 drop-shadow-sm">
                         <img src="/icon.png" alt="Young Manager Logo" className="w-full h-full object-contain" />
                     </div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Young Manager</h1>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Young.심리발달센터</h1>
                     <p className="text-slate-400 font-bold mt-2 text-sm uppercase tracking-widest text-black">Admin Login</p>
                 </div>
 
@@ -68,7 +68,7 @@ export default function Auth() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black text-lg shadow-xl shadow-indigo-100 mt-6 active:scale-95 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-5 bg-indigo-600 text-white rounded-[1.5rem] font-bold text-lg shadow-xl shadow-indigo-100 mt-6 active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
                         {loading ? <Loader2 className="animate-spin" size={24} /> : '로그인하기'}
                     </button>
