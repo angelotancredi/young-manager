@@ -82,32 +82,32 @@ export default function Calendar() {
                     <div
                         key={day.toString()}
                         onClick={() => handleDateClick(cloneDay)}
-                        className={`min-h-[100px] flex flex-col items-start p-2 border-b border-slate-50 cursor-pointer transition-all relative
+                        className={`min-h-[80px] flex flex-col items-start p-1.5 border-b border-slate-50 cursor-pointer transition-all relative
               ${isSelected ? 'bg-indigo-50/30' : ''} active:bg-slate-100
               ${!isSameMonth(day, monthStart) ? 'text-gray-400' : ''}`}
                     >
-                        <div className="flex items-center gap-1.5 w-full mb-1">
-                            <span className={`text-[13px] 
+                        <div className="flex items-center gap-1 w-full mb-0.5">
+                            <span className={`text-[12px] 
                                 ${!isSameMonth(day, monthStart) ? 'text-slate-200' :
                                     (dayOfWeek === 0 || isHoliday) ? 'text-red-500' :
                                         dayOfWeek === 6 ? 'text-blue-500' : 'text-black'}
-                                ${isToday ? 'bg-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center' : ''}
+                                ${isToday ? 'bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center' : ''}
                             `}>
                                 {format(cloneDay, 'd')}
                             </span>
                             {daySchedules.length > 0 && (
-                                <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full" />
+                                <div className="w-1 h-1 bg-indigo-400 rounded-full" />
                             )}
                         </div>
 
                         <div className="flex flex-col gap-0.5 w-full">
                             {daySchedules.slice(0, 3).map((schedule, idx) => (
-                                <div key={idx} className="text-[10px] text-black truncate leading-tight pl-px pr-1 bg-white/70 rounded-md">
+                                <div key={idx} className="text-[9px] text-black truncate leading-tight pl-px pr-1 bg-white/70 rounded-sm">
                                     {schedule.students?.name} ({schedule.time.substring(0, 5)})
                                 </div>
                             ))}
                             {daySchedules.length > 3 && (
-                                <div className="text-[10px] text-slate-300 ml-1">...</div>
+                                <div className="text-[9px] text-slate-300 ml-0.5">...</div>
                             )}
                         </div>
 
@@ -127,23 +127,23 @@ export default function Calendar() {
     if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-indigo-600" /></div>;
 
     return (
-        <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden relative">
-            <div className="p-4 pb-2">
-                <div className="flex items-center justify-between mb-4 px-2 mt-1">
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight">
+        <div className="bg-white relative">
+            <div className="p-3 pb-0.5">
+                <div className="flex items-center justify-between mb-2 px-1 mt-0.5">
+                    <h2 className="text-lg font-bold text-slate-900 tracking-tight">
                         {format(currentMonth, 'yyyy년 M월', { locale: ko })}
                     </h2>
-                    <div className="flex gap-2">
-                        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 bg-slate-50 rounded-xl active:scale-90 transition">
-                            <ChevronLeft size={18} />
+                    <div className="flex gap-1.5">
+                        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1.5 bg-slate-50 rounded-lg active:scale-90 transition">
+                            <ChevronLeft size={16} />
                         </button>
-                        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 bg-slate-50 rounded-xl active:scale-90 transition">
-                            <ChevronRight size={18} />
+                        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1.5 bg-slate-50 rounded-lg active:scale-90 transition">
+                            <ChevronRight size={16} />
                         </button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-7 mb-2 border-b border-slate-50 pb-2 text-center text-[13px]">
+                <div className="grid grid-cols-7 mb-1 border-b border-slate-50 pb-1.5 text-center text-[12px]">
                     <div className="text-red-500">일</div>
                     <div className="text-black">월</div>
                     <div className="text-black">화</div>

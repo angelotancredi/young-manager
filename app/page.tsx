@@ -38,32 +38,32 @@ export default function Home() {
 
   // 💡 로그인 성공 시 보여줄 메인 대시보드
   return (
-    <main className="min-h-screen bg-[#f8fafc] p-4 md:p-8 text-black font-sans">
+    <main className="min-h-screen bg-[#f8fafc] px-0 py-2 md:p-8 text-black font-sans">
       <div className="max-w-6xl mx-auto">
-        {/* 헤더 영역 */}
-        <div className="flex justify-between items-center mb-8 px-2 mt-2">
-          <div className="flex items-center gap-3">
-            <img src="/icon.png" alt="Logo" className="w-10 h-10 object-contain drop-shadow-sm" />
-            <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight italic">Young.심</h1>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-tighter">Admin Dashboard</p>
+        {/* 헤더 영역 (좌우 여백 유지) */}
+        <div className="flex justify-between items-center mb-4 px-4 mt-1">
+          <div className="flex items-center gap-2">
+            <img src="/icon.png" alt="Logo" className="w-9 h-9 object-contain drop-shadow-sm" />
+            <div className="leading-tight">
+              <h1 className="text-xl font-bold text-slate-900 tracking-tighter">Young.심</h1>
+              <p className="text-slate-500 text-[9px] font-bold uppercase tracking-tighter -mt-0.5">Admin Dashboard</p>
             </div>
           </div>
 
-          <div className="flex gap-3 items-center">
-            {/* 학생 관리 페이지 링크 */}
-            <Link href="/students" className="px-4 py-2 bg-white border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 shadow-sm flex items-center gap-2 text-sm transition-all active:scale-95">
-              <UserPlus size={18} className="text-indigo-600" />
+          <div className="flex gap-2 items-center">
+            {/* 학생 관리 페이지 링크 (1번 버튼 축소) */}
+            <Link href="/students" className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 shadow-sm flex items-center gap-1.5 text-xs transition-all active:scale-95">
+              <UserPlus size={16} className="text-indigo-600" />
               <span>학생 관리</span>
             </Link>
 
             {/* 로그아웃 버튼 */}
             <button
               onClick={() => supabase.auth.signOut()}
-              className="p-2.5 bg-white border border-slate-100 text-slate-300 hover:text-red-500 rounded-xl transition-colors shadow-sm active:scale-90"
+              className="p-2 bg-white border border-slate-100 text-slate-300 hover:text-red-500 rounded-xl transition-colors shadow-sm active:scale-90"
               title="로그아웃"
             >
-              <LogOut size={20} />
+              <LogOut size={18} />
             </button>
           </div>
         </div>
