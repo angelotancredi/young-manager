@@ -15,8 +15,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        {/* 💡 학원 로고 파비콘 설정 */}
+        {/* 💡 학원 로고 파비콘 및 홈 화면 아이콘 설정 */}
         <link rel="icon" href="/icon.png" />
+        <link rel="apple-touch-icon" href="/icon.png" />
+        <link rel="manifest" href="/manifest.json" />
         {/* 💡 프리텐다드 폰트 불러오기 (CDN 방식) */}
         <link
           rel="stylesheet"
