@@ -59,7 +59,7 @@ export default function Home() {
 
   // 💡 로그인 성공 시 보여줄 메인 대시보드
   return (
-    <main className="min-h-screen bg-[#f8fafc] p-8 md:p-12 text-black font-sans">
+    <main className="min-h-screen bg-[#f8fafc] p-6 md:p-12 text-bold font-sans">
       <div className="max-w-7xl mx-auto">
         <Header session={session} userRole={userRole} userName={userName} />
 
