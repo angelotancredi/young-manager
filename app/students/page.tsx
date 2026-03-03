@@ -160,8 +160,8 @@ export default function StudentManagement() {
                                     {/* 1줄: 학생 연락처 */}
                                     <div className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm flex-nowrap">
                                         <div className="flex items-center gap-2 whitespace-nowrap">
-                                            <span className="text-[11px] text-slate-400 font-bold shrink-0">학생</span>
-                                            <span className="text-[14px] font-bold text-slate-700 font-mono tracking-tight">{student.student_contact || '-'}</span>
+                                            <span className="text-xs text-slate-400 font-bold shrink-0">학생</span>
+                                            <span className="text-[17px] font-bold text-slate-700 font-mono tracking-tight">{student.student_contact || '-'}</span>
                                         </div>
                                         {student.student_contact && (
                                             <a href={`tel:${student.student_contact}`} className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
@@ -173,8 +173,8 @@ export default function StudentManagement() {
                                     {/* 2줄: 학부모 연락처 */}
                                     <div className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm flex-nowrap">
                                         <div className="flex items-center gap-2 whitespace-nowrap">
-                                            <span className="text-[11px] text-slate-400 font-bold shrink-0">부모</span>
-                                            <span className="text-[14px] font-bold text-slate-700 font-mono tracking-tight">{student.parent_contact || '-'}</span>
+                                            <span className="text-xs text-slate-400 font-bold shrink-0">부모</span>
+                                            <span className="text-[17px] font-bold text-slate-700 font-mono tracking-tight">{student.parent_contact || '-'}</span>
                                         </div>
                                         {student.parent_contact && (
                                             <a href={`tel:${student.parent_contact}`} className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
