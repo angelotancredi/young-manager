@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { X, Plus, CheckCircle2, XCircle, RefreshCw, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd, onRefresh }: any) {
+export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd, onRefresh, userId, userRole }: any) {
     const [loadingId, setLoadingId] = useState<string | null>(null);
 
     // 출석 상태 업데이트 로직

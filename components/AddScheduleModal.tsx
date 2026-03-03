@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { X, Loader2, Calendar as CalendarIcon, Clock, User } from 'lucide-react';
 
-export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave }: any) {
+export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave, userId, userRole }: any) {
     const [students, setStudents] = useState<any[]>([]);
     const [teachers, setTeachers] = useState<any[]>([]);
     const [studentId, setStudentId] = useState('');
-    const [teacherId, setTeacherId] = useState('');
+    const [teacherId, setTeacherId] = useState(userId || '');
 
     // 시간/분 분리 선택
     const [hour, setHour] = useState('14');
@@ -23,6 +23,9 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
 
     useEffect(() => {
         if (isOpen) {
+            if (userRole === 'teacher' && userId) {
+                setTeacherId(userId);
+            }
             const fetchData = async () => {
                 const { data: st } = await supabase.from('students').select('*').eq('is_active', true);
                 const { data: tc } = await supabase.from('profiles').select('*');
@@ -31,7 +34,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
             };
             fetchData();
         }
-    }, [isOpen]);
+    }, [isOpen, userId, userRole]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -103,10 +106,11 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             value={teacherId}
                             onChange={(e) => setTeacherId(e.target.value)}
                             required
-                            className="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-800 font-medium appearance-none"
-                            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
+                            disabled={userRole === 'teacher'}
+                            className={`w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-800 font-medium appearance-none ${userRole === 'teacher' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            style={{ backgroundImage: userRole === 'teacher' ? 'none' : 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
                         >
-                            <option value="">선생님을 선택하세요</option>
+                            {userRole !== 'teacher' && <option value="">선생님을 선택하세요</option>}
                             {teachers.map(t => <option key={t.id} value={t.id}>{t.name} ({t.role === 'admin' ? '원장' : '교사'})</option>)}
                         </select>
                     </div>

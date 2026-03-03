@@ -7,20 +7,36 @@ import Auth from '@/components/Auth';
 import { UserPlus, Loader2, LogOut } from 'lucide-react';
 import Link from 'next/link';
 
+import Header from '@/components/Header';
+
 export default function Home() {
   const [session, setSession] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. 현재 로그인된 정보가 있는지 확인
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    async function getSessionAndRole() {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-      setLoading(false);
-    });
 
-    // 2. 로그인/로그아웃 상태가 변할 때마다 자동으로 감지
+      if (session) {
+        // 💡 profiles 테이블에서 현재 로그인한 유저의 role을 가져옵니다.
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        setUserRole(profile?.role || 'teacher');
+      }
+      setLoading(false);
+    }
+
+    getSessionAndRole();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (!session) setUserRole(null);
     });
 
     return () => subscription.unsubscribe();
@@ -40,36 +56,9 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#f8fafc] px-0 py-2 md:p-8 text-black font-sans">
       <div className="max-w-6xl mx-auto">
-        {/* 헤더 영역 (좌우 여백 유지) */}
-        <div className="flex justify-between items-center mb-4 px-4 mt-1">
-          <div className="flex items-center gap-2">
-            <img src="/icon.png" alt="Logo" className="w-9 h-9 object-contain drop-shadow-sm" />
-            <div className="leading-tight">
-              <h1 className="text-xl font-bold text-slate-900 tracking-tighter">Young.심</h1>
-              <p className="text-slate-500 text-[9px] font-bold uppercase tracking-tighter -mt-0.5">Admin Dashboard</p>
-            </div>
-          </div>
-
-          <div className="flex gap-2 items-center">
-            {/* 학생 관리 페이지 링크 (1번 버튼 축소) */}
-            <Link href="/students" className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 shadow-sm flex items-center gap-1.5 text-xs transition-all active:scale-95">
-              <UserPlus size={16} className="text-indigo-600" />
-              <span>학생 관리</span>
-            </Link>
-
-            {/* 로그아웃 버튼 */}
-            <button
-              onClick={() => supabase.auth.signOut()}
-              className="p-2 bg-white border border-slate-100 text-slate-300 hover:text-red-500 rounded-xl transition-colors shadow-sm active:scale-90"
-              title="로그아웃"
-            >
-              <LogOut size={18} />
-            </button>
-          </div>
-        </div>
-
-        {/* 메인 달력 컴포넌트 */}
-        <Calendar />
+        <Header session={session} userRole={userRole} />
+        {/* 💡 Calendar에 현재 유저 정보와 권한을 넘겨줍니다. */}
+        <Calendar userId={session.user.id} userRole={userRole} />
       </div>
     </main>
   );

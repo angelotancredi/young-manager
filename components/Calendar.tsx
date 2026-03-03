@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
     format, addMonths, subMonths, startOfMonth, endOfMonth,
@@ -11,7 +11,12 @@ import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import DailySchedule from './DailySchedule';
 import AddScheduleModal from './AddScheduleModal';
 
-export default function Calendar() {
+interface CalendarProps {
+    userId?: string;
+    userRole?: string | null;
+}
+
+export default function Calendar({ userId, userRole }: CalendarProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [schedules, setSchedules] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -40,18 +45,31 @@ export default function Calendar() {
         '2030-09-13', '2030-10-03', '2030-10-09', '2030-12-25'
     ];
 
-    const fetchSchedules = async () => {
+    const fetchSchedules = useCallback(async () => {
+        if (!userId || !userRole) return;
+
         setIsLoading(true);
-        const { data } = await supabase
+
+        // 1. 기본 쿼리 시작
+        let query = supabase
             .from('schedules')
             .select(`*, students (name), profiles (name)`)
             .eq('status', 'confirmed')
             .order('time', { ascending: true });
-        if (data) setSchedules(data);
-        setIsLoading(false);
-    };
 
-    useEffect(() => { fetchSchedules(); }, [currentMonth]);
+        // 2. 선생님(teacher)이라면 본인 수업만 필터링
+        if (userRole === 'teacher') {
+            query = query.eq('teacher_id', userId);
+        }
+
+        const { data, error } = await query;
+        if (!error && data) setSchedules(data);
+        setIsLoading(false);
+    }, [userId, userRole]);
+
+    useEffect(() => {
+        fetchSchedules();
+    }, [currentMonth, userId, userRole]);
 
     const handleDateClick = (date: Date) => {
         setSelectedDateStr(format(date, 'yyyy-MM-dd'));
@@ -161,6 +179,8 @@ export default function Calendar() {
                 onClose={() => setIsDailyOpen(false)}
                 date={selectedDateStr}
                 schedules={schedules.filter(s => s.date === selectedDateStr)}
+                userId={userId}
+                userRole={userRole}
                 onAdd={() => {
                     setIsDailyOpen(false);
                     setIsModalOpen(true);
@@ -172,6 +192,8 @@ export default function Calendar() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 selectedDate={selectedDateStr}
+                userId={userId}
+                userRole={userRole}
                 onSave={fetchSchedules}
             />
         </div>
