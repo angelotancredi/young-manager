@@ -35,18 +35,30 @@ export default function Header({ session, userRole, userName }: HeaderProps) {
                 <h1 className="text-4xl font-bold text-slate-900 tracking-tighter italic">
                     Young.심 <span className="text-emerald-600">Manager</span>
                 </h1>
-                {/* 💡 로그인 정보 표시줄 */}
+                {/* 💡 로그인 정보 표시줄 및 로그아웃 버튼 */}
                 {session && (
-                    <div className="flex items-center gap-2 mt-2 bg-slate-100/50 px-3 py-1.5 rounded-full border border-slate-200 w-fit">
-                        {userRole === 'admin' ? (
-                            <ShieldCheck size={14} className="text-emerald-600" />
-                        ) : (
-                            <UserCircle size={14} className="text-slate-500" />
-                        )}
-                        <span className="text-xs font-bold text-slate-600">
-                            <span className="text-emerald-700 font-bold">{userName}</span>
-                            {userRole === 'admin' ? ' 원장님' : ' 선생님'}으로 접속 중
-                        </span>
+                    <div className="flex items-center gap-2 mt-2">
+                        {/* 접속 정보 배지 */}
+                        <div className="flex items-center gap-2 bg-slate-100/50 px-3 py-1.5 rounded-full border border-slate-200">
+                            {userRole === 'admin' ? (
+                                <ShieldCheck size={14} className="text-emerald-600" />
+                            ) : (
+                                <UserCircle size={14} className="text-slate-500" />
+                            )}
+                            <span className="text-xs font-bold text-slate-600">
+                                <span className="text-emerald-700 font-bold">{userName}</span>
+                                {userRole === 'admin' ? ' 원장님' : ' 선생님'}으로 접속 중
+                            </span>
+                        </div>
+
+                        {/* 로그아웃 버튼 (배지 디자인과 통일) */}
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-1.5 bg-slate-100/50 px-3 py-1.5 rounded-full border border-slate-200 text-xs font-bold text-slate-500 hover:bg-slate-200/50 transition-all active:scale-95"
+                        >
+                            <LogOut size={12} />
+                            로그아웃
+                        </button>
                     </div>
                 )}
             </div>
@@ -65,14 +77,6 @@ export default function Header({ session, userRole, userName }: HeaderProps) {
                         오늘도 좋은 하루 보내세요~ 😊
                     </div>
                 )}
-
-                <button
-                    onClick={handleLogout}
-                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95"
-                >
-                    <LogOut size={18} />
-                    Logout
-                </button>
             </div>
 
             <AlertModal
