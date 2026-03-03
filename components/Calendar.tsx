@@ -69,7 +69,7 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
 
     useEffect(() => {
         fetchSchedules();
-    }, [currentMonth, userId, userRole]);
+    }, [currentMonth, fetchSchedules]);
 
     const handleDateClick = (date: Date) => {
         setSelectedDateStr(format(date, 'yyyy-MM-dd'));
