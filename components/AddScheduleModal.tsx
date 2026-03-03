@@ -60,10 +60,27 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
         e.preventDefault();
         setLoading(true);
 
+        const timeValue = `${hour}:${minute}:00`;
+
+        // 중복 체크: 같은 날짜 + 시간 + 학생
+        const { data: existing } = await supabase
+            .from('schedules')
+            .select('id')
+            .eq('date', selectedDate)
+            .eq('time', timeValue)
+            .eq('student_id', studentId)
+            .limit(1);
+
+        if (existing && existing.length > 0) {
+            window.alert('해당 시간에 이미 같은 학생의 수업이 등록되어 있습니다.');
+            setLoading(false);
+            return;
+        }
+
         const { error } = await supabase.from('schedules').insert([
             {
                 date: selectedDate,
-                time: `${hour}:${minute}:00`,
+                time: timeValue,
                 student_id: studentId,
                 teacher_id: teacherId,
                 is_makeup: isMakeup,
