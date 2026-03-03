@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Lock, Mail } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Auth() {
     const [loading, setLoading] = useState(false);
@@ -73,6 +74,13 @@ export default function Auth() {
                         {loading ? <Loader2 className="animate-spin" size={24} /> : '로그인하기'}
                     </button>
                 </form>
+
+                <p className="text-center mt-8 text-slate-400 text-sm font-medium">
+                    처음이신가요?{' '}
+                    <Link href="/signup" className="text-indigo-600 font-bold underline underline-offset-4 hover:text-indigo-700 transition-colors">
+                        선생님 등록하기
+                    </Link>
+                </p>
             </div>
         </div>
     );
