@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "영심매니저",
   description: "학원 관리 시스템",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export const viewport: Viewport = {

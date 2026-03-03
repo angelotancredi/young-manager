@@ -48,14 +48,14 @@ export default function SignUp() {
                 </Link>
 
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Teacher Join</h1>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Teacher Join</h1>
                     <p className="text-slate-400 font-bold mt-2 text-sm">영.심리발달센터 선생님으로 등록합니다.</p>
                 </div>
 
                 <form onSubmit={handleSignUp} className="space-y-4">
                     {/* 이름 입력 */}
                     <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 ml-1 uppercase">Full Name</label>
+                        <label className="text-xs font-bold text-slate-400 ml-1 uppercase">Full Name</label>
                         <div className="relative">
                             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                             <input
@@ -71,7 +71,7 @@ export default function SignUp() {
 
                     {/* 이메일 입력 */}
                     <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 ml-1 uppercase">Email Address</label>
+                        <label className="text-xs font-bold text-slate-400 ml-1 uppercase">Email Address</label>
                         <div className="relative">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                             <input
@@ -87,7 +87,7 @@ export default function SignUp() {
 
                     {/* 비밀번호 입력 */}
                     <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 ml-1 uppercase">Password</label>
+                        <label className="text-xs font-bold text-slate-400 ml-1 uppercase">Password</label>
                         <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                             <input
@@ -104,7 +104,7 @@ export default function SignUp() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-black text-lg shadow-xl shadow-slate-200 mt-6 active:scale-95 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-bold text-lg shadow-xl shadow-slate-200 mt-6 active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
                         {loading ? <Loader2 className="animate-spin" size={24} /> : '가입 신청하기'}
                     </button>

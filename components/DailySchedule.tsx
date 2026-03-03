@@ -152,7 +152,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                             className="w-full py-5 bg-emerald-600 text-white rounded-[1.5rem] shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all"
                         >
                             <Plus size={22} strokeWidth={2.5} />
-                            <span className="font-semibold tracking-tight">새로운 학생 추가하기</span>
+                            <span className="font-semibold tracking-tight">새로운 수업 추가하기</span>
                         </button>
                     </div>
                 </div>

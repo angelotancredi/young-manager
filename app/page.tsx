@@ -16,29 +16,38 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function getSessionAndRole() {
+    // 💡 프로필 정보를 가져오는 함수를 분리합니다.
+    const fetchProfile = async (userId: string) => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, full_name')
+        .eq('id', userId)
+        .single();
+
+      if (profile) {
+        setUserRole(profile.role || 'teacher');
+        setUserName(profile.full_name || '이름없음');
+      }
+    };
+
+    async function initializeAuth() {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-
       if (session) {
-        // 💡 role과 함께 full_name도 가져옵니다!
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role, full_name')
-          .eq('id', session.user.id)
-          .single();
-
-        setUserRole(profile?.role || 'teacher');
-        setUserName(profile?.full_name || '이름없음');
+        await fetchProfile(session.user.id);
       }
       setLoading(false);
     }
 
-    getSessionAndRole();
+    initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
-      if (!session) {
+      if (session) {
+        // 💡 로그인 상태로 변경되면 즉시 프로필을 다시 불러옵니다.
+        await fetchProfile(session.user.id);
+        setLoading(false);
+      } else {
         setUserRole(null);
         setUserName('');
       }
@@ -59,7 +68,7 @@ export default function Home() {
 
   // 💡 로그인 성공 시 보여줄 메인 대시보드
   return (
-    <main className="min-h-screen bg-[#f8fafc] p-6 md:p-12 text-bold font-sans">
+    <main className="min-h-screen bg-[#f8fafc] py-6 px-2 md:py-12 md:px-8 text-black font-sans">
       <div className="max-w-7xl mx-auto">
         <Header session={session} userRole={userRole} userName={userName} />
 

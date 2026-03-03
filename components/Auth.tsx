@@ -32,12 +32,12 @@ export default function Auth() {
                         <img src="/icon.png" alt="Young Manager Logo" className="w-full h-full object-contain" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Young.심리발달센터</h1>
-                    <p className="text-slate-400 font-bold mt-2 text-sm uppercase tracking-widest text-black">Admin Login</p>
+                    <p className="text-slate-400 font-bold mt-2 text-sm uppercase tracking-widest text-black">Log-in</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 ml-1 uppercase">Email Address</label>
+                        <label className="text-xs font-bold text-slate-400 ml-1 uppercase">Email Address</label>
                         <div className="relative">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                             <input
@@ -52,7 +52,7 @@ export default function Auth() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 ml-1 uppercase">Password</label>
+                        <label className="text-xs font-bold text-slate-400 ml-1 uppercase">Password</label>
                         <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                             <input

@@ -100,7 +100,7 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
                     <div
                         key={day.toString()}
                         onClick={() => handleDateClick(cloneDay)}
-                        className={`min-h-[90px] flex flex-col items-start p-1.5 border-b border-slate-50 cursor-pointer transition-all relative
+                        className={`min-h-[90px] flex flex-col items-start p-1.5 border-b border-slate-100 cursor-pointer transition-all relative
               ${isSelected ? 'bg-emerald-50/30' : ''} active:bg-slate-100
               ${!isSameMonth(day, monthStart) ? 'text-gray-400' : ''}`}
                     >
@@ -139,19 +139,19 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
             rows.push(<div className="grid grid-cols-7" key={day.toString()}>{days}</div>);
             days = [];
         }
-        return <div className="border-t border-slate-50">{rows}</div>;
+        return <div className="border-t border-slate-100">{rows}</div>;
     };
 
     if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-emerald-600" /></div>;
 
     return (
         <div className="bg-white relative">
-            <div className="p-3 pb-0.5">
-                <div className="flex items-center justify-between mb-2 px-1 mt-0.5">
+            <div className="pt-3 px-1.5 pb-0.5">
+                <div className="relative flex items-center justify-center mb-2 px-1 mt-0.5">
                     <h2 className="text-lg font-bold text-slate-900 tracking-tight">
                         {format(currentMonth, 'yyyy년 M월', { locale: ko })}
                     </h2>
-                    <div className="flex gap-1.5">
+                    <div className="absolute right-1 flex gap-1.5">
                         <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1.5 bg-slate-50 rounded-lg active:scale-90 transition">
                             <ChevronLeft size={16} />
                         </button>
@@ -161,7 +161,7 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-7 mb-1 border-b border-slate-50 pb-1.5 text-center text-[12px]">
+                <div className="grid grid-cols-7 mb-1 border-b border-slate-100 pb-1.5 text-center text-[12px]">
                     <div className="text-red-500">일</div>
                     <div className="text-black">월</div>
                     <div className="text-black">화</div>
