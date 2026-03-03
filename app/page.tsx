@@ -31,12 +31,17 @@ export default function Home() {
     };
 
     async function initializeAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      if (session) {
-        await fetchProfile(session.user.id);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        if (session) {
+          await fetchProfile(session.user.id);
+        }
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
 
     initializeAuth();
@@ -46,11 +51,11 @@ export default function Home() {
       if (session) {
         // 💡 로그인 상태로 변경되면 즉시 프로필을 다시 불러옵니다.
         await fetchProfile(session.user.id);
-        setLoading(false);
       } else {
         setUserRole(null);
         setUserName('');
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
