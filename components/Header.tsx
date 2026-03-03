@@ -10,7 +10,7 @@ interface HeaderProps {
     userName?: string;
 }
 
-export default function Header({ session, userRole }: HeaderProps) {
+export default function Header({ session, userRole, userName }: HeaderProps) {
     const handleLogout = async () => {
         await supabase.auth.signOut();
         window.location.reload();
@@ -31,8 +31,8 @@ export default function Header({ session, userRole }: HeaderProps) {
                             <UserCircle size={14} className="text-slate-500" />
                         )}
                         <span className="text-xs font-bold text-slate-600">
-                            <span className="text-indigo-700">{session.user.email}</span>님
-                            ({userRole === 'admin' ? '원장님' : '선생님'})으로 접속 중
+                            <span className="text-indigo-700 font-black">{userName}</span>
+                            {userRole === 'admin' ? ' 원장님' : ' 선생님'}으로 접속 중
                         </span>
                     </div>
                 )}

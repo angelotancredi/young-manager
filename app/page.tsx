@@ -12,6 +12,7 @@ import Header from '@/components/Header';
 export default function Home() {
   const [session, setSession] = useState<any>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,14 +21,15 @@ export default function Home() {
       setSession(session);
 
       if (session) {
-        // 💡 profiles 테이블에서 현재 로그인한 유저의 role을 가져옵니다.
+        // 💡 role과 함께 full_name도 가져옵니다!
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, full_name')
           .eq('id', session.user.id)
           .single();
 
         setUserRole(profile?.role || 'teacher');
+        setUserName(profile?.full_name || '이름없음');
       }
       setLoading(false);
     }
@@ -36,7 +38,10 @@ export default function Home() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) setUserRole(null);
+      if (!session) {
+        setUserRole(null);
+        setUserName('');
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -56,7 +61,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#f8fafc] p-8 md:p-12 text-black font-sans">
       <div className="max-w-7xl mx-auto">
-        <Header session={session} userRole={userRole} />
+        <Header session={session} userRole={userRole} userName={userName} />
 
         <div className="grid grid-cols-1 gap-10">
           {/* 💡 Calendar에 현재 유저 정보와 권한을 넘겨줍니다. */}
