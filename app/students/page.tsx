@@ -1,87 +1,116 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { UserPlus, UserMinus, Loader2, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { UserPlus, Search, Phone, Calendar as CalendarIcon, MoreVertical } from 'lucide-react';
 
-export default function StudentsPage() {
+export default function StudentManagement() {
     const [students, setStudents] = useState<any[]>([]);
-    const [newName, setNewName] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [issubmitting, setIsSubmitting] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // 학생 목록 가져오기
+    // 입력 폼 상태
+    const [name, setName] = useState('');
+    const [contact, setContact] = useState('');
+    const [tuitionDay, setTuitionDay] = useState('');
+    const [memo, setMemo] = useState('');
+
+    // 학생 목록 불러오기
     const fetchStudents = async () => {
-        setLoading(true);
-        const { data } = await supabase.from('students').select('*').order('name');
-        if (data) setStudents(data);
-        setLoading(false);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // 원장님은 전체, 선생님은 자기 학생만 (권한 로직은 나중에 더 정교화 가능)
+        const { data, error } = await supabase
+            .from('students')
+            .select('*')
+            .order('name', { ascending: true });
+
+        if (!error) setStudents(data);
     };
 
     useEffect(() => { fetchStudents(); }, []);
 
-    // 새 학생 등록
-    const addStudent = async (e: React.FormEvent) => {
+    // 학생 등록 함수
+    const handleAddStudent = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newName) return;
-        setIsSubmitting(true);
+        const { data: { user } } = await supabase.auth.getUser();
 
-        const { error } = await supabase.from('students').insert([{ name: newName }]);
-        if (error) alert(error.message);
-        else {
-            setNewName('');
+        const { error } = await supabase.from('students').insert([
+            {
+                name,
+                parent_contact: contact,
+                tuition_day: parseInt(tuitionDay),
+                memo,
+                teacher_id: user?.id
+            }
+        ]);
+
+        if (!error) {
+            setIsModalOpen(false);
+            setName(''); setContact(''); setTuitionDay(''); setMemo('');
             fetchStudents();
         }
-        setIsSubmitting(false);
     };
 
     return (
-        <main className="min-h-screen bg-[#f8fafc] p-8">
-            <div className="max-w-2xl mx-auto">
-                <Link href="/" className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 mb-6 transition">
-                    <ArrowLeft size={20} /> <span>달력으로 돌아가기</span>
-                </Link>
-
-                <h1 className="text-3xl font-bold text-slate-900 mb-8">학생 명단 관리</h1>
-
-                {/* 학생 추가 폼 */}
-                <form onSubmit={addStudent} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-8 flex gap-3">
-                    <input
-                        type="text"
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        placeholder="새 학생 이름을 입력하세요"
-                        className="flex-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 text-black font-medium"
-                    />
+        <div className="min-h-screen bg-[#f8fafc] p-8">
+            <div className="max-w-6xl mx-auto">
+                <div className="flex justify-between items-end mb-8">
+                    <div>
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Student List</h1>
+                        <p className="text-slate-400 font-bold mt-1">우리 학원 보물들 명단입니다. ✨</p>
+                    </div>
                     <button
-                        disabled={issubmitting}
-                        className="px-6 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition flex items-center gap-2 shadow-lg shadow-emerald-100"
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center gap-2 px-6 py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
                     >
-                        {issubmitting ? <Loader2 className="animate-spin" /> : <UserPlus size={20} />}
-                        <span>등록</span>
+                        <UserPlus size={20} />
+                        신규 학생 등록
                     </button>
-                </form>
+                </div>
 
-                {/* 학생 리스트 */}
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                    {loading ? (
-                        <div className="p-10 flex justify-center"><Loader2 className="animate-spin text-indigo-600" /></div>
-                    ) : (
-                        <div className="divide-y divide-slate-50">
-                            {students.map(s => (
-                                <div key={s.id} className="p-5 flex justify-between items-center hover:bg-slate-50/50 transition">
-                                    <span className="text-lg font-semibold text-slate-700">{s.name}</span>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${s.is_active ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'}`}>
-                                        {s.is_active ? '수강중' : '퇴원'}
-                                    </span>
+                {/* 학생 카드 리스트 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {students.map((student) => (
+                        <div key={student.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 font-black text-xl">
+                                    {student.name[0]}
                                 </div>
-                            ))}
-                            {students.length === 0 && <p className="p-10 text-center text-slate-400 font-medium">등록된 학생이 없습니다.</p>}
+                                <button className="text-slate-300 hover:text-slate-600"><MoreVertical size={20} /></button>
+                            </div>
+                            <h3 className="text-xl font-black text-slate-800 mb-1">{student.name}</h3>
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm font-bold text-slate-400">
+                                    <Phone size={14} /> {student.parent_contact || '연락처 없음'}
+                                </div>
+                                <div className="flex items-center gap-2 text-sm font-bold text-indigo-500 bg-indigo-50 w-fit px-3 py-1 rounded-lg">
+                                    <CalendarIcon size={14} /> 결제일: 매달 {student.tuition_day}일
+                                </div>
+                            </div>
                         </div>
-                    )}
+                    ))}
                 </div>
             </div>
-        </main>
+
+            {/* 등록 모달 (생략 가능하지만 간단히 구현) */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+                    <div className="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl">
+                        <h2 className="text-2xl font-black mb-6">신규 학생 등록</h2>
+                        <form onSubmit={handleAddStudent} className="space-y-4">
+                            <input placeholder="학생 이름" value={name} onChange={e => setName(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required />
+                            <input placeholder="학부모 연락처" value={contact} onChange={e => setContact(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" />
+                            <input type="number" placeholder="수강료 결제일 (1~31)" value={tuitionDay} onChange={e => setTuitionDay(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" />
+                            <textarea placeholder="특이사항" value={memo} onChange={e => setMemo(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold h-32" />
+                            <div className="flex gap-3 mt-6">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 font-black text-slate-400">취소</button>
+                                <button type="submit" className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black">등록하기</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
