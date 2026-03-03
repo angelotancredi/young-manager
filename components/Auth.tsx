@@ -4,11 +4,14 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Lock, Mail } from 'lucide-react';
 import Link from 'next/link';
+import AlertModal from './AlertModal';
 
 export default function Auth() {
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,7 +22,10 @@ export default function Auth() {
         });
 
         if (error) {
-            alert('로그인 실패: ' + error.message);
+            setAlertMessage(error.message === 'Invalid login credentials'
+                ? '이메일 또는 비밀번호가 일치하지 않습니다.'
+                : '로그인 실패: ' + error.message);
+            setIsAlertOpen(true);
         }
         setLoading(false);
     };
@@ -82,6 +88,13 @@ export default function Auth() {
                     </Link>
                 </p>
             </div>
+
+            <AlertModal
+                isOpen={isAlertOpen}
+                onClose={() => setIsAlertOpen(false)}
+                title="로그인 실패"
+                message={alertMessage}
+            />
         </div>
     );
 }

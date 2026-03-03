@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { Loader2, User, Mail, Lock, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import AlertModal from '@/components/AlertModal';
 
 export default function SignUp() {
     const router = useRouter();
@@ -12,6 +13,9 @@ export default function SignUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState(''); // 선생님 성함
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [isSuccess, setIsSuccess] = useState(false);
 
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,12 +33,15 @@ export default function SignUp() {
         });
 
         if (error) {
-            alert('가입 실패: ' + error.message);
+            setAlertMessage('가입 실패: ' + error.message);
+            setIsSuccess(false);
+            setIsAlertOpen(true);
         } else {
             // 💡 핵심: 가입 성공 직후 강제로 로그아웃시켜서 자동 로그인을 막습니다.
             await supabase.auth.signOut();
-            alert('회원가입 신청이 완료되었습니다! 이제 로그인 페이지에서 로그인해 주세요.');
-            router.push('/'); // 로그인 페이지로 이동
+            setAlertMessage('회원가입 신청이 완료되었습니다!\n이제 로그인 페이지에서 로그인해 주세요.');
+            setIsSuccess(true);
+            setIsAlertOpen(true);
         }
         setLoading(false);
     };
@@ -110,6 +117,18 @@ export default function SignUp() {
                     </button>
                 </form>
             </div>
+
+            <AlertModal
+                isOpen={isAlertOpen}
+                onClose={() => {
+                    setIsAlertOpen(false);
+                    if (isSuccess) {
+                        router.push('/'); // 가입 성공 시 확인 누르면 로그인 페이지로 이동
+                    }
+                }}
+                title={isSuccess ? "가입 신청 완료" : "가입 실패"}
+                message={alertMessage}
+            />
         </div>
     );
 }
