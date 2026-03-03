@@ -253,46 +253,46 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                 <button
                                                     disabled={loadingId === s.student_id || !s.student_id}
                                                     onClick={() => updateStatus(s.student_id, '출석', s.teacher_id)}
-                                                    className={`flex flex-col items-center justify-center w-10 py-1.5 rounded-lg transition-all active:scale-95 ${currentStatus === '출석'
+                                                    className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '출석'
                                                         ? 'bg-emerald-500 text-white shadow-md'
                                                         : 'bg-slate-50 text-emerald-600 border border-emerald-100'}`}
                                                 >
-                                                    <CheckCircle2 size={16} strokeWidth={2.5} />
-                                                    <span className="text-[11px] font-semibold mt-0.5">출석</span>
+                                                    <CheckCircle2 size={20} strokeWidth={2.5} />
+                                                    <span className="text-[12px] font-semibold mt-0.5">출석</span>
                                                 </button>
                                                 <button
                                                     disabled={loadingId === s.student_id || !s.student_id}
                                                     onClick={() => updateStatus(s.student_id, '결석', s.teacher_id)}
-                                                    className={`flex flex-col items-center justify-center w-10 py-1.5 rounded-lg transition-all active:scale-95 ${currentStatus === '결석'
+                                                    className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '결석'
                                                         ? 'bg-rose-500 text-white shadow-md'
                                                         : 'bg-slate-50 text-rose-600 border border-rose-100'}`}
                                                 >
-                                                    <XCircle size={16} strokeWidth={2.5} />
-                                                    <span className="text-[11px] font-semibold mt-0.5">결석</span>
+                                                    <XCircle size={20} strokeWidth={2.5} />
+                                                    <span className="text-[12px] font-semibold mt-0.5">결석</span>
                                                 </button>
                                                 <button
                                                     disabled={loadingId === s.student_id || !s.student_id}
                                                     onClick={() => updateStatus(s.student_id, '보강', s.teacher_id)}
-                                                    className={`flex flex-col items-center justify-center w-10 py-1.5 rounded-lg transition-all active:scale-95 ${currentStatus === '보강'
+                                                    className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '보강'
                                                         ? 'bg-amber-500 text-white shadow-md'
                                                         : 'bg-slate-50 text-amber-600 border border-amber-100'}`}
                                                 >
-                                                    <RefreshCw size={16} strokeWidth={2.5} />
-                                                    <span className="text-[11px] font-semibold mt-0.5">보강</span>
+                                                    <RefreshCw size={20} strokeWidth={2.5} />
+                                                    <span className="text-[12px] font-semibold mt-0.5">보강</span>
                                                 </button>
                                                 <button
                                                     disabled={deletingId === s.id}
                                                     onClick={() => {
                                                         askDelete(s.id, s.student_id, s.students?.name || '학생');
                                                     }}
-                                                    className="flex flex-col items-center justify-center w-10 py-1.5 rounded-lg transition-all active:scale-95 bg-slate-50 text-red-400 border border-red-100 hover:bg-red-500 hover:text-white hover:border-red-500"
+                                                    className="flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 bg-slate-50 text-red-400 border border-red-100 hover:bg-red-500 hover:text-white hover:border-red-500"
                                                 >
                                                     {deletingId === s.id ? (
-                                                        <Loader2 size={16} className="animate-spin" />
+                                                        <Loader2 size={20} className="animate-spin" />
                                                     ) : (
-                                                        <Trash2 size={16} strokeWidth={2.5} />
+                                                        <Trash2 size={20} strokeWidth={2.5} />
                                                     )}
-                                                    <span className="text-[11px] font-semibold mt-0.5">삭제</span>
+                                                    <span className="text-[12px] font-semibold mt-0.5">삭제</span>
                                                 </button>
                                             </div>
                                         </div>
