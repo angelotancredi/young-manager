@@ -1,43 +1,58 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
-import { UserPlus, LogOut } from 'lucide-react';
+import { LogOut, ShieldCheck, UserCircle, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 
 interface HeaderProps {
     session: any;
     userRole: string | null;
+    userName?: string;
 }
 
 export default function Header({ session, userRole }: HeaderProps) {
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        window.location.reload();
+    };
+
     return (
-        <div className="flex justify-between items-center mb-4 px-4 mt-1">
-            <div className="flex items-center gap-2">
-                <img src="/icon.png" alt="Logo" className="w-9 h-9 object-contain drop-shadow-sm" />
-                <div className="leading-tight">
-                    <h1 className="text-xl font-bold text-slate-900 tracking-tighter">Young.심</h1>
-                    <p className="text-slate-500 text-[9px] font-bold uppercase tracking-tighter -mt-0.5">
-                        {userRole === 'admin' ? 'Admin Dashboard' : 'Teacher Panel'}
-                    </p>
-                </div>
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 px-4 gap-6">
+            <div>
+                <h1 className="text-4xl font-black text-slate-900 tracking-tighter italic">
+                    Young <span className="text-indigo-600">Manager</span>
+                </h1>
+                {/* 💡 로그인 정보 표시줄 */}
+                {session && (
+                    <div className="flex items-center gap-2 mt-2 bg-slate-100/50 px-3 py-1.5 rounded-full border border-slate-200 w-fit">
+                        {userRole === 'admin' ? (
+                            <ShieldCheck size={14} className="text-indigo-600" />
+                        ) : (
+                            <UserCircle size={14} className="text-slate-500" />
+                        )}
+                        <span className="text-xs font-bold text-slate-600">
+                            <span className="text-indigo-700">{session.user.email}</span>님
+                            ({userRole === 'admin' ? '원장님' : '선생님'})으로 접속 중
+                        </span>
+                    </div>
+                )}
             </div>
 
-            <div className="flex gap-2 items-center">
-                {/* 학생 관리 페이지 링크 - Admin 전용으로 표시할 수도 있지만 일단 유지 */}
-                <Link href="/students" className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 shadow-sm flex items-center gap-1.5 text-xs transition-all active:scale-95">
-                    <UserPlus size={16} className="text-indigo-600" />
-                    <span>학생 관리</span>
+            <div className="flex items-center gap-3 w-full md:w-auto">
+                {/* 학생 관리 페이지 링크 유지 */}
+                <Link href="/students" className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-2xl font-black text-sm shadow-sm hover:bg-slate-50 transition-all border border-slate-100 active:scale-95">
+                    <UserPlus size={18} className="text-indigo-600" />
+                    학생 관리
                 </Link>
 
-                {/* 로그아웃 버튼 */}
                 <button
-                    onClick={() => supabase.auth.signOut()}
-                    className="p-2 bg-white border border-slate-100 text-slate-300 hover:text-red-500 rounded-xl transition-colors shadow-sm active:scale-90"
-                    title="로그아웃"
+                    onClick={handleLogout}
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95"
                 >
                     <LogOut size={18} />
+                    Logout
                 </button>
             </div>
-        </div>
+        </header>
     );
 }

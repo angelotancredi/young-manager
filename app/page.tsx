@@ -54,11 +54,14 @@ export default function Home() {
 
   // 💡 로그인 성공 시 보여줄 메인 대시보드
   return (
-    <main className="min-h-screen bg-[#f8fafc] px-0 py-2 md:p-8 text-black font-sans">
-      <div className="max-w-6xl mx-auto">
+    <main className="min-h-screen bg-[#f8fafc] p-8 md:p-12 text-black font-sans">
+      <div className="max-w-7xl mx-auto">
         <Header session={session} userRole={userRole} />
-        {/* 💡 Calendar에 현재 유저 정보와 권한을 넘겨줍니다. */}
-        <Calendar userId={session.user.id} userRole={userRole} />
+
+        <div className="grid grid-cols-1 gap-10">
+          {/* 💡 Calendar에 현재 유저 정보와 권한을 넘겨줍니다. */}
+          <Calendar userId={session.user.id} userRole={userRole} />
+        </div>
       </div>
     </main>
   );
