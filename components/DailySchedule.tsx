@@ -43,7 +43,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                     <div className="p-6 bg-white border-b border-slate-100 flex justify-between items-center shadow-sm">
                         <div>
                             <h2 className="text-xl font-semibold text-slate-800 tracking-tight">{date}</h2>
-                            <p className="text-[10px] text-indigo-600 font-medium mt-0.5 uppercase tracking-widest">Attendance Management</p>
+                            <p className="text-[10px] text-emerald-600 font-medium mt-0.5 uppercase tracking-widest">Attendance Management</p>
                         </div>
                         <button
                             onClick={onClose}
@@ -149,7 +149,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                     <div className="p-6 bg-white border-t border-slate-100 pb-10">
                         <button
                             onClick={onAdd}
-                            className="w-full py-5 bg-indigo-600 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 flex items-center justify-center gap-2 active:scale-95 transition-all"
+                            className="w-full py-5 bg-emerald-600 text-white rounded-[1.5rem] shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all"
                         >
                             <Plus size={22} strokeWidth={2.5} />
                             <span className="font-semibold tracking-tight">새로운 학생 추가하기</span>

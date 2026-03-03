@@ -42,7 +42,7 @@ export default function SignUp() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-6 font-sans">
             <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/60 p-10 border border-slate-100">
-                <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-colors mb-6 text-sm font-bold uppercase tracking-widest">
+                <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-emerald-600 transition-colors mb-6 text-sm font-bold uppercase tracking-widest">
                     <ArrowLeft size={16} />
                     Back to Login
                 </Link>
@@ -63,7 +63,7 @@ export default function SignUp() {
                                 placeholder="이름을 입력하세요"
                                 value={fullName}
                                 onChange={(e) => setFullName(e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-slate-700"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500 transition-all font-medium text-slate-700"
                                 required
                             />
                         </div>
@@ -79,7 +79,7 @@ export default function SignUp() {
                                 placeholder="이메일을 입력하세요"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-slate-700"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500 transition-all font-medium text-slate-700"
                                 required
                             />
                         </div>
@@ -95,7 +95,7 @@ export default function SignUp() {
                                 placeholder="비밀번호(6자 이상)"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-slate-700"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500 transition-all font-medium text-slate-700"
                                 required
                             />
                         </div>

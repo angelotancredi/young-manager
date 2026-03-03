@@ -45,7 +45,7 @@ export default function Auth() {
                                 placeholder="이메일을 입력하세요"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-slate-700"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500 transition-all font-medium text-slate-700"
                                 required
                             />
                         </div>
@@ -60,7 +60,7 @@ export default function Auth() {
                                 placeholder="비밀번호를 입력하세요"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-slate-700"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500 transition-all font-medium text-slate-700"
                                 required
                             />
                         </div>
@@ -69,7 +69,7 @@ export default function Auth() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-5 bg-indigo-600 text-white rounded-[1.5rem] font-bold text-lg shadow-xl shadow-indigo-100 mt-6 active:scale-95 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-5 bg-emerald-600 text-white rounded-[1.5rem] font-bold text-lg shadow-xl shadow-emerald-100 mt-6 active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
                         {loading ? <Loader2 className="animate-spin" size={24} /> : '로그인하기'}
                     </button>
@@ -77,7 +77,7 @@ export default function Auth() {
 
                 <p className="text-center mt-8 text-slate-400 text-sm font-medium">
                     처음이신가요?{' '}
-                    <Link href="/signup" className="text-indigo-600 font-bold underline underline-offset-4 hover:text-indigo-700 transition-colors">
+                    <Link href="/signup" className="text-emerald-600 font-bold underline underline-offset-4 hover:text-emerald-700 transition-colors">
                         선생님 등록하기
                     </Link>
                 </p>

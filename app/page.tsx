@@ -50,7 +50,7 @@ export default function Home() {
   // 데이터를 불러오는 동안 보여줄 로딩 화면
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
-      <Loader2 className="animate-spin text-indigo-600" size={40} />
+      <Loader2 className="animate-spin text-emerald-600" size={40} />
     </div>
   );
 

@@ -52,11 +52,11 @@ export default function StudentsPage() {
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         placeholder="새 학생 이름을 입력하세요"
-                        className="flex-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-black font-medium"
+                        className="flex-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 text-black font-medium"
                     />
                     <button
                         disabled={issubmitting}
-                        className="px-6 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition flex items-center gap-2 shadow-lg shadow-indigo-100"
+                        className="px-6 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition flex items-center gap-2 shadow-lg shadow-emerald-100"
                     >
                         {issubmitting ? <Loader2 className="animate-spin" /> : <UserPlus size={20} />}
                         <span>등록</span>

@@ -67,13 +67,13 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
             <div className="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-200">
 
                 {/* 상단 디자인 헤더 */}
-                <div className="bg-indigo-600 p-6 text-white relative">
+                <div className="bg-emerald-600 p-6 text-white relative">
                     <button onClick={onClose} className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition">
                         <X size={20} />
                     </button>
                     <div className="flex items-center gap-3 mb-1">
-                        <CalendarIcon size={20} className="text-indigo-200" />
-                        <span className="text-indigo-100 font-medium">{selectedDate}</span>
+                        <CalendarIcon size={20} className="text-emerald-200" />
+                        <span className="text-emerald-100 font-medium">{selectedDate}</span>
                     </div>
                     <h2 className="text-2xl font-bold">새 수업 등록</h2>
                 </div>
@@ -83,13 +83,13 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                     {/* 학생 선택 */}
                     <div>
                         <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
-                            <User size={16} className="text-indigo-500" /> 대상 학생
+                            <User size={16} className="text-emerald-500" /> 대상 학생
                         </label>
                         <select
                             value={studentId}
                             onChange={(e) => setStudentId(e.target.value)}
                             required
-                            className="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-800 font-medium appearance-none"
+                            className="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 font-medium appearance-none"
                             style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
                         >
                             <option value="">학생을 선택하세요</option>
@@ -100,14 +100,14 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                     {/* 선생님 선택 */}
                     <div>
                         <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
-                            <User size={16} className="text-indigo-500" /> 담당 선생님
+                            <User size={16} className="text-emerald-500" /> 담당 선생님
                         </label>
                         <select
                             value={teacherId}
                             onChange={(e) => setTeacherId(e.target.value)}
                             required
                             disabled={userRole === 'teacher'}
-                            className={`w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-800 font-medium appearance-none ${userRole === 'teacher' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className={`w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 font-medium appearance-none ${userRole === 'teacher' ? 'opacity-70 cursor-not-allowed' : ''}`}
                             style={{ backgroundImage: userRole === 'teacher' ? 'none' : 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
                         >
                             {userRole !== 'teacher' && <option value="">선생님을 선택하세요</option>}
@@ -118,13 +118,13 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                     {/* 시간 선택 (10분 단위 커스텀) */}
                     <div>
                         <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
-                            <Clock size={16} className="text-indigo-500" /> 수업 시간
+                            <Clock size={16} className="text-emerald-500" /> 수업 시간
                         </label>
                         <div className="flex gap-3 items-center">
                             <select
                                 value={hour}
                                 onChange={(e) => setHour(e.target.value)}
-                                className="flex-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-center font-bold text-lg"
+                                className="flex-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 text-center font-bold text-lg"
                             >
                                 {hours.map(h => <option key={h} value={h}>{h}시</option>)}
                             </select>
@@ -132,7 +132,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             <select
                                 value={minute}
                                 onChange={(e) => setMinute(e.target.value)}
-                                className="flex-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-center font-bold text-lg"
+                                className="flex-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 text-center font-bold text-lg"
                             >
                                 {minutes.map(m => <option key={m} value={m}>{m}분</option>)}
                             </select>
@@ -158,7 +158,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                     {/* 하단 버튼 */}
                     <button
                         disabled={loading}
-                        className="w-full py-5 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all active:scale-[0.98] flex justify-center items-center text-lg"
+                        className="w-full py-5 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-100 transition-all active:scale-[0.98] flex justify-center items-center text-lg"
                     >
                         {loading ? <Loader2 className="animate-spin mr-2" /> : '수업 확정하기'}
                     </button>

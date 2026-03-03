@@ -101,7 +101,7 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
                         key={day.toString()}
                         onClick={() => handleDateClick(cloneDay)}
                         className={`min-h-[90px] flex flex-col items-start p-1.5 border-b border-slate-50 cursor-pointer transition-all relative
-              ${isSelected ? 'bg-indigo-50/30' : ''} active:bg-slate-100
+              ${isSelected ? 'bg-emerald-50/30' : ''} active:bg-slate-100
               ${!isSameMonth(day, monthStart) ? 'text-gray-400' : ''}`}
                     >
                         <div className="flex items-center gap-1 w-full mb-0.5">
@@ -109,12 +109,12 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
                                 ${!isSameMonth(day, monthStart) ? 'text-slate-200' :
                                     (dayOfWeek === 0 || isHoliday) ? 'text-red-500' :
                                         dayOfWeek === 6 ? 'text-blue-500' : 'text-black'}
-                                ${isToday ? 'bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center' : ''}
+                                ${isToday ? 'bg-emerald-600 text-white rounded-full w-5 h-5 flex items-center justify-center' : ''}
                             `}>
                                 {format(cloneDay, 'd')}
                             </span>
                             {daySchedules.length > 0 && (
-                                <div className="w-1 h-1 bg-indigo-400 rounded-full" />
+                                <div className="w-1 h-1 bg-emerald-400 rounded-full" />
                             )}
                         </div>
 
@@ -130,7 +130,7 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
                         </div>
 
                         {isSelected && (
-                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-500 rounded-t-full mx-1" />
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500 rounded-t-full mx-1" />
                         )}
                     </div>
                 );
@@ -142,7 +142,7 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
         return <div className="border-t border-slate-50">{rows}</div>;
     };
 
-    if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-indigo-600" /></div>;
+    if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-emerald-600" /></div>;
 
     return (
         <div className="bg-white relative">
