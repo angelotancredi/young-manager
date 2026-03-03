@@ -225,22 +225,28 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                 return (
                                     <div key={s.id} className="bg-white p-2.5 rounded-xl border border-slate-100 shadow-sm transition-all text-black">
                                         <div className="flex items-center justify-between gap-1.5">
-                                            <div className="w-10 h-9 bg-slate-50 rounded-md flex items-center justify-center text-slate-700 shrink-0">
-                                                <span className="text-[15px] font-extrabold leading-tight">{s.time.substring(0, 5)}</span>
-                                            </div>
-
-                                            <div className="flex-1 flex items-center justify-start gap-2 min-w-0 px-1 overflow-hidden">
-                                                <div className="font-extrabold text-black text-[17px] leading-tight truncate">
-                                                    {s.students?.name}
+                                            {/* 좌측: 2줄 구조 */}
+                                            <div className="flex flex-col gap-1 min-w-0 flex-1">
+                                                {/* 1줄: 시간 + 학생이름 */}
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-10 h-7 bg-slate-50 rounded-md flex items-center justify-center text-slate-700 shrink-0">
+                                                        <span className="text-[15px] font-extrabold leading-tight">{s.time.substring(0, 5)}</span>
+                                                    </div>
+                                                    <div className="font-extrabold text-black text-[17px] leading-tight truncate">
+                                                        {s.students?.name}
+                                                    </div>
+                                                    {s.is_makeup && (
+                                                        <span className="px-1 py-0.5 bg-amber-100 text-amber-600 text-[8px] font-bold rounded-md shrink-0">보강</span>
+                                                    )}
                                                 </div>
-                                                <div className="flex items-center gap-1.5 px-2.5 h-9 bg-slate-100 text-black text-[14px] font-bold rounded-md border border-slate-200 shrink-0">
-                                                    <span className="text-slate-400 text-[12px] font-semibold">담당</span>
-                                                    <span className="w-px h-3.5 bg-slate-300"></span>
-                                                    <span>{s.profiles?.full_name || '담당자 없음'}</span>
+                                                {/* 2줄: 담당 + 교사이름 */}
+                                                <div className="flex items-center">
+                                                    <div className="flex items-center gap-1.5 px-2.5 h-7 bg-slate-100 text-black text-[14px] font-bold rounded-md border border-slate-200 shrink-0">
+                                                        <span className="text-slate-400 text-[12px] font-semibold">담당</span>
+                                                        <span className="w-px h-3.5 bg-slate-300"></span>
+                                                        <span>{s.profiles?.full_name || '담당자 없음'}</span>
+                                                    </div>
                                                 </div>
-                                                {s.is_makeup && (
-                                                    <span className="px-1 py-0.5 bg-amber-100 text-amber-600 text-[8px] font-bold rounded-md shrink-0">보강</span>
-                                                )}
                                             </div>
 
                                             <div className="flex gap-1 shrink-0">
