@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { UserPlus, Phone, Calendar as CalendarIcon, MoreVertical, ArrowLeft, Search, UserCircle } from 'lucide-react';
+import { UserPlus, Phone, Calendar as CalendarIcon, MoreVertical, ArrowLeft, Search, UserCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import AlertModal from '@/components/AlertModal';
 
@@ -12,6 +12,7 @@ export default function StudentManagement() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
     // 입력 폼 상태
     const [name, setName] = useState('');
@@ -31,24 +32,43 @@ export default function StudentManagement() {
 
     // 학생 목록 불러오기
     const fetchStudents = async () => {
-        const { data, error } = await supabase
-            .from('students')
-            .select('*')
-            .order('name', { ascending: true });
+        try {
+            const { data, error } = await supabase
+                .from('students')
+                .select('*')
+                .order('name', { ascending: true });
 
-        if (!error) setStudents(data);
+            if (error) {
+                console.error("Fetch students error:", error);
+                setStudents([]);
+            } else {
+                setStudents(data || []);
+            }
+        } catch (err) {
+            console.error("fetchStudents exception:", err);
+            setStudents([]);
+        }
     };
 
     // 유저 권한 정보 불러오기
     const fetchUserRole = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            const { data } = await supabase
+        try {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error || !user) {
+                setIsLoading(false);
+                return;
+            }
+
+            const { data, error: profileError } = await supabase
                 .from('profiles')
                 .select('role')
                 .eq('id', user.id)
                 .single();
+
+            if (profileError) console.error("Profile fetch error:", profileError);
             setUserRole(data?.role || 'teacher');
+        } catch (err) {
+            console.error("fetchUserRole exception:", err);
         }
     };
 
@@ -61,8 +81,24 @@ export default function StudentManagement() {
     };
 
     useEffect(() => {
-        fetchStudents();
-        fetchUserRole();
+        async function init() {
+            setIsLoading(true);
+            try {
+                // 💡 Requirement 2: 세션 체크 강화
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    window.location.href = '/'; // Auth 컴포넌트가 루트에 있으므로 루트로 보냄
+                    return;
+                }
+                await Promise.all([fetchStudents(), fetchUserRole()]);
+            } catch (err) {
+                console.error("Students page init error:", err);
+            } finally {
+                // 💡 Requirement 1: 로딩 종료 보장
+                setIsLoading(false);
+            }
+        }
+        init();
     }, []);
 
     // 학생 등록 함수
@@ -139,67 +175,71 @@ export default function StudentManagement() {
                             placeholder="이름으로 학생 찾기..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold placeholder:text-slate-300"
+                            className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium placeholder:text-slate-300"
                         />
                     </div>
 
-                    {/* 학생 리스트 (밀도 있는 레이아웃) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {filteredStudents.map((student) => (
-                            <div key={student.id} className="bg-white py-3 px-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-emerald-100 transition-all group relative overflow-hidden flex items-center justify-between gap-6">
-                                {/* 왼쪽: 이름 + 아이콘 (왼쪽으로 이동) */}
-                                <div className="flex-1 flex items-center justify-start ml-2 gap-4">
-                                    <div className="p-2 bg-emerald-50 text-emerald-600 rounded-2xl shadow-sm">
-                                        <UserCircle size={28} />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-slate-800 tracking-tight whitespace-nowrap">{student.name}</h3>
-                                </div>
-
-                                {/* 오른쪽: 정보 스택 (연락처가 찌그러지지 않도록 고정 너비와 shrink-0) */}
-                                <div className="shrink-0 space-y-2 w-[220px] md:w-[240px]">
-                                    {/* 1줄: 학생 연락처 */}
-                                    <div className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm flex-nowrap">
-                                        <div className="flex items-center gap-2 whitespace-nowrap">
-                                            <span className="text-xs text-slate-400 font-bold shrink-0">학생</span>
-                                            <span className="text-[17px] font-bold text-slate-700 font-mono tracking-tight">{student.student_contact || '-'}</span>
+                    {isLoading ? (
+                        <div className="flex justify-center p-20"><Loader2 className="animate-spin text-emerald-600" size={40} /></div>
+                    ) : (
+                        /* 학생 리스트 (밀도 있는 레이아웃) */
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {filteredStudents.map((student) => (
+                                <div key={student.id} className="bg-white py-3 px-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-emerald-100 transition-all group relative overflow-hidden flex items-center justify-between gap-6">
+                                    {/* 왼쪽: 이름 + 아이콘 (왼쪽으로 이동) */}
+                                    <div className="flex-1 flex items-center justify-start ml-2 gap-4">
+                                        <div className="p-2 bg-emerald-50 text-emerald-600 rounded-2xl shadow-sm">
+                                            <UserCircle size={28} />
                                         </div>
-                                        {student.student_contact && (
-                                            <a href={`tel:${student.student_contact}`} className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
-                                                <Phone size={12} fill="currentColor" />
-                                            </a>
-                                        )}
+                                        <h3 className="text-2xl font-bold text-slate-800 tracking-tight whitespace-nowrap">{student.name}</h3>
                                     </div>
 
-                                    {/* 2줄: 학부모 연락처 */}
-                                    <div className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm flex-nowrap">
-                                        <div className="flex items-center gap-2 whitespace-nowrap">
-                                            <span className="text-xs text-slate-400 font-bold shrink-0">부모</span>
-                                            <span className="text-[17px] font-bold text-slate-700 font-mono tracking-tight">{student.parent_contact || '-'}</span>
+                                    {/* 오른쪽: 정보 스택 (연락처가 찌그러지지 않도록 고정 너비와 shrink-0) */}
+                                    <div className="shrink-0 space-y-2 w-[220px] md:w-[240px]">
+                                        {/* 1줄: 학생 연락처 */}
+                                        <div className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm flex-nowrap">
+                                            <div className="flex items-center gap-2 whitespace-nowrap">
+                                                <span className="text-xs text-slate-400 font-bold shrink-0">학생</span>
+                                                <span className="text-[17px] font-bold text-slate-700 tracking-tight">{student.student_contact || '-'}</span>
+                                            </div>
+                                            {student.student_contact && (
+                                                <a href={`tel:${student.student_contact}`} className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
+                                                    <Phone size={12} fill="currentColor" />
+                                                </a>
+                                            )}
                                         </div>
-                                        {student.parent_contact && (
-                                            <a href={`tel:${student.parent_contact}`} className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
-                                                <Phone size={12} fill="currentColor" />
-                                            </a>
-                                        )}
+
+                                        {/* 2줄: 학부모 연락처 */}
+                                        <div className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm flex-nowrap">
+                                            <div className="flex items-center gap-2 whitespace-nowrap">
+                                                <span className="text-xs text-slate-400 font-bold shrink-0">부모</span>
+                                                <span className="text-[17px] font-bold text-slate-700 tracking-tight">{student.parent_contact || '-'}</span>
+                                            </div>
+                                            {student.parent_contact && (
+                                                <a href={`tel:${student.parent_contact}`} className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
+                                                    <Phone size={12} fill="currentColor" />
+                                                </a>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
 
-                                {/* 옵션 버튼 (절대 위치로 우측 상단 배치) */}
-                                <button className="absolute top-3 right-3 p-1.5 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all opacity-0 group-hover:opacity-100">
-                                    <MoreVertical size={16} />
-                                </button>
-                            </div>
-                        ))}
-
-                        {filteredStudents.length === 0 && (
-                            <div className="col-span-full py-20 text-center">
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-3xl mb-4">
-                                    <Search size={24} className="text-slate-300" />
+                                    {/* 옵션 버튼 (절대 위치로 우측 상단 배치) */}
+                                    <button className="absolute top-3 right-3 p-1.5 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all opacity-0 group-hover:opacity-100">
+                                        <MoreVertical size={16} />
+                                    </button>
                                 </div>
-                                <p className="text-slate-400 font-bold">찾으시는 학생이 없습니다.</p>
-                            </div>
-                        )}
-                    </div>
+                            ))}
+
+                            {filteredStudents.length === 0 && (
+                                <div className="col-span-full py-20 text-center">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-3xl mb-4">
+                                        <Search size={24} className="text-slate-300" />
+                                    </div>
+                                    <p className="text-slate-400 font-bold">찾으시는 학생이 없습니다.</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 

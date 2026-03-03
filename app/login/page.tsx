@@ -13,21 +13,27 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) return;
     setIsLoading(true);
 
-    // Supabase를 통해 로그인을 시도합니다.
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      // Supabase를 통해 로그인을 시도합니다.
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      alert('로그인 실패: ' + error.message);
+      if (error) {
+        console.error('로그인 실패:', error.message);
+        setIsLoading(false);
+      } else {
+        // 로그인 성공 시 메인 화면(대시보드)으로 이동합니다.
+        router.push('/');
+        router.refresh();
+      }
+    } catch (err) {
+      console.error('로그인 중 예외 발생:', err);
       setIsLoading(false);
-    } else {
-      // 로그인 성공 시 메인 화면(대시보드)으로 이동합니다.
-      router.push('/');
-      router.refresh();
     }
   };
 

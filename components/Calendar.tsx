@@ -45,30 +45,45 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
         '2030-09-13', '2030-10-03', '2030-10-09', '2030-12-25'
     ];
 
-    const fetchSchedules = useCallback(async () => {
-        if (!userId || !userRole) return;
-
-        setIsLoading(true);
-
-        // 1. 기본 쿼리 시작
-        let query = supabase
-            .from('schedules')
-            .select(`*, students (name), profiles (name)`)
-            .eq('status', 'confirmed')
-            .order('time', { ascending: true });
-
-        // 2. 선생님(teacher)이라면 본인 수업만 필터링
-        if (userRole === 'teacher') {
-            query = query.eq('teacher_id', userId);
+    const fetchSchedules = useCallback(async (showLoader = false) => {
+        // 💡 userId와 userRole이 모두 확정되어야만 데이터 요청
+        if (!userId || userRole === null || userRole === undefined) {
+            setIsLoading(false);
+            return;
         }
 
-        const { data, error } = await query;
-        if (!error && data) setSchedules(data);
-        setIsLoading(false);
+        // 💡 첫 로딩 시에만 스피너 표시, onRefresh 등 갱신 시에는 백그라운드 처리
+        if (showLoader) setIsLoading(true);
+
+        try {
+            let query = supabase
+                .from('schedules')
+                .select(`*, students (name), profiles (full_name)`)
+                .eq('status', 'confirmed')
+                .order('time', { ascending: true });
+
+            if (userRole === 'teacher') {
+                query = query.eq('teacher_id', userId);
+            }
+
+            const { data, error } = await query;
+
+            if (error) {
+                console.error("Fetch schedules error:", error);
+                setSchedules([]);
+            } else {
+                setSchedules(data || []);
+            }
+        } catch (err) {
+            console.error("Calendar fetch error:", err);
+            setSchedules([]);
+        } finally {
+            setIsLoading(false);
+        }
     }, [userId, userRole]);
 
     useEffect(() => {
-        fetchSchedules();
+        fetchSchedules(true);
     }, [currentMonth, fetchSchedules]);
 
     const handleDateClick = (date: Date) => {

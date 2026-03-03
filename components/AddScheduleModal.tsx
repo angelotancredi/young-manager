@@ -23,14 +23,34 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
 
     useEffect(() => {
         if (isOpen) {
+            // 💡 모달이 열릴 때 상태 초기화
+            setStudentId('');
+            setTeacherId(userId || '');
+            setHour('14');
+            setMinute('00');
+            setIsMakeup(false);
+
             if (userRole === 'teacher' && userId) {
                 setTeacherId(userId);
             }
             const fetchData = async () => {
-                const { data: st } = await supabase.from('students').select('*').eq('is_active', true);
-                const { data: tc } = await supabase.from('profiles').select('*');
-                if (st) setStudents(st);
-                if (tc) setTeachers(tc);
+                setLoading(true);
+                try {
+                    const { data: st, error: stError } = await supabase.from('students').select('*').eq('is_active', true);
+                    const { data: tc, error: tcError } = await supabase.from('profiles').select('*');
+
+                    if (stError) console.error("Students fetch error:", stError);
+                    if (tcError) console.error("Teachers fetch error:", tcError);
+
+                    setStudents(st || []);
+                    setTeachers(tc || []);
+                } catch (err) {
+                    console.error("fetchData exception:", err);
+                    setStudents([]);
+                    setTeachers([]);
+                } finally {
+                    setLoading(false);
+                }
             };
             fetchData();
         }
@@ -52,7 +72,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
         ]);
 
         if (error) {
-            alert('저장 실패: ' + error.message);
+            console.error('저장 실패:', error.message);
         } else {
             onSave();
             onClose();
@@ -111,7 +131,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             style={{ backgroundImage: userRole === 'teacher' ? 'none' : 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
                         >
                             {userRole !== 'teacher' && <option value="">선생님을 선택하세요</option>}
-                            {teachers.map(t => <option key={t.id} value={t.id}>{t.name} ({t.role === 'admin' ? '원장' : '교사'})</option>)}
+                            {teachers.map(t => <option key={t.id} value={t.id}>{t.full_name} ({t.role === 'admin' ? '원장' : '교사'})</option>)}
                         </select>
                     </div>
 

@@ -15,51 +15,61 @@ export default function Home() {
   const [userName, setUserName] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
+  const [isHydrated, setIsHydrated] = useState(false);
+
   useEffect(() => {
-    // 💡 프로필 정보를 가져오는 함수를 분리합니다.
-    const fetchProfile = async (userId: string) => {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role, full_name')
-        .eq('id', userId)
-        .single();
+    setIsHydrated(true);
 
-      if (profile) {
-        setUserRole(profile.role || 'teacher');
-        setUserName(profile.full_name || '이름없음');
-      }
-    };
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
 
-    async function initializeAuth() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-        if (session) {
-          await fetchProfile(session.user.id);
-        }
-      } catch (error) {
-        console.error("Auth initialization error:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    initializeAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    // 💡 onAuthStateChange 콜백은 동기적으로만 처리 (Supabase auth lock 충돌 방지)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth Event:", event, !!session);
       setSession(session);
-      if (session) {
-        // 💡 로그인 상태로 변경되면 즉시 프로필을 다시 불러옵니다.
-        await fetchProfile(session.user.id);
-      } else {
+
+      if (!session) {
         setUserRole(null);
         setUserName('');
       }
+
       setLoading(false);
+      clearTimeout(timeoutId);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeoutId);
+    };
   }, []);
+
+  // 💡 세션이 변경되면 프로필을 비동기로 별도 로드 (auth lock 충돌 없음)
+  useEffect(() => {
+    if (!session) return;
+
+    const fetchProfile = async () => {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, full_name')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          setUserRole(profile.role || 'teacher');
+          setUserName(profile.full_name || '이름없음');
+        }
+      } catch (err) {
+        console.error("Profile fetch error:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [session]);
+
+  // Hydration 이슈 방지: 클라이언트 마운트 전까지는 빈 화면 또는 로더 유지
+  if (!isHydrated) return null;
 
   // 데이터를 불러오는 동안 보여줄 로딩 화면
   if (loading) return (
@@ -75,7 +85,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#f8fafc] py-6 px-2 md:py-12 md:px-8 text-black font-sans">
       <div className="max-w-7xl mx-auto">
-        <Header session={session} userRole={userRole} userName={userName} />
+        <Header session={session} userRole={userRole} userName={userName} userId={session.user.id} />
 
         <div className="grid grid-cols-1 gap-10">
           {/* 💡 Calendar에 현재 유저 정보와 권한을 넘겨줍니다. */}

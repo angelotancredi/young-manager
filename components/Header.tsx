@@ -1,21 +1,50 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
-import { LogOut, ShieldCheck, UserCircle, UserPlus } from 'lucide-react';
+import { LogOut, ShieldCheck, UserCircle, UserPlus, Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AlertModal from './AlertModal';
-import { useState } from 'react';
+import NoticePanel from './NoticePanel';
+import { useState, useEffect, useCallback } from 'react';
 
 interface HeaderProps {
     session: any;
     userRole: string | null;
     userName?: string;
+    userId?: string;
 }
 
-export default function Header({ session, userRole, userName }: HeaderProps) {
+export default function Header({ session, userRole, userName, userId }: HeaderProps) {
     const router = useRouter();
     const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [isNoticeOpen, setIsNoticeOpen] = useState(false);
+    const [hasUnread, setHasUnread] = useState(false);
+
+    // 미읽음 공지 체크
+    const checkUnread = useCallback(async () => {
+        if (!userId) return;
+        try {
+            // 전체 공지 수
+            const { count: totalCount } = await supabase
+                .from('notices')
+                .select('*', { count: 'exact', head: true });
+
+            // 내가 읽은 공지 수
+            const { count: readCount } = await supabase
+                .from('notice_reads')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId);
+
+            setHasUnread((totalCount || 0) > (readCount || 0));
+        } catch (err) {
+            console.error('Unread check error:', err);
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        checkUnread();
+    }, [checkUnread]);
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -31,10 +60,19 @@ export default function Header({ session, userRole, userName }: HeaderProps) {
 
     return (
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 px-4 gap-6">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex items-center justify-between w-full md:w-auto">
                 <h1 className="text-4xl font-bold text-slate-900 tracking-tighter italic">
                     Young.심 <span className="text-emerald-600">Manager</span>
                 </h1>
+                <button
+                    onClick={() => setIsNoticeOpen(true)}
+                    className="p-2.5 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all active:scale-90 relative"
+                >
+                    <Bell size={26} strokeWidth={2.2} className={hasUnread ? 'bell-wiggle' : ''} />
+                    {hasUnread && (
+                        <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-red-500 rounded-full border-2 border-white" />
+                    )}
+                </button>
             </div>
 
             <div className="flex flex-col items-end gap-3 w-full md:w-auto flex-1">
@@ -86,6 +124,16 @@ export default function Header({ session, userRole, userName }: HeaderProps) {
                 isOpen={isAlertOpen}
                 onClose={() => setIsAlertOpen(false)}
                 message={`학생 관리는 관리자(원장님) 계정으로만\n접근 가능합니다.`}
+            />
+
+            <NoticePanel
+                isOpen={isNoticeOpen}
+                onClose={() => {
+                    setIsNoticeOpen(false);
+                    checkUnread();
+                }}
+                userRole={userRole}
+                userId={userId}
             />
         </header>
     );
