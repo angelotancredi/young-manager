@@ -201,7 +201,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
             />
 
             <div
-                className={`fixed top-0 right-0 z-[70] w-[85%] max-w-md h-full bg-[#f8fafc] shadow-2xl transition-transform duration-300 ease-in-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                className={`fixed top-0 right-0 z-[70] w-full md:max-w-md h-full bg-[#f8fafc] shadow-2xl transition-transform duration-300 ease-in-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
             >
                 <div className="flex flex-col h-full">
                     {/* 디자인 레이아웃 유지: 헤더 */}
