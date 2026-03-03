@@ -17,7 +17,7 @@ export default function Header({ session, userRole, userName }: HeaderProps) {
     };
 
     return (
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 px-4 gap-6">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 px-4 gap-6">
             <div>
                 <h1 className="text-4xl font-black text-slate-900 tracking-tighter italic">
                     Young <span className="text-emerald-600">Manager</span>
