@@ -122,20 +122,26 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
             const requesterIds = [...new Set(reqs.map(r => r.requester_id).filter(Boolean))];
             const studentIds = [...new Set(reqs.map(r => r.student_id).filter(Boolean))];
 
-            const [{ data: profiles }, { data: studs }] = await Promise.all([
+            const scheduleIds = [...new Set(reqs.map(r => r.schedule_id).filter(Boolean))];
+
+            const [{ data: profiles }, { data: studs }, { data: scheds }] = await Promise.all([
                 requesterIds.length > 0 ? supabase.from('profiles').select('id, full_name').in('id', requesterIds) : { data: [] },
-                studentIds.length > 0 ? supabase.from('students').select('id, name').in('id', studentIds) : { data: [] }
+                studentIds.length > 0 ? supabase.from('students').select('id, name').in('id', studentIds) : { data: [] },
+                scheduleIds.length > 0 ? supabase.from('schedules').select('id, date, time').in('id', scheduleIds) : { data: [] }
             ]);
 
             const profileMap: Record<string, string> = {};
             (profiles || []).forEach((p: any) => { profileMap[p.id] = p.full_name; });
             const studentMap: Record<string, string> = {};
             (studs || []).forEach((s: any) => { studentMap[s.id] = s.name; });
+            const schedMap: Record<string, any> = {};
+            (scheds || []).forEach((sc: any) => { schedMap[sc.id] = sc; });
 
             setRequests(reqs.map(r => ({
                 ...r,
                 profiles: { full_name: profileMap[r.requester_id] || '알 수 없음' },
-                students: { name: studentMap[r.student_id] || '학생' }
+                students: { name: studentMap[r.student_id] || '학생' },
+                schedule: schedMap[r.schedule_id] || null
             })));
         } catch (err) {
             console.error('요청 조회 예외:', err);
@@ -510,6 +516,7 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
                                             </div>
                                             <div className="text-[12px] text-slate-500 space-y-1">
                                                 <p>요청자: <span className="font-semibold text-slate-700">{req.profiles?.full_name}</span></p>
+                                                {req.schedule && <p>수업일시: <span className="font-semibold text-slate-700">{req.schedule.date} ({req.schedule.time?.substring(0, 5)})</span></p>}
                                                 <p>변경희망일시: <span className="font-semibold text-blue-600">{req.requested_date} ({req.content?.match(/희망시간: (\d{2}:\d{2})/)?.[1] || ''})</span></p>
                                                 {(() => { const m = req.content?.match(/사유: ([\s\S]+)/); return m ? <p>사유: <span className="font-semibold text-slate-700">{m[1]}</span></p> : null; })()}
                                                 {req.status === 'rejected' && req.admin_comment && (

@@ -18,8 +18,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
     const [requestSaving, setRequestSaving] = useState(false);
     const [requestHour, setRequestHour] = useState('14');
     const [requestMinute, setRequestMinute] = useState('00');
-    const [requestAlert, setRequestAlert] = useState('');
-
+    const [requestAlert, setRequestAlert] = useState<{ title: string; message: string } | null>(null);
+    const [duplicateConfirm, setDuplicateConfirm] = useState<{ schedule: any; message: string } | null>(null);
     // 💡 1. 컴포넌트 로드 시 해당 날짜의 출석 데이터 및 전체 학생 목록 불러올 것
     const fetchInitialData = useCallback(async () => {
         if (!date || !isOpen) return;
@@ -333,8 +333,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                                     const msg = st === 'pending' ? '이미 대기중인 요청이 있습니다.\n다시 요청하시겠습니까?'
                                                                         : st === 'approved' ? '이미 승인된 요청이 있습니다.\n다시 요청하시겠습니까?'
                                                                             : '거절된 요청이 있습니다.\n다시 요청하시겠습니까?';
-                                                                    const ok = window.confirm(msg);
-                                                                    if (!ok) return;
+                                                                    setDuplicateConfirm({ schedule: s, message: msg });
+                                                                    return;
                                                                 }
                                                             } catch (e) {
                                                                 console.error('중복체크 실패:', e);
@@ -499,10 +499,10 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                             setRequestSaving(false);
                                             if (!error) {
                                                 setRequestTarget(null);
-                                                setRequestAlert('일정변경 요청이\n전송되었습니다.');
+                                                setRequestAlert({ title: '일정변경 요청', message: '일정변경 요청이\n전송되었습니다.' });
                                             } else {
                                                 console.error('요청 실패:', error);
-                                                setRequestAlert('요청 실패: ' + error.message);
+                                                setRequestAlert({ title: '요청 실패', message: '요청 실패: ' + error.message });
                                             }
                                         }}
                                         className="flex-1 py-3.5 bg-amber-500 text-white rounded-xl font-bold shadow-lg shadow-amber-100 hover:bg-amber-600 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
@@ -517,10 +517,44 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
             }
             <AlertModal
                 isOpen={!!requestAlert}
-                onClose={() => setRequestAlert('')}
-                title="일정변경 요청"
-                message={requestAlert}
+                onClose={() => setRequestAlert(null)}
+                title={requestAlert?.title || ''}
+                message={requestAlert?.message || ''}
             />
+            {/* 중복 요청 확인 모달 */}
+            {duplicateConfirm && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-6">
+                    <div className="bg-white w-full max-w-sm rounded-[2rem] p-8 text-center shadow-2xl">
+                        <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <CalendarIcon size={28} className="text-amber-500" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900 mb-2">중복 요청</h3>
+                        <p className="text-slate-500 text-sm font-medium mb-6 whitespace-pre-line">{duplicateConfirm.message}</p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setDuplicateConfirm(null)}
+                                className="flex-1 py-3.5 font-bold text-slate-400 hover:text-slate-600 transition-colors rounded-xl"
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const s = duplicateConfirm.schedule;
+                                    setDuplicateConfirm(null);
+                                    setRequestTarget(s);
+                                    setRequestDate('');
+                                    setRequestContent('');
+                                    setRequestHour('14');
+                                    setRequestMinute('00');
+                                }}
+                                className="flex-1 py-3.5 bg-amber-500 text-white rounded-xl font-bold shadow-lg shadow-amber-100 hover:bg-amber-600 active:scale-95 transition-all"
+                            >
+                                계속 요청
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
