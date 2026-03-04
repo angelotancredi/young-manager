@@ -100,6 +100,20 @@ export default function TeacherManagement() {
         setDeleteTarget(null);
     };
 
+    // 활성/비활성 전환
+    const handleToggleActive = async (teacher: any) => {
+        const newActive = !teacher.is_active;
+        const { error } = await supabase
+            .from('profiles')
+            .update({ is_active: newActive })
+            .eq('id', teacher.id);
+
+        if (!error) {
+            setAlertMessage({ title: newActive ? '활성화' : '비활성화', message: `${teacher.full_name}님이 ${newActive ? '활성화' : '비활성화'}되었습니다.` });
+            fetchTeachers();
+        }
+    };
+
     const filteredTeachers = teachers.filter(t =>
         (t.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (t.email || '').toLowerCase().includes(searchQuery.toLowerCase())
@@ -107,6 +121,19 @@ export default function TeacherManagement() {
 
     const adminCount = teachers.filter(t => t.role === 'admin').length;
     const teacherCount = teachers.filter(t => t.role === 'teacher').length;
+    const inactiveCount = teachers.filter(t => t.is_active === false).length;
+
+    // 관리자 → 교사 → 비활성, 각 그룹 내 가나다순
+    const sortedTeachers = [...filteredTeachers].sort((a, b) => {
+        // 비활성은 항상 맨 뒤
+        if (a.is_active === false && b.is_active !== false) return 1;
+        if (a.is_active !== false && b.is_active === false) return -1;
+        // 관리자 우선
+        if (a.role === 'admin' && b.role !== 'admin') return -1;
+        if (a.role !== 'admin' && b.role === 'admin') return 1;
+        // 가나다순
+        return (a.full_name || '').localeCompare(b.full_name || '', 'ko');
+    });
 
     return (
         <div className="min-h-screen bg-[#f8fafc] font-sans text-slate-900 py-6 px-2 md:py-12 md:px-8">
@@ -119,7 +146,7 @@ export default function TeacherManagement() {
                             </h1>
                             <p className="text-slate-500 font-bold mt-1.5 flex items-center gap-1.5 px-1">
                                 <span className="inline-block w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                                전체 {teachers.length}명 (관리자 {adminCount} · 교사 {teacherCount})
+                                전체 {teachers.length}명 (관리자 {adminCount} · 교사 {teacherCount}{inactiveCount > 0 ? ` · 비활성 ${inactiveCount}` : ''})
                             </p>
                         </div>
                         <Link href="/" className="p-2.5 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95 mt-1">
@@ -145,11 +172,11 @@ export default function TeacherManagement() {
                         <div className="flex justify-center p-20"><Loader2 className="animate-spin text-blue-600" size={40} /></div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {filteredTeachers.map((teacher) => (
-                                <div key={teacher.id} className="bg-white py-4 px-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-100 transition-all group relative overflow-hidden">
+                            {sortedTeachers.map((teacher) => (
+                                <div key={teacher.id} className={`bg-white py-4 px-5 rounded-3xl border shadow-sm hover:shadow-md transition-all group relative overflow-hidden ${teacher.is_active === false ? 'opacity-50 border-slate-200 bg-slate-50' : 'border-slate-100 hover:border-blue-100'}`}>
                                     <div className="flex items-center gap-4">
                                         {/* 아바타 */}
-                                        <div className={`p-2.5 rounded-2xl shadow-sm ${teacher.role === 'admin' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
+                                        <div className={`p-2.5 rounded-2xl shadow-sm ${teacher.is_active === false ? 'bg-slate-100 text-slate-400' : teacher.role === 'admin' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
                                             {teacher.role === 'admin' ? <ShieldCheck size={28} /> : <UserCircle size={28} />}
                                         </div>
                                         {/* 정보 */}
@@ -159,6 +186,9 @@ export default function TeacherManagement() {
                                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${teacher.role === 'admin' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
                                                     {teacher.role === 'admin' ? '관리자' : '교사'}
                                                 </span>
+                                                {teacher.is_active === false && (
+                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-500">비활성</span>
+                                                )}
                                             </div>
                                             <div className="flex items-center gap-1.5 mt-1 text-slate-400">
                                                 <Mail size={12} />
@@ -180,10 +210,19 @@ export default function TeacherManagement() {
                                                 {teacher.role === 'admin' ? <><ToggleRight size={14} /> 교사로 변경</> : <><ToggleLeft size={14} /> 관리자로 변경</>}
                                             </button>
                                             <button
-                                                onClick={() => setDeleteTarget(teacher)}
-                                                className="py-2 px-4 bg-slate-50 text-slate-400 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-red-50 hover:text-red-500"
+                                                onClick={() => handleToggleActive(teacher)}
+                                                className={`flex-1 py-2 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all ${teacher.is_active === false
+                                                    ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
+                                                    : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
+                                                    }`}
                                             >
-                                                <Trash2 size={14} /> 삭제
+                                                {teacher.is_active === false ? '활성화' : '비활성화'}
+                                            </button>
+                                            <button
+                                                onClick={() => setDeleteTarget(teacher)}
+                                                className="py-2 px-3 bg-slate-50 text-slate-400 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-red-50 hover:text-red-500"
+                                            >
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
                                     )}

@@ -98,7 +98,7 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                 </button>
             </div>
 
-            <div className="flex flex-col items-end gap-3 w-full md:w-auto flex-1">
+            <div className="flex flex-col items-end gap-3 w-full md:w-auto flex-1 -mt-2.5">
                 {/* 💡 로그인 정보 표시줄 및 로그아웃 버튼 (우측 정렬) */}
                 {session && (
                     <div className="flex items-center gap-2 justify-end w-full md:w-auto">

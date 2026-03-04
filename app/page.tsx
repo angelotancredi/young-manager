@@ -52,11 +52,16 @@ export default function Home() {
       try {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role, full_name')
+          .select('role, full_name, is_active')
           .eq('id', session.user.id)
           .single();
 
         if (profile) {
+          if (profile.is_active === false) {
+            alert('비활성 계정입니다.\n관리자에게 문의하세요.');
+            await supabase.auth.signOut();
+            return;
+          }
           setUserRole(profile.role || 'teacher');
           setUserName(profile.full_name || '이름없음');
         }
