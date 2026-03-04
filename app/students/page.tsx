@@ -247,11 +247,11 @@ export default function StudentManagement() {
             {/* 등록 모달 */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-6 z-50">
-                    <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 md:p-10 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
+                    <div className="bg-white w-full max-w-md rounded-[2.5rem] p-5 md:p-6 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
                         {/* 모달 장식 */}
                         <div className="absolute top-0 left-0 w-full h-2 bg-emerald-500"></div>
 
-                        <h2 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                        <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-3">
                             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
                                 <UserPlus size={24} />
                             </div>
@@ -280,12 +280,12 @@ export default function StudentManagement() {
                                 <textarea placeholder="학생에 대한 간단한 메모를 남겨주세요" value={memo} onChange={e => setMemo(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all h-32 text-slate-900" />
                             </div>
 
-                            <div className="flex gap-3 pt-6">
+                            <div className="flex gap-3 pt-2">
                                 <button type="button" onClick={() => {
                                     setIsModalOpen(false);
                                     resetForm();
-                                }} className="flex-1 py-4 font-bold text-slate-400 hover:text-slate-600 transition-colors">취소</button>
-                                <button type="submit" className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 active:scale-95 transition-all">등록하기</button>
+                                }} className="flex-1 py-3 font-bold text-slate-400 hover:text-slate-600 transition-colors">취소</button>
+                                <button type="submit" className="flex-1 py-3 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 active:scale-95 transition-all">등록하기</button>
                             </div>
                         </form>
                     </div>
