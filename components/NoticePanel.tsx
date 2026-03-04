@@ -9,9 +9,10 @@ interface NoticePanelProps {
     onClose: () => void;
     userRole: string | null;
     userId?: string;
+    onStatusChange?: () => void;
 }
 
-export default function NoticePanel({ isOpen, onClose, userRole, userId }: NoticePanelProps) {
+export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatusChange }: NoticePanelProps) {
     const [notices, setNotices] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isWriting, setIsWriting] = useState(false);
@@ -104,17 +105,36 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId }: Notic
         try {
             let query = supabase
                 .from('schedule_requests')
-                .select('*, profiles:requester_id(full_name), students:student_id(name)')
+                .select('*')
                 .order('created_at', { ascending: false });
 
-            // 교사는 본인 요청만
             if (userRole !== 'admin' && userId) {
                 query = query.eq('requester_id', userId);
             }
 
             const { data, error } = await query;
-            if (error) console.error('요청 조회 에러:', error);
-            setRequests(data || []);
+            if (error) { console.error('요청 조회 에러:', error); setRequests([]); return; }
+
+            const reqs = data || [];
+            // 요청자/학생 이름 매핑
+            const requesterIds = [...new Set(reqs.map(r => r.requester_id).filter(Boolean))];
+            const studentIds = [...new Set(reqs.map(r => r.student_id).filter(Boolean))];
+
+            const [{ data: profiles }, { data: studs }] = await Promise.all([
+                requesterIds.length > 0 ? supabase.from('profiles').select('id, full_name').in('id', requesterIds) : { data: [] },
+                studentIds.length > 0 ? supabase.from('students').select('id, name').in('id', studentIds) : { data: [] }
+            ]);
+
+            const profileMap: Record<string, string> = {};
+            (profiles || []).forEach((p: any) => { profileMap[p.id] = p.full_name; });
+            const studentMap: Record<string, string> = {};
+            (studs || []).forEach((s: any) => { studentMap[s.id] = s.name; });
+
+            setRequests(reqs.map(r => ({
+                ...r,
+                profiles: { full_name: profileMap[r.requester_id] || '알 수 없음' },
+                students: { name: studentMap[r.student_id] || '학생' }
+            })));
         } catch (err) {
             console.error('요청 조회 예외:', err);
         } finally {
@@ -128,7 +148,16 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId }: Notic
             .from('schedule_requests')
             .update({ status: action, processed_at: new Date().toISOString() })
             .eq('id', requestId);
-        if (!error) fetchRequests();
+        if (!error) { fetchRequests(); onStatusChange?.(); }
+    };
+
+    // 관리자: 요청 삭제
+    const handleDeleteRequest = async (requestId: string) => {
+        const { error } = await supabase
+            .from('schedule_requests')
+            .delete()
+            .eq('id', requestId);
+        if (!error) { fetchRequests(); onStatusChange?.(); }
     };
 
     // 읽음 처리: 모든 공지에 대해 notice_reads 삽입
@@ -433,22 +462,32 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId }: Notic
                                             </div>
                                             <div className="text-[12px] text-slate-500 space-y-1">
                                                 <p>요청자: <span className="font-semibold text-slate-700">{req.profiles?.full_name}</span></p>
-                                                <p>변경 희망일: <span className="font-semibold text-blue-600">{req.requested_date}</span></p>
-                                                {req.content && <p className="text-slate-400 mt-1">사유: {req.content}</p>}
+                                                <p>변경희망일시: <span className="font-semibold text-blue-600">{req.requested_date} ({req.content?.match(/희망시간: (\d{2}:\d{2})/)?.[1] || ''})</span></p>
+                                                {(() => { const m = req.content?.match(/사유: ([\s\S]+)/); return m ? <p>사유: <span className="font-semibold text-slate-700">{m[1]}</span></p> : null; })()}
                                             </div>
-                                            {userRole === 'admin' && req.status === 'pending' && (
+                                            {userRole === 'admin' && (
                                                 <div className="flex gap-2 mt-3 pt-2.5 border-t border-slate-100">
+                                                    {req.status === 'pending' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleRequestAction(req.id, 'approved')}
+                                                                className="flex-1 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-emerald-100"
+                                                            >
+                                                                <Check size={14} /> 승인
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleRequestAction(req.id, 'rejected')}
+                                                                className="flex-1 py-2 bg-red-50 text-red-500 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-red-100"
+                                                            >
+                                                                <XCircle size={14} /> 거절
+                                                            </button>
+                                                        </>
+                                                    )}
                                                     <button
-                                                        onClick={() => handleRequestAction(req.id, 'approved')}
-                                                        className="flex-1 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-emerald-100"
+                                                        onClick={() => handleDeleteRequest(req.id)}
+                                                        className="flex-1 py-2 bg-slate-50 text-slate-400 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-slate-100 hover:text-red-500"
                                                     >
-                                                        <Check size={14} /> 승인
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleRequestAction(req.id, 'rejected')}
-                                                        className="flex-1 py-2 bg-red-50 text-red-500 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-red-100"
-                                                    >
-                                                        <XCircle size={14} /> 거절
+                                                        <Trash2 size={14} /> 삭제
                                                     </button>
                                                 </div>
                                             )}

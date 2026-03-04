@@ -66,6 +66,19 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
         fetchInitialData();
     }, [fetchInitialData]);
 
+    // Supabase Realtime: schedules 테이블 변경 감지 → 자동 새로고침
+    useEffect(() => {
+        if (!isOpen) return;
+        const channel = supabase
+            .channel('schedules-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'schedules' }, () => {
+                onRefresh?.();
+                fetchInitialData();
+            })
+            .subscribe();
+        return () => { supabase.removeChannel(channel); };
+    }, [isOpen]);
+
     // 💡 2. 출석부(attendance) DB 쓰기 로직 (수동 Upsert 처리)
     // Supabase native upsert의 on_conflict 에러(유니크 제약 조건 누락) 회피를 위해 
     // 존재 여부 확인 후 분기 처리하는 방식으로 안정성 확보
@@ -308,16 +321,19 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                 <div className="shrink-0">
                                                     <button
                                                         onClick={async () => {
-                                                            // 중복 요청 체크
-                                                            const { data: existing } = await supabase
-                                                                .from('schedule_requests')
-                                                                .select('id')
-                                                                .eq('schedule_id', s.id)
-                                                                .eq('status', 'pending')
-                                                                .limit(1);
-                                                            if (existing && existing.length > 0) {
-                                                                const ok = window.confirm('이미 요청된 수업입니다.\n다시 요청하시겠습니까?');
-                                                                if (!ok) return;
+                                                            try {
+                                                                const { data: existing } = await supabase
+                                                                    .from('schedule_requests')
+                                                                    .select('id')
+                                                                    .eq('schedule_id', s.id)
+                                                                    .eq('status', 'pending')
+                                                                    .limit(1);
+                                                                if (existing && existing.length > 0) {
+                                                                    const ok = window.confirm('이미 요청된 수업입니다.\n다시 요청하시겠습니까?');
+                                                                    if (!ok) return;
+                                                                }
+                                                            } catch (e) {
+                                                                console.error('중복체크 실패:', e);
                                                             }
                                                             setRequestTarget(s);
                                                             setRequestDate('');
@@ -354,21 +370,23 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                     <Plus size={30} strokeWidth={1.5} className="text-slate-200" />
                                 </div>
                                 <p className="font-medium text-slate-400">등록된 수업이 없습니다.</p>
-                                <p className="text-[11px] mt-1 text-slate-300">아래 버튼을 눌러 수업을 추가하세요.</p>
+                                {userRole === 'admin' && <p className="text-[11px] mt-1 text-slate-300">아래 버튼을 눌러 수업을 추가하세요.</p>}
                             </div>
                         )}
                     </div>
 
                     {/* 하단 영역 */}
-                    <div className="p-6 bg-white border-t border-slate-100 pb-10">
-                        <button
-                            onClick={onAdd}
-                            className="w-full py-5 bg-emerald-600 text-white rounded-2xl shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all text-lg font-bold"
-                        >
-                            <UserPlus size={22} strokeWidth={2.5} />
-                            <span>새 수업 등록하기</span>
-                        </button>
-                    </div>
+                    {userRole === 'admin' && (
+                        <div className="p-6 bg-white border-t border-slate-100 pb-10">
+                            <button
+                                onClick={onAdd}
+                                className="w-full py-5 bg-emerald-600 text-white rounded-2xl shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all text-lg font-bold"
+                            >
+                                <UserPlus size={22} strokeWidth={2.5} />
+                                <span>새 수업 등록하기</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
             {/* 삭제 확인 모달 */}

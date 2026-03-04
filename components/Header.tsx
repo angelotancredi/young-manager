@@ -36,11 +36,23 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', userId);
 
-            setHasUnread((totalCount || 0) > (readCount || 0));
+            const hasUnreadNotices = (totalCount || 0) > (readCount || 0);
+
+            // 관리자: pending 요청 체크
+            let hasPendingRequests = false;
+            if (userRole === 'admin') {
+                const { count: pendingCount } = await supabase
+                    .from('schedule_requests')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'pending');
+                hasPendingRequests = (pendingCount || 0) > 0;
+            }
+
+            setHasUnread(hasUnreadNotices || hasPendingRequests);
         } catch (err) {
             console.error('Unread check error:', err);
         }
-    }, [userId]);
+    }, [userId, userRole]);
 
     useEffect(() => {
         checkUnread();
@@ -134,6 +146,7 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                 }}
                 userRole={userRole}
                 userId={userId}
+                onStatusChange={checkUnread}
             />
         </header>
     );
