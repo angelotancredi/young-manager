@@ -116,49 +116,54 @@ export default function StudentStats({ studentId, studentName }: StudentStatsPro
     }
 
     return (
-        <div className="flex flex-col space-y-6">
-            <div className="bg-slate-50 rounded-2xl p-6 relative overflow-hidden mt-2">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl -mt-10 -mr-10"></div>
-                <div className="relative z-10">
-                    <h4 className="text-slate-500 font-bold text-xs mb-1">전체 누적 출석률</h4>
-                    <div className="flex items-end gap-2">
-                        <span className="text-4xl font-black text-slate-800">{stats.attendanceRate}%</span>
-                        <span className="text-sm font-medium text-slate-400 mb-1.5 border-l border-slate-300 pl-2">총 {stats.total}회 수업</span>
+        <div className="flex flex-col h-full space-y-3 overflow-hidden">
+            <div className="shrink-0 space-y-3">
+                <div className="bg-slate-50 rounded-2xl p-4 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl -mt-10 -mr-10"></div>
+                    <div className="relative z-10">
+                        <h4 className="text-slate-500 font-bold text-xs mb-1">전체 누적 출석률</h4>
+                        <div className="flex items-end gap-2">
+                            <span className="text-4xl font-black text-slate-800">{stats.attendanceRate}%</span>
+                            <span className="text-sm font-medium text-slate-400 mb-1.5 border-l border-slate-300 pl-2">총 {stats.total}회 수업</span>
+                        </div>
+                        {stats.total > 0 && stats.attendanceRate >= 90 ? (
+                            <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
+                                <TrendingUp size={14} /> 아주 우수한 출석률입니다!
+                            </p>
+                        ) : stats.total > 0 && stats.attendanceRate < 70 ? (
+                            <p className="text-xs text-amber-500 font-bold mt-2 flex items-center gap-1">
+                                <AlertCircle size={14} /> 출석 관리가 필요합니다.
+                            </p>
+                        ) : null}
                     </div>
-                    {stats.total > 0 && stats.attendanceRate >= 90 ? (
-                        <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
-                            <TrendingUp size={14} /> 아주 우수한 출석률입니다!
-                        </p>
-                    ) : stats.total > 0 && stats.attendanceRate < 70 ? (
-                        <p className="text-xs text-amber-500 font-bold mt-2 flex items-center gap-1">
-                            <AlertCircle size={14} /> 출석 관리가 필요합니다.
-                        </p>
-                    ) : null}
                 </div>
-            </div>
 
-            <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center gap-1">
-                    <p className="text-xs font-medium text-slate-400">출석</p>
-                    <p className="text-xl font-bold text-emerald-600">{stats.present}</p>
+                <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-white border border-slate-100 rounded-2xl py-2.5 px-4 shadow-sm flex flex-col items-center justify-center gap-1">
+                        <p className="text-xs font-medium text-slate-400">출석</p>
+                        <p className="text-xl font-bold text-emerald-600">{stats.present}</p>
+                    </div>
+                    <div className="bg-white border border-slate-100 rounded-2xl py-2.5 px-4 shadow-sm flex flex-col items-center justify-center gap-1">
+                        <p className="text-xs font-medium text-slate-400">결석</p>
+                        <p className="text-xl font-bold text-rose-500">{stats.absent}</p>
+                    </div>
+                    <div className="bg-white border border-slate-100 rounded-2xl py-2.5 px-4 shadow-sm flex flex-col items-center justify-center gap-1">
+                        <p className="text-xs font-medium text-slate-400">보강</p>
+                        <p className="text-xl font-bold text-blue-500">{stats.makeup}</p>
+                    </div>
                 </div>
-                <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center gap-1">
-                    <p className="text-xs font-medium text-slate-400">결석</p>
-                    <p className="text-xl font-bold text-rose-500">{stats.absent}</p>
-                </div>
-                <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center gap-1">
-                    <p className="text-xs font-medium text-slate-400">보강</p>
-                    <p className="text-xl font-bold text-blue-500">{stats.makeup}</p>
-                </div>
-            </div>
 
-            {records.length > 0 ? (
-                <div className="mt-4">
-                    <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                {records.length > 0 && (
+                    <h4 className="text-sm font-bold text-slate-800 mb-1 flex items-center gap-2 mt-2">
                         <Calendar size={16} className="text-emerald-500" />
                         상세 출결 기록
                     </h4>
-                    <div className="space-y-1.5">
+                )}
+            </div>
+
+            {records.length > 0 ? (
+                <div className="flex-1 overflow-y-auto pr-0.5 custom-scrollbar">
+                    <div className="space-y-1.5 pb-4">
                         {records.map((record) => (
                             <div key={record.id} className="flex flex-row items-center justify-between py-1.5 px-3 bg-white border border-slate-100 rounded-xl hover:border-emerald-100 transition-colors">
                                 <div className="flex items-center gap-2.5">
@@ -176,7 +181,7 @@ export default function StudentStats({ studentId, studentName }: StudentStatsPro
                     </div>
                 </div>
             ) : (
-                <div className="text-center py-8">
+                <div className="text-center py-8 shrink-0">
                     <p className="text-slate-400 font-medium text-sm">아직 {studentName} 학생의 출결 기록이 없습니다.</p>
                 </div>
             )}

@@ -359,7 +359,7 @@ export default function StudentManagement() {
                                     </form>
                                 </div>
                             ) : isStatsView ? (
-                                <div className="flex-1 overflow-y-auto p-5">
+                                <div className="flex-1 flex flex-col pt-2 px-5 pb-5 overflow-hidden">
                                     <StudentStats studentId={selectedStudent.id} studentName={selectedStudent.name} />
                                 </div>
                             ) : (
