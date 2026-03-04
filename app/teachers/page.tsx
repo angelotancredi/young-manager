@@ -138,9 +138,9 @@ export default function TeacherManagement() {
     });
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] font-sans text-slate-900 py-6 px-2 md:py-12 md:px-8">
-            <div className="max-w-7xl mx-auto">
-                <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 px-4 gap-6">
+        <div className="h-[100dvh] bg-[#f8fafc] font-sans text-slate-900 flex flex-col py-6 px-2 md:py-12 md:px-8">
+            <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 min-h-0">
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 px-4 gap-6 shrink-0">
                     <div className="flex items-start justify-between w-full md:w-auto md:justify-start md:gap-8">
                         <div>
                             <h1 className="text-4xl font-bold tracking-tighter text-slate-900 italic">
@@ -157,9 +157,9 @@ export default function TeacherManagement() {
                     </div>
                 </header>
 
-                <div className="px-4">
+                <div className="px-4 flex flex-col flex-1 min-h-0">
                     {/* 검색 바 */}
-                    <div className="relative mb-8 group">
+                    <div className="relative mb-8 group shrink-0">
                         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
                         <input
                             type="text"
@@ -171,74 +171,76 @@ export default function TeacherManagement() {
                     </div>
 
                     {isLoading ? (
-                        <div className="flex justify-center p-20"><Loader2 className="animate-spin text-blue-600" size={40} /></div>
+                        <div className="flex justify-center p-20 shrink-0"><Loader2 className="animate-spin text-blue-600" size={40} /></div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {sortedTeachers.map((teacher) => (
-                                <div key={teacher.id} className={`bg-white py-4 px-5 rounded-3xl border shadow-sm hover:shadow-md transition-all group relative overflow-hidden ${teacher.is_active === false ? 'opacity-50 border-slate-200 bg-slate-50' : 'border-slate-100 hover:border-blue-100'}`}>
-                                    <div className="flex items-center gap-4">
-                                        {/* 아바타 */}
-                                        <div className={`p-2.5 rounded-2xl shadow-sm ${teacher.is_active === false ? 'bg-slate-100 text-slate-400' : teacher.role === 'admin' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
-                                            {teacher.role === 'admin' ? <ShieldCheck size={28} /> : <UserCircle size={28} />}
-                                        </div>
-                                        {/* 정보 */}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="text-xl font-bold text-slate-800 truncate">{teacher.full_name || '이름 없음'}</h3>
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${teacher.role === 'admin' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
-                                                    {teacher.role === 'admin' ? '관리자' : '교사'}
-                                                </span>
-                                                {teacher.is_active === false && (
-                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-500">비활성</span>
-                                                )}
+                        <div className="flex-1 overflow-y-auto pb-10 -mx-2 px-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {sortedTeachers.map((teacher) => (
+                                    <div key={teacher.id} className={`bg-white py-4 px-5 rounded-3xl border shadow-sm hover:shadow-md transition-all group relative overflow-hidden ${teacher.is_active === false ? 'opacity-50 border-slate-200 bg-slate-50' : 'border-slate-100 hover:border-blue-100'}`}>
+                                        <div className="flex items-center gap-4">
+                                            {/* 아바타 */}
+                                            <div className={`p-2.5 rounded-2xl shadow-sm ${teacher.is_active === false ? 'bg-slate-100 text-slate-400' : teacher.role === 'admin' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
+                                                {teacher.role === 'admin' ? <ShieldCheck size={28} /> : <UserCircle size={28} />}
                                             </div>
-                                            <div className="flex items-center gap-1.5 mt-1 text-slate-400">
-                                                <Mail size={12} />
-                                                <span className="text-xs font-medium truncate">{teacher.email || '-'}</span>
+                                            {/* 정보 */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="text-xl font-bold text-slate-800 truncate">{teacher.full_name || '이름 없음'}</h3>
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${teacher.role === 'admin' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
+                                                        {teacher.role === 'admin' ? '관리자' : '교사'}
+                                                    </span>
+                                                    {teacher.is_active === false && (
+                                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-500">비활성</span>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-1.5 mt-1 text-slate-400">
+                                                    <Mail size={12} />
+                                                    <span className="text-xs font-medium truncate">{teacher.email || '-'}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    {/* 하단 액션 버튼 */}
-                                    {userRole === 'admin' && (
-                                        <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
-                                            <button
-                                                onClick={() => handleToggleRole(teacher)}
-                                                className={`flex-1 py-2 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all ${teacher.role === 'admin'
-                                                    ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                                                    : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
-                                                    }`}
-                                            >
-                                                {teacher.role === 'admin' ? <><ToggleRight size={14} /> 교사로 변경</> : <><ToggleLeft size={14} /> 관리자로 변경</>}
-                                            </button>
-                                            <button
-                                                onClick={() => handleToggleActive(teacher)}
-                                                className={`flex-1 py-2 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all ${teacher.is_active === false
-                                                    ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
-                                                    : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
-                                                    }`}
-                                            >
-                                                {teacher.is_active === false ? '활성화' : '비활성화'}
-                                            </button>
-                                            <button
-                                                onClick={() => setDeleteTarget(teacher)}
-                                                className="py-2 px-3 bg-slate-50 text-slate-400 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-red-50 hover:text-red-500"
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
+                                        {/* 하단 액션 버튼 */}
+                                        {userRole === 'admin' && (
+                                            <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
+                                                <button
+                                                    onClick={() => handleToggleRole(teacher)}
+                                                    className={`flex-1 py-2 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all ${teacher.role === 'admin'
+                                                        ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                                                        : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
+                                                        }`}
+                                                >
+                                                    {teacher.role === 'admin' ? <><ToggleRight size={14} /> 교사로 변경</> : <><ToggleLeft size={14} /> 관리자로 변경</>}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleToggleActive(teacher)}
+                                                    className={`flex-1 py-2 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all ${teacher.is_active === false
+                                                        ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
+                                                        : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
+                                                        }`}
+                                                >
+                                                    {teacher.is_active === false ? '활성화' : '비활성화'}
+                                                </button>
+                                                <button
+                                                    onClick={() => setDeleteTarget(teacher)}
+                                                    className="py-2 px-3 bg-slate-50 text-slate-400 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-red-50 hover:text-red-500"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+
+                                {filteredTeachers.length === 0 && (
+                                    <div className="col-span-full py-20 text-center">
+                                        <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-3xl mb-4">
+                                            <Search size={24} className="text-slate-300" />
                                         </div>
-                                    )}
-                                </div>
-                            ))}
-
-                            {filteredTeachers.length === 0 && (
-                                <div className="col-span-full py-20 text-center">
-                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-3xl mb-4">
-                                        <Search size={24} className="text-slate-300" />
+                                        <p className="text-slate-400 font-bold">등록된 선생님이 없습니다.</p>
                                     </div>
-                                    <p className="text-slate-400 font-bold">등록된 선생님이 없습니다.</p>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>

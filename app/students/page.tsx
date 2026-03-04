@@ -179,10 +179,10 @@ export default function StudentManagement() {
         });
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] font-sans text-slate-900 py-6 px-2 md:py-12 md:px-8">
-            <div className="max-w-7xl mx-auto">
+        <div className="h-[100dvh] bg-[#f8fafc] font-sans text-slate-900 flex flex-col py-6 px-2 md:py-12 md:px-8">
+            <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 min-h-0">
                 {/* 상단 헤더 영역 (Header.tsx 구조 복제) */}
-                <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 px-4 gap-6">
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 px-4 gap-6 shrink-0">
                     <div className="flex items-start justify-between w-full md:w-auto md:justify-start md:gap-8">
                         <div>
                             <h1 className="text-4xl font-bold tracking-tighter text-slate-900 italic">
@@ -216,9 +216,9 @@ export default function StudentManagement() {
                     </div>
                 </header>
 
-                <div className="px-4">
+                <div className="px-4 flex flex-col flex-1 min-h-0">
                     {/* 검색 바 */}
-                    <div className="relative mb-5 group">
+                    <div className="relative mb-5 group shrink-0">
                         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-emerald-500 transition-colors" />
                         <input
                             type="text"
@@ -230,38 +230,40 @@ export default function StudentManagement() {
                     </div>
 
                     {isLoading ? (
-                        <div className="flex justify-center p-20"><Loader2 className="animate-spin text-emerald-600" size={40} /></div>
+                        <div className="flex justify-center p-20 shrink-0"><Loader2 className="animate-spin text-emerald-600" size={40} /></div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
-                            {filteredStudents.map((student) => (
-                                <button
-                                    key={student.id}
-                                    onClick={() => setSelectedStudent(student)}
-                                    className={`py-3.5 px-4 rounded-2xl border shadow-sm hover:shadow-md transition-all active:scale-[0.97] flex items-center gap-3 text-left ${student.is_active === false
-                                        ? 'bg-slate-50 border-slate-200 opacity-50'
-                                        : 'bg-white border-slate-100 hover:border-emerald-200'
-                                        }`}
-                                >
-                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${student.is_active === false
-                                        ? 'bg-slate-100 text-slate-400'
-                                        : 'bg-emerald-50 text-emerald-600'
-                                        }`}>
-                                        <UserCircle size={20} />
-                                    </div>
-                                    <span className={`text-[15px] font-bold truncate ${student.is_active === false ? 'text-slate-400' : 'text-slate-800'
-                                        }`}>{student.name}</span>
-                                    <ChevronRight size={14} className="text-slate-300 ml-auto shrink-0" />
-                                </button>
-                            ))}
+                        <div className="flex-1 overflow-y-auto pb-10 -mx-2 px-2">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                                {filteredStudents.map((student) => (
+                                    <button
+                                        key={student.id}
+                                        onClick={() => setSelectedStudent(student)}
+                                        className={`py-3.5 px-4 rounded-2xl border shadow-sm hover:shadow-md transition-all active:scale-[0.97] flex items-center gap-3 text-left ${student.is_active === false
+                                            ? 'bg-slate-50 border-slate-200 opacity-50'
+                                            : 'bg-white border-slate-100 hover:border-emerald-200'
+                                            }`}
+                                    >
+                                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${student.is_active === false
+                                            ? 'bg-slate-100 text-slate-400'
+                                            : 'bg-emerald-50 text-emerald-600'
+                                            }`}>
+                                            <UserCircle size={20} />
+                                        </div>
+                                        <span className={`text-[15px] font-bold truncate ${student.is_active === false ? 'text-slate-400' : 'text-slate-800'
+                                            }`}>{student.name}</span>
+                                        <ChevronRight size={14} className="text-slate-300 ml-auto shrink-0" />
+                                    </button>
+                                ))}
 
-                            {filteredStudents.length === 0 && (
-                                <div className="col-span-full py-20 text-center">
-                                    <div className="inline-flex items-center justify-center w-14 h-14 bg-slate-50 rounded-2xl mb-3">
-                                        <Search size={22} className="text-slate-300" />
+                                {filteredStudents.length === 0 && (
+                                    <div className="col-span-full py-20 text-center">
+                                        <div className="inline-flex items-center justify-center w-14 h-14 bg-slate-50 rounded-2xl mb-3">
+                                            <Search size={22} className="text-slate-300" />
+                                        </div>
+                                        <p className="text-slate-400 font-bold text-sm">찾으시는 학생이 없습니다.</p>
                                     </div>
-                                    <p className="text-slate-400 font-bold text-sm">찾으시는 학생이 없습니다.</p>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
