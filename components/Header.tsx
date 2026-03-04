@@ -82,7 +82,7 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
     };
 
     return (
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 px-4 gap-6">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 px-4 gap-6">
             <div className="flex-shrink-0 flex items-center justify-between w-full md:w-auto">
                 <h1 className="text-4xl font-bold text-slate-900 tracking-tighter italic">
                     Young.심 <span className="text-emerald-600">Manager</span>
