@@ -286,7 +286,7 @@ export default function StudentManagement() {
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-bold text-slate-900">{selectedStudent.name}</h3>
-                                        <p className="text-xs text-slate-400 font-medium">학생 정보</p>
+                                        <p className="text-xs text-slate-400 font-medium">{isEditing ? '학생 정보 수정' : '학생 정보'}</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
