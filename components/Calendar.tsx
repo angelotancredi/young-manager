@@ -197,7 +197,9 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
                     <div className="text-blue-500">토</div>
                 </div>
 
-                {renderCells()}
+                <div className="max-h-[460px] overflow-y-auto">
+                    {renderCells()}
+                </div>
             </div>
 
             <DailySchedule
