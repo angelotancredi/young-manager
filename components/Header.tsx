@@ -118,7 +118,7 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                         {/* 로그아웃 버튼 */}
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-1.5 bg-slate-100/50 px-3 py-1.5 rounded-full border border-slate-200 text-xs font-bold text-slate-500 hover:bg-slate-200/50 transition-all active:scale-95"
+                            className="flex items-center gap-1.5 bg-emerald-600 px-3 py-1.5 rounded-full text-xs font-bold text-white hover:bg-emerald-700 transition-all active:scale-95 shadow-sm"
                         >
                             <LogOut size={12} />
                             로그아웃
