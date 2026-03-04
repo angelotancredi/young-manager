@@ -322,14 +322,18 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                     <button
                                                         onClick={async () => {
                                                             try {
-                                                                const { data: existing } = await supabase
+                                                                const { data: existing, error } = await supabase
                                                                     .from('schedule_requests')
-                                                                    .select('id')
+                                                                    .select('id, status')
                                                                     .eq('schedule_id', s.id)
-                                                                    .eq('status', 'pending')
+                                                                    .in('status', ['pending', 'approved', 'rejected'])
                                                                     .limit(1);
-                                                                if (existing && existing.length > 0) {
-                                                                    const ok = window.confirm('이미 요청된 수업입니다.\n다시 요청하시겠습니까?');
+                                                                if (!error && existing && existing.length > 0) {
+                                                                    const st = existing[0].status;
+                                                                    const msg = st === 'pending' ? '이미 대기중인 요청이 있습니다.\n다시 요청하시겠습니까?'
+                                                                        : st === 'approved' ? '이미 승인된 요청이 있습니다.\n다시 요청하시겠습니까?'
+                                                                            : '거절된 요청이 있습니다.\n다시 요청하시겠습니까?';
+                                                                    const ok = window.confirm(msg);
                                                                     if (!ok) return;
                                                                 }
                                                             } catch (e) {
@@ -350,17 +354,19 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                             )}
                                         </div>
 
-                                        {currentStatus === '결석' && (
-                                            <div className="mt-3 p-3 bg-rose-50 rounded-2xl border border-rose-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                                                <div className="flex items-center justify-between text-[12px] font-medium text-rose-500 mb-2 px-1">
-                                                    <span>보강 예정일</span>
-                                                    <span className="bg-white px-2 py-0.5 rounded-full border border-rose-200">{s.makeup_date || '미정'}</span>
+                                        {
+                                            currentStatus === '결석' && (
+                                                <div className="mt-3 p-3 bg-rose-50 rounded-2xl border border-rose-100 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                    <div className="flex items-center justify-between text-[12px] font-medium text-rose-500 mb-2 px-1">
+                                                        <span>보강 예정일</span>
+                                                        <span className="bg-white px-2 py-0.5 rounded-full border border-rose-200">{s.makeup_date || '미정'}</span>
+                                                    </div>
+                                                    <button className="w-full py-2.5 bg-white text-rose-500 text-[12px] font-semibold rounded-xl border border-rose-200 shadow-sm flex items-center justify-center gap-1.5 active:bg-rose-50 transition-colors">
+                                                        <CalendarIcon size={14} /> 보강 일정 잡기
+                                                    </button>
                                                 </div>
-                                                <button className="w-full py-2.5 bg-white text-rose-500 text-[12px] font-semibold rounded-xl border border-rose-200 shadow-sm flex items-center justify-center gap-1.5 active:bg-rose-50 transition-colors">
-                                                    <CalendarIcon size={14} /> 보강 일정 잡기
-                                                </button>
-                                            </div>
-                                        )}
+                                            )
+                                        }
                                     </div>
                                 );
                             })
@@ -388,123 +394,127 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                         </div>
                     )}
                 </div>
-            </div>
+            </div >
             {/* 삭제 확인 모달 */}
-            {deleteTarget && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-6">
-                    <div className="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl text-center">
-                        <div className="w-14 h-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                            <Trash2 size={28} strokeWidth={2.5} />
-                        </div>
-                        <h3 className="text-lg font-bold text-slate-900 mb-2">수업 삭제</h3>
-                        <p className="text-slate-500 text-sm font-medium mb-6">
-                            <span className="font-bold text-slate-700">{deleteTarget.name}</span> 학생의<br />수업 일정을 삭제하시겠습니까?
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setDeleteTarget(null)}
-                                className="flex-1 py-3.5 font-bold text-slate-400 hover:text-slate-600 transition-colors rounded-xl"
-                            >
-                                취소
-                            </button>
-                            <button
-                                onClick={confirmDelete}
-                                className="flex-1 py-3.5 bg-red-500 text-white rounded-xl font-bold shadow-lg shadow-red-100 hover:bg-red-600 active:scale-95 transition-all"
-                            >
-                                삭제하기
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {/* 일정변경요청 모달 */}
-            {requestTarget && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-6">
-                    <div className="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl">
-                        <div className="bg-amber-500 p-5 text-white">
-                            <h3 className="text-lg font-bold">일정변경 요청</h3>
-                            <p className="text-amber-100 text-sm mt-1">
-                                {requestTarget.students?.name} · {date} · {requestTarget.time?.substring(0, 5)}
+            {
+                deleteTarget && (
+                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-6">
+                        <div className="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl text-center">
+                            <div className="w-14 h-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                                <Trash2 size={28} strokeWidth={2.5} />
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-900 mb-2">수업 삭제</h3>
+                            <p className="text-slate-500 text-sm font-medium mb-6">
+                                <span className="font-bold text-slate-700">{deleteTarget.name}</span> 학생의<br />수업 일정을 삭제하시겠습니까?
                             </p>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            <div>
-                                <label className="text-sm font-bold text-slate-700 mb-1.5 block">변경 희망일</label>
-                                <input
-                                    type="date"
-                                    value={requestDate}
-                                    onChange={(e) => setRequestDate(e.target.value)}
-                                    className="w-full p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 font-medium"
-                                />
-                            </div>
-                            <div>
-                                <label className="text-sm font-bold text-slate-700 mb-1.5 block">변경 희망 시간</label>
-                                <div className="flex gap-3 items-center">
-                                    <select
-                                        value={requestHour}
-                                        onChange={(e) => setRequestHour(e.target.value)}
-                                        className="flex-1 p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-center font-bold text-lg"
-                                    >
-                                        {Array.from({ length: 14 }, (_, i) => String(i + 9).padStart(2, '0')).map(h => <option key={h} value={h}>{h}시</option>)}
-                                    </select>
-                                    <span className="font-bold text-slate-400">:</span>
-                                    <select
-                                        value={requestMinute}
-                                        onChange={(e) => setRequestMinute(e.target.value)}
-                                        className="flex-1 p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-center font-bold text-lg"
-                                    >
-                                        {['00', '10', '20', '30', '40', '50'].map(m => <option key={m} value={m}>{m}분</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="text-sm font-bold text-slate-700 mb-1.5 block">요청 사유</label>
-                                <textarea
-                                    value={requestContent}
-                                    onChange={(e) => setRequestContent(e.target.value)}
-                                    placeholder="변경 사유를 입력하세요"
-                                    rows={3}
-                                    className="w-full p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 font-medium resize-none"
-                                />
-                            </div>
-                            <div className="flex gap-3 pt-2">
+                            <div className="flex gap-3">
                                 <button
-                                    onClick={() => setRequestTarget(null)}
+                                    onClick={() => setDeleteTarget(null)}
                                     className="flex-1 py-3.5 font-bold text-slate-400 hover:text-slate-600 transition-colors rounded-xl"
                                 >
                                     취소
                                 </button>
                                 <button
-                                    disabled={!requestDate || requestSaving}
-                                    onClick={async () => {
-                                        setRequestSaving(true);
-                                        const { error } = await supabase.from('schedule_requests').insert([{
-                                            requester_id: userId,
-                                            student_id: requestTarget.student_id,
-                                            schedule_id: requestTarget.id,
-                                            request_type: 'reschedule',
-                                            content: `희망시간: ${requestHour}:${requestMinute}${requestContent ? '\n사유: ' + requestContent : ''}`,
-                                            requested_date: requestDate,
-                                            status: 'pending'
-                                        }]);
-                                        setRequestSaving(false);
-                                        if (!error) {
-                                            setRequestTarget(null);
-                                            setRequestAlert('일정변경 요청이\n전송되었습니다.');
-                                        } else {
-                                            console.error('요청 실패:', error);
-                                            setRequestAlert('요청 실패: ' + error.message);
-                                        }
-                                    }}
-                                    className="flex-1 py-3.5 bg-amber-500 text-white rounded-xl font-bold shadow-lg shadow-amber-100 hover:bg-amber-600 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                    onClick={confirmDelete}
+                                    className="flex-1 py-3.5 bg-red-500 text-white rounded-xl font-bold shadow-lg shadow-red-100 hover:bg-red-600 active:scale-95 transition-all"
                                 >
-                                    {requestSaving ? <Loader2 size={18} className="animate-spin" /> : <><Send size={16} /> 요청하기</>}
+                                    삭제하기
                                 </button>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
+            {/* 일정변경요청 모달 */}
+            {
+                requestTarget && (
+                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-6">
+                        <div className="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl">
+                            <div className="bg-amber-500 p-5 text-white">
+                                <h3 className="text-lg font-bold">일정변경 요청</h3>
+                                <p className="text-amber-100 text-sm mt-1">
+                                    {requestTarget.students?.name} · {date} · {requestTarget.time?.substring(0, 5)}
+                                </p>
+                            </div>
+                            <div className="p-6 space-y-4">
+                                <div>
+                                    <label className="text-sm font-bold text-slate-700 mb-1.5 block">변경 희망일</label>
+                                    <input
+                                        type="date"
+                                        value={requestDate}
+                                        onChange={(e) => setRequestDate(e.target.value)}
+                                        className="w-full p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 font-medium"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-bold text-slate-700 mb-1.5 block">변경 희망 시간</label>
+                                    <div className="flex gap-3 items-center">
+                                        <select
+                                            value={requestHour}
+                                            onChange={(e) => setRequestHour(e.target.value)}
+                                            className="flex-1 p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-center font-bold text-lg"
+                                        >
+                                            {Array.from({ length: 14 }, (_, i) => String(i + 9).padStart(2, '0')).map(h => <option key={h} value={h}>{h}시</option>)}
+                                        </select>
+                                        <span className="font-bold text-slate-400">:</span>
+                                        <select
+                                            value={requestMinute}
+                                            onChange={(e) => setRequestMinute(e.target.value)}
+                                            className="flex-1 p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-center font-bold text-lg"
+                                        >
+                                            {['00', '10', '20', '30', '40', '50'].map(m => <option key={m} value={m}>{m}분</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-bold text-slate-700 mb-1.5 block">요청 사유</label>
+                                    <textarea
+                                        value={requestContent}
+                                        onChange={(e) => setRequestContent(e.target.value)}
+                                        placeholder="변경 사유를 입력하세요"
+                                        rows={3}
+                                        className="w-full p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 font-medium resize-none"
+                                    />
+                                </div>
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        onClick={() => setRequestTarget(null)}
+                                        className="flex-1 py-3.5 font-bold text-slate-400 hover:text-slate-600 transition-colors rounded-xl"
+                                    >
+                                        취소
+                                    </button>
+                                    <button
+                                        disabled={!requestDate || requestSaving}
+                                        onClick={async () => {
+                                            setRequestSaving(true);
+                                            const { error } = await supabase.from('schedule_requests').insert([{
+                                                requester_id: userId,
+                                                student_id: requestTarget.student_id,
+                                                schedule_id: requestTarget.id,
+                                                request_type: 'reschedule',
+                                                content: `희망시간: ${requestHour}:${requestMinute}${requestContent ? '\n사유: ' + requestContent : ''}`,
+                                                requested_date: requestDate,
+                                                status: 'pending'
+                                            }]);
+                                            setRequestSaving(false);
+                                            if (!error) {
+                                                setRequestTarget(null);
+                                                setRequestAlert('일정변경 요청이\n전송되었습니다.');
+                                            } else {
+                                                console.error('요청 실패:', error);
+                                                setRequestAlert('요청 실패: ' + error.message);
+                                            }
+                                        }}
+                                        className="flex-1 py-3.5 bg-amber-500 text-white rounded-xl font-bold shadow-lg shadow-amber-100 hover:bg-amber-600 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        {requestSaving ? <Loader2 size={18} className="animate-spin" /> : <><Send size={16} /> 요청하기</>}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
             <AlertModal
                 isOpen={!!requestAlert}
                 onClose={() => setRequestAlert('')}

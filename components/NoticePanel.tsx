@@ -27,6 +27,8 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
     const [activeTab, setActiveTab] = useState<'notices' | 'requests'>('notices');
     const [requests, setRequests] = useState<any[]>([]);
     const [requestsLoading, setRequestsLoading] = useState(false);
+    const [rejectTarget, setRejectTarget] = useState<any>(null);
+    const [rejectReason, setRejectReason] = useState('');
 
     // 공지사항 불러오기
     const fetchNotices = async () => {
@@ -142,13 +144,52 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
         }
     };
 
-    // 관리자: 요청 승인/거절
-    const handleRequestAction = async (requestId: string, action: 'approved' | 'rejected') => {
-        const { error } = await supabase
+    // 관리자: 요청 승인
+    const handleApprove = async (req: any) => {
+        // 1. content에서 희망시간 파싱
+        const timeMatch = req.content?.match(/희망시간: (\d{2}):(\d{2})/);
+        const time = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}:00` : '14:00:00';
+
+        // 2. schedules에 새 수업 등록
+        const { error: schedErr } = await supabase.from('schedules').insert([{
+            date: req.requested_date,
+            time: time,
+            student_id: req.student_id,
+            teacher_id: req.requester_id,
+            is_makeup: req.request_type === 'makeup',
+            status: 'confirmed'
+        }]);
+
+        if (schedErr) {
+            console.error('스케줄 등록 실패:', schedErr);
+            return;
+        }
+
+        // 3. 요청 상태 업데이트
+        await supabase
             .from('schedule_requests')
-            .update({ status: action, processed_at: new Date().toISOString() })
-            .eq('id', requestId);
-        if (!error) { fetchRequests(); onStatusChange?.(); }
+            .update({ status: 'approved', processed_at: new Date().toISOString() })
+            .eq('id', req.id);
+
+        fetchRequests();
+        onStatusChange?.();
+    };
+
+    // 관리자: 거절 사유 저장
+    const handleRejectConfirm = async () => {
+        if (!rejectTarget) return;
+        await supabase
+            .from('schedule_requests')
+            .update({
+                status: 'rejected',
+                processed_at: new Date().toISOString(),
+                admin_comment: rejectReason || '사유 없음'
+            })
+            .eq('id', rejectTarget.id);
+        setRejectTarget(null);
+        setRejectReason('');
+        fetchRequests();
+        onStatusChange?.();
     };
 
     // 관리자: 요청 삭제
@@ -286,7 +327,14 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
                                 📢 공지사항
                             </button>
                             <button
-                                onClick={() => { setActiveTab('requests'); fetchRequests(); }}
+                                onClick={() => {
+                                    setActiveTab('requests');
+                                    fetchRequests();
+                                    if (userRole !== 'admin') {
+                                        localStorage.setItem('requests_last_seen', new Date().toISOString());
+                                        onStatusChange?.();
+                                    }
+                                }}
                                 className={`flex-1 py-2.5 rounded-lg text-[13px] font-bold transition-all ${activeTab === 'requests' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}
                             >
                                 📅 일정변경
@@ -464,19 +512,22 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
                                                 <p>요청자: <span className="font-semibold text-slate-700">{req.profiles?.full_name}</span></p>
                                                 <p>변경희망일시: <span className="font-semibold text-blue-600">{req.requested_date} ({req.content?.match(/희망시간: (\d{2}:\d{2})/)?.[1] || ''})</span></p>
                                                 {(() => { const m = req.content?.match(/사유: ([\s\S]+)/); return m ? <p>사유: <span className="font-semibold text-slate-700">{m[1]}</span></p> : null; })()}
+                                                {req.status === 'rejected' && req.admin_comment && (
+                                                    <p className="mt-1.5 px-2.5 py-1.5 bg-red-50 rounded-lg text-red-500 font-semibold">거절 사유: {req.admin_comment}</p>
+                                                )}
                                             </div>
                                             {userRole === 'admin' && (
                                                 <div className="flex gap-2 mt-3 pt-2.5 border-t border-slate-100">
                                                     {req.status === 'pending' && (
                                                         <>
                                                             <button
-                                                                onClick={() => handleRequestAction(req.id, 'approved')}
+                                                                onClick={() => handleApprove(req)}
                                                                 className="flex-1 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-emerald-100"
                                                             >
                                                                 <Check size={14} /> 승인
                                                             </button>
                                                             <button
-                                                                onClick={() => handleRequestAction(req.id, 'rejected')}
+                                                                onClick={() => { setRejectTarget(req); setRejectReason(''); }}
                                                                 className="flex-1 py-2 bg-red-50 text-red-500 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-red-100"
                                                             >
                                                                 <XCircle size={14} /> 거절
@@ -531,6 +582,45 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
                             >
                                 삭제하기
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* 거절 사유 입력 모달 */}
+            {rejectTarget && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-6">
+                    <div className="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl">
+                        <div className="bg-red-500 p-5 text-white">
+                            <h3 className="text-lg font-bold">요청 거절</h3>
+                            <p className="text-red-200 text-sm mt-1">
+                                {rejectTarget.students?.name} · {rejectTarget.requested_date}
+                            </p>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="text-sm font-bold text-slate-700 mb-1.5 block">거절 사유</label>
+                                <textarea
+                                    value={rejectReason}
+                                    onChange={(e) => setRejectReason(e.target.value)}
+                                    placeholder="거절 사유를 입력하세요"
+                                    rows={3}
+                                    className="w-full p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-red-500 text-slate-800 font-medium resize-none"
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => setRejectTarget(null)}
+                                    className="flex-1 py-3.5 font-bold text-slate-400 hover:text-slate-600 transition-colors rounded-xl"
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    onClick={handleRejectConfirm}
+                                    className="flex-1 py-3.5 bg-red-500 text-white rounded-xl font-bold shadow-lg shadow-red-100 hover:bg-red-600 active:scale-95 transition-all"
+                                >
+                                    거절하기
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -86,6 +86,17 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
         fetchSchedules(true);
     }, [currentMonth, fetchSchedules]);
 
+    // Supabase Realtime: schedules 변경 감지 → 달력 자동 갱신
+    useEffect(() => {
+        const channel = supabase
+            .channel('calendar-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'schedules' }, () => {
+                fetchSchedules();
+            })
+            .subscribe();
+        return () => { supabase.removeChannel(channel); };
+    }, [fetchSchedules]);
+
     const handleDateClick = (date: Date) => {
         setSelectedDateStr(format(date, 'yyyy-MM-dd'));
         setIsDailyOpen(true);

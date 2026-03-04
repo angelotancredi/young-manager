@@ -38,17 +38,26 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
 
             const hasUnreadNotices = (totalCount || 0) > (readCount || 0);
 
-            // 관리자: pending 요청 체크
-            let hasPendingRequests = false;
+            // 관리자: pending 요청 체크 / 교사: 처리된 요청 체크
+            let hasRequestAlert = false;
             if (userRole === 'admin') {
                 const { count: pendingCount } = await supabase
                     .from('schedule_requests')
                     .select('*', { count: 'exact', head: true })
                     .eq('status', 'pending');
-                hasPendingRequests = (pendingCount || 0) > 0;
+                hasRequestAlert = (pendingCount || 0) > 0;
+            } else if (userId) {
+                const lastSeen = localStorage.getItem('requests_last_seen') || '2000-01-01T00:00:00Z';
+                const { count: processedCount } = await supabase
+                    .from('schedule_requests')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('requester_id', userId)
+                    .in('status', ['approved', 'rejected'])
+                    .gt('processed_at', lastSeen);
+                hasRequestAlert = (processedCount || 0) > 0;
             }
 
-            setHasUnread(hasUnreadNotices || hasPendingRequests);
+            setHasUnread(hasUnreadNotices || hasRequestAlert);
         } catch (err) {
             console.error('Unread check error:', err);
         }
@@ -56,6 +65,8 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
 
     useEffect(() => {
         checkUnread();
+        const interval = setInterval(checkUnread, 30000);
+        return () => clearInterval(interval);
     }, [checkUnread]);
 
     const handleLogout = async () => {
