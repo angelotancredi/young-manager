@@ -66,7 +66,22 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
     useEffect(() => {
         checkUnread();
         const interval = setInterval(checkUnread, 30000);
-        return () => clearInterval(interval);
+
+        // 실시간 구독: 공지 등록 + 읽음 처리 즉시 반영
+        const channel = supabase
+            .channel('notices-watch')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notices' }, () => {
+                checkUnread();
+            })
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notice_reads' }, () => {
+                checkUnread();
+            })
+            .subscribe();
+
+        return () => {
+            clearInterval(interval);
+            supabase.removeChannel(channel);
+        };
     }, [checkUnread]);
 
     const handleLogout = async () => {

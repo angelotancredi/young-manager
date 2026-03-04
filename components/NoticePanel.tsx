@@ -59,11 +59,10 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
     const fetchReadStatus = async (noticeIds: string[]) => {
         if (userRole !== 'admin' || noticeIds.length === 0) return;
         try {
-            // 1. 교사 목록 먼저 가져오기
+            // 1. 전체 사용자 목록(관리자 포함) 가져오기
             const { data: teachers } = await supabase
                 .from('profiles')
-                .select('id, full_name')
-                .eq('role', 'teacher');
+                .select('id, full_name, role');
             setAllTeachers(teachers || []);
 
             // 2. 읽음 기록 (user_id만)
