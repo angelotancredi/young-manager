@@ -228,22 +228,17 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
 
             if (error) throw error;
 
-            // 💡 현재 수업의 출석 기록에 보강 예정일 업데이트
-            const { error: attError } = await supabase
-                .from('attendance')
+            // 💡 원래 스케줄(결석 처리된 수업)에 보강 예정일 업데이트
+            const { error: updateError } = await supabase
+                .from('schedules')
                 .update({ makeup_date: makeupDate })
-                .eq('student_id', makeupTarget.student_id)
-                .eq('lesson_date', date);
+                .eq('id', makeupTarget.id);
 
-            if (attError) {
-                console.error('출석부 보강일 저장 에러:', attError);
+            if (updateError) {
+                console.error('원본 스케줄 보강일 업데이트 에러:', updateError);
             } else {
-                // 실시간 변경 반영 (로컬 상태 업데이트)
-                setAttendanceList(prev => prev.map(a =>
-                    (a.student_id === makeupTarget.student_id && a.lesson_date === date)
-                        ? { ...a, makeup_date: makeupDate }
-                        : a
-                ));
+                // UI 즉각 반영을 위해 로컬 객체 뮤테이션 (빠른 렌더링)
+                makeupTarget.makeup_date = makeupDate;
             }
 
             setMakeupTarget(null);
@@ -438,8 +433,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                     <div className="flex items-center justify-between text-[12px] font-medium text-rose-500 mb-2 px-1">
                                                         <span>보강 예정일</span>
                                                         <span className="font-bold">
-                                                            {attendanceList.find(a => a.student_id === s.student_id)?.makeup_date
-                                                                ? attendanceList.find(a => a.student_id === s.student_id).makeup_date.substring(5).replace('-', '/')
+                                                            {s.makeup_date
+                                                                ? s.makeup_date.substring(5).replace('-', '/')
                                                                 : '미정'}
                                                         </span>
                                                     </div>
