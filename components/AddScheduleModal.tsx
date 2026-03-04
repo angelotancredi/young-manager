@@ -45,8 +45,20 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                     if (stError) console.error("Students fetch error:", stError);
                     if (tcError) console.error("Teachers fetch error:", tcError);
 
-                    setStudents(st || []);
-                    setTeachers(tc || []);
+                    // 학생 가나다순 정렬
+                    const sortedStudents = (st || []).sort((a: any, b: any) =>
+                        (a.name || '').localeCompare(b.name || '', 'ko')
+                    );
+
+                    // 교사 정렬: 원장(admin) 최상위, 나머지는 가나다순
+                    const sortedTeachers = (tc || []).sort((a: any, b: any) => {
+                        if (a.role === 'admin' && b.role !== 'admin') return -1;
+                        if (a.role !== 'admin' && b.role === 'admin') return 1;
+                        return (a.full_name || '').localeCompare(b.full_name || '', 'ko');
+                    });
+
+                    setStudents(sortedStudents);
+                    setTeachers(sortedTeachers);
                 } catch (err) {
                     console.error("fetchData exception:", err);
                     setStudents([]);

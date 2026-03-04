@@ -248,7 +248,7 @@ export default function StudentManagement() {
                             <div className="flex-1 overflow-y-auto p-5 space-y-4">
                                 {/* 학생 연락처 */}
                                 <div className="bg-slate-50 rounded-2xl p-4">
-                                    <p className="text-[11px] font-bold text-slate-400 mb-2">학생 연락처</p>
+                                    <p className="text-[12px] font-bold text-slate-400 mb-2">학생 연락처</p>
                                     <div className="flex items-center justify-between">
                                         <span className="text-lg font-bold text-slate-800">{selectedStudent.student_contact || '-'}</span>
                                         {selectedStudent.student_contact && (
@@ -261,7 +261,7 @@ export default function StudentManagement() {
 
                                 {/* 학부모 연락처 */}
                                 <div className="bg-slate-50 rounded-2xl p-4">
-                                    <p className="text-[11px] font-bold text-slate-400 mb-2">학부모 연락처</p>
+                                    <p className="text-[12px] font-bold text-slate-400 mb-2">학부모 연락처</p>
                                     <div className="flex items-center justify-between">
                                         <span className="text-lg font-bold text-slate-800">{selectedStudent.parent_contact || '-'}</span>
                                         {selectedStudent.parent_contact && (
@@ -274,7 +274,7 @@ export default function StudentManagement() {
 
                                 {/* 결제일 */}
                                 <div className="bg-slate-50 rounded-2xl p-4">
-                                    <p className="text-[11px] font-bold text-slate-400 mb-2">수강료 결제일</p>
+                                    <p className="text-[12px] font-bold text-slate-400 mb-2">수강료 결제일</p>
                                     <div className="flex items-center gap-2">
                                         <CalendarIcon size={18} className="text-emerald-500" />
                                         <span className="text-lg font-bold text-slate-800">매월 {selectedStudent.tuition_day || '-'}일</span>
