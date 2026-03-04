@@ -430,7 +430,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                         {
                                             currentStatus === '결석' && (
                                                 <div className="mt-3 p-3 bg-rose-50 rounded-2xl border border-rose-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                                                    <div className="flex items-center justify-between text-[12px] font-medium text-rose-500 mb-2 px-1">
+                                                    <div className="flex items-center gap-1.5 text-[12px] font-medium text-rose-500 mb-2 px-1">
                                                         <span>보강 예정일</span>
                                                         <span className="font-bold">
                                                             {s.makeup_date
