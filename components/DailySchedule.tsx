@@ -324,22 +324,22 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                     <button
                                                         disabled={loadingId === s.student_id || !s.student_id}
                                                         onClick={() => updateStatus(s.student_id, '출석', s.teacher_id)}
-                                                        className={`flex flex-col items-center justify-center w-11 h-11 rounded-lg transition-all active:scale-95 ${currentStatus === '출석'
+                                                        className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '출석'
                                                             ? 'bg-emerald-500 text-white shadow-md'
                                                             : 'bg-slate-50 text-emerald-600 border border-emerald-100'}`}
                                                     >
-                                                        <CheckCircle2 size={18} strokeWidth={2.5} />
-                                                        <span className="text-[10px] font-semibold mt-0.5">출석</span>
+                                                        <CheckCircle2 size={20} strokeWidth={2.5} />
+                                                        <span className="text-[12px] font-semibold mt-0.5">출석</span>
                                                     </button>
                                                     <button
                                                         disabled={loadingId === s.student_id || !s.student_id}
                                                         onClick={() => updateStatus(s.student_id, '결석', s.teacher_id)}
-                                                        className={`flex flex-col items-center justify-center w-11 h-11 rounded-lg transition-all active:scale-95 ${currentStatus === '결석'
+                                                        className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '결석'
                                                             ? 'bg-rose-500 text-white shadow-md'
                                                             : 'bg-slate-50 text-rose-600 border border-rose-100'}`}
                                                     >
-                                                        <XCircle size={18} strokeWidth={2.5} />
-                                                        <span className="text-[10px] font-semibold mt-0.5">결석</span>
+                                                        <XCircle size={20} strokeWidth={2.5} />
+                                                        <span className="text-[12px] font-semibold mt-0.5">결석</span>
                                                     </button>
                                                     <button
                                                         onClick={async () => {
@@ -367,10 +367,10 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                             setRequestHour('14');
                                                             setRequestMinute('00');
                                                         }}
-                                                        className="flex flex-col items-center justify-center w-11 h-11 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 transition-all active:scale-95"
+                                                        className="flex items-center justify-center gap-1.5 h-12 px-3 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 font-bold text-[12px] transition-all active:scale-95 hover:bg-blue-100"
                                                     >
                                                         <CalendarIcon size={16} />
-                                                        <span className="text-[9px] font-bold mt-0.5">변경</span>
+                                                        <span>일정변경요청</span>
                                                     </button>
                                                 </div>
                                             )}
