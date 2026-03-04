@@ -362,7 +362,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                                 console.error('중복체크 실패:', e);
                                                             }
                                                             setRequestTarget(s);
-                                                            setRequestDate('');
+                                                            setRequestDate(new Date().toISOString().slice(0, 10));
                                                             setRequestContent('');
                                                             setRequestHour('14');
                                                             setRequestMinute('00');
@@ -564,7 +564,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                     const s = duplicateConfirm.schedule;
                                     setDuplicateConfirm(null);
                                     setRequestTarget(s);
-                                    setRequestDate('');
+                                    setRequestDate(new Date().toISOString().slice(0, 10));
                                     setRequestContent('');
                                     setRequestHour('14');
                                     setRequestMinute('00');
