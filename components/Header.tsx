@@ -1,7 +1,7 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
-import { LogOut, ShieldCheck, UserCircle, UserPlus, Bell } from 'lucide-react';
+import { LogOut, ShieldCheck, UserCircle, UserPlus, Bell, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AlertModal from './AlertModal';
@@ -126,15 +126,24 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                     </div>
                 )}
 
-                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                <div className="flex items-center gap-2 w-full md:w-auto justify-end">
                     {userRole === 'admin' ? (
-                        <Link
-                            href="/students"
-                            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-2xl font-bold text-sm shadow-sm hover:bg-slate-50 transition-all border border-slate-100 active:scale-95"
-                        >
-                            <UserPlus size={18} className="text-emerald-600" />
-                            학생 관리
-                        </Link>
+                        <>
+                            <Link
+                                href="/students"
+                                className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-4 py-3 bg-white text-slate-900 rounded-2xl font-bold text-sm shadow-sm hover:bg-slate-50 transition-all border border-slate-100 active:scale-95"
+                            >
+                                <UserPlus size={16} className="text-emerald-600" />
+                                학생 관리
+                            </Link>
+                            <Link
+                                href="/teachers"
+                                className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-4 py-3 bg-white text-slate-900 rounded-2xl font-bold text-sm shadow-sm hover:bg-slate-50 transition-all border border-slate-100 active:scale-95"
+                            >
+                                <Users size={16} className="text-blue-600" />
+                                선생님 관리
+                            </Link>
+                        </>
                     ) : (
                         <div className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50/50 text-emerald-600 rounded-2xl font-bold text-sm border border-emerald-100/50 cursor-default whitespace-nowrap">
                             오늘도 좋은 하루 보내세요~ 😊
