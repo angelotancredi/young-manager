@@ -22,6 +22,12 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
     const [requestMinute, setRequestMinute] = useState('00');
     const [requestAlert, setRequestAlert] = useState<{ title: string; message: string } | null>(null);
     const [duplicateConfirm, setDuplicateConfirm] = useState<{ schedule: any; message: string } | null>(null);
+    const [makeupTarget, setMakeupTarget] = useState<any>(null);
+    const [makeupDate, setMakeupDate] = useState('');
+    const [makeupHour, setMakeupHour] = useState('14');
+    const [makeupMinute, setMakeupMinute] = useState('00');
+    const [makeupSaving, setMakeupSaving] = useState(false);
+    useBackClose(!!makeupTarget, () => setMakeupTarget(null));
     // 💡 1. 컴포넌트 로드 시 해당 날짜의 출석 데이터 및 전체 학생 목록 불러올 것
     const fetchInitialData = useCallback(async () => {
         if (!date || !isOpen) return;
@@ -203,6 +209,36 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
         }
     };
 
+    // 💡 보강 일정 저장 로직
+    const handleSaveMakeup = async () => {
+        if (!makeupTarget || !makeupDate) return;
+        setMakeupSaving(true);
+
+        try {
+            const fullTime = `${makeupHour}:${makeupMinute}:00`;
+            const { error } = await supabase
+                .from('schedules')
+                .insert([{
+                    student_id: makeupTarget.student_id,
+                    teacher_id: makeupTarget.teacher_id,
+                    date: makeupDate,
+                    time: fullTime,
+                    is_makeup: true
+                }]);
+
+            if (error) throw error;
+
+            setMakeupTarget(null);
+            if (onRefresh) onRefresh();
+            alert('보강 일정이 등록되었습니다.');
+        } catch (err: any) {
+            console.error('보강 저장 에러:', err);
+            alert('보강 일정 저장 실패: ' + (err.message || '알 수 없는 오류'));
+        } finally {
+            setMakeupSaving(false);
+        }
+    };
+
     // 로컬 출석 리스트에서 상태 확인
     const getStudentStatus = (studentId: string) => {
         const record = attendanceList.find(a => a.student_id === studentId);
@@ -259,7 +295,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                         {s.students?.name}
                                                     </div>
                                                     {s.is_makeup && (
-                                                        <span className="px-1 py-0.5 bg-amber-100 text-amber-600 text-[8px] font-bold rounded-md shrink-0">보강</span>
+                                                        <span className="px-1 py-0.5 bg-amber-100 text-amber-600 text-[8px] font-bold rounded-md shrink-0">보</span>
                                                     )}
                                                 </div>
                                                 {/* 2줄: 담당 + 교사이름 */}
@@ -383,7 +419,15 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                         <span>보강 예정일</span>
                                                         <span className="bg-white px-2 py-0.5 rounded-full border border-rose-200">{s.makeup_date || '미정'}</span>
                                                     </div>
-                                                    <button className="w-full py-2.5 bg-white text-rose-500 text-[12px] font-semibold rounded-xl border border-rose-200 shadow-sm flex items-center justify-center gap-1.5 active:bg-rose-50 transition-colors">
+                                                    <button
+                                                        onClick={() => {
+                                                            setMakeupTarget(s);
+                                                            setMakeupDate(new Date().toISOString().slice(0, 10));
+                                                            setMakeupHour('14');
+                                                            setMakeupMinute('00');
+                                                        }}
+                                                        className="w-full py-2.5 bg-white text-rose-500 text-[12px] font-semibold rounded-xl border border-rose-200 shadow-sm flex items-center justify-center gap-1.5 active:bg-rose-50 transition-colors"
+                                                    >
                                                         <CalendarIcon size={14} /> 보강 일정 잡기
                                                     </button>
                                                 </div>
@@ -573,6 +617,79 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                             >
                                 계속 요청
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 보강 일정 잡기 모달 */}
+            {makeupTarget && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-6">
+                    <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
+                        <div className="absolute top-0 left-0 w-full h-2 bg-amber-500"></div>
+                        <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                            <div className="p-2 bg-amber-50 text-amber-600 rounded-xl">
+                                <RefreshCw size={24} />
+                            </div>
+                            보강 일정 잡기
+                        </h2>
+
+                        <div className="space-y-4">
+                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-2">
+                                <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">대상 학생</p>
+                                <p className="text-lg font-extrabold text-slate-800">{makeupTarget.students?.name}</p>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-slate-400 ml-1">보강 날짜</label>
+                                <input
+                                    type="date"
+                                    value={makeupDate}
+                                    onChange={e => setMakeupDate(e.target.value)}
+                                    className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-amber-500 focus:bg-white outline-none font-bold transition-all text-slate-900"
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-slate-400 ml-1">보강 시간</label>
+                                <div className="flex gap-2 text-black">
+                                    <select
+                                        value={makeupHour}
+                                        onChange={e => setMakeupHour(e.target.value)}
+                                        className="flex-1 p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-amber-500 focus:bg-white outline-none font-bold transition-all appearance-none"
+                                    >
+                                        {Array.from({ length: 24 }).map((_, i) => (
+                                            <option key={i} value={String(i).padStart(2, '0')}>{i}시</option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        value={makeupMinute}
+                                        onChange={e => setMakeupMinute(e.target.value)}
+                                        className="flex-1 p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-amber-500 focus:bg-white outline-none font-bold transition-all appearance-none"
+                                    >
+                                        {['00', '10', '20', '30', '40', '50'].map(m => (
+                                            <option key={m} value={m}>{m}분</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    onClick={() => setMakeupTarget(null)}
+                                    className="flex-1 py-4 font-bold text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    onClick={handleSaveMakeup}
+                                    disabled={makeupSaving}
+                                    className="flex-1 py-4 bg-amber-500 text-white rounded-2xl font-bold shadow-lg shadow-amber-100 hover:bg-amber-600 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                >
+                                    {makeupSaving ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+                                    저정하기
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
