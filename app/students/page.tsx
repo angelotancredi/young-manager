@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { UserPlus, Phone, Calendar as CalendarIcon, ArrowLeft, Search, UserCircle, Loader2, X, ChevronRight, FileText, Trash2, UserX, Edit2 } from 'lucide-react';
+import { UserPlus, Phone, Calendar as CalendarIcon, ArrowLeft, Search, UserCircle, Loader2, X, ChevronRight, FileText, Trash2, UserX, Edit2, BarChart2 } from 'lucide-react';
 import Link from 'next/link';
 import AlertModal from '@/components/AlertModal';
 import { useBackClose } from '@/hooks/useBackClose';
+import StudentStats from '@/components/StudentStats';
+
 export default function StudentManagement() {
     const [students, setStudents] = useState<any[]>([]);
     const [userRole, setUserRole] = useState<string | null>(null);
@@ -16,9 +18,11 @@ export default function StudentManagement() {
     const [selectedStudent, setSelectedStudent] = useState<any>(null);
     const [deleteTarget, setDeleteTarget] = useState<{ student: any; mode: 'deactivate' | 'delete' } | null>(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [isStatsView, setIsStatsView] = useState(false);
 
     useBackClose(!!selectedStudent, () => {
         if (isEditing) setIsEditing(false);
+        else if (isStatsView) setIsStatsView(false);
         else setSelectedStudent(null);
     });
     useBackClose(isModalOpen, () => setIsModalOpen(false));
@@ -288,21 +292,32 @@ export default function StudentManagement() {
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-bold text-slate-900">{selectedStudent.name}</h3>
-                                        <p className="text-xs text-slate-400 font-medium">{isEditing ? '학생 정보 수정' : '학생 정보'}</p>
+                                        <p className="text-xs text-slate-400 font-medium">
+                                            {isEditing ? '학생 정보 수정' : isStatsView ? '출석 통계' : '학생 정보'}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    {!isEditing && (
-                                        <button
-                                            onClick={handleEditClick}
-                                            className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all"
-                                        >
-                                            <Edit2 size={20} />
-                                        </button>
+                                    {!isEditing && !isStatsView && (
+                                        <>
+                                            <button
+                                                onClick={() => setIsStatsView(true)}
+                                                className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all"
+                                            >
+                                                <BarChart2 size={20} />
+                                            </button>
+                                            <button
+                                                onClick={handleEditClick}
+                                                className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all"
+                                            >
+                                                <Edit2 size={20} />
+                                            </button>
+                                        </>
                                     )}
                                     <button
                                         onClick={() => {
                                             if (isEditing) setIsEditing(false);
+                                            else if (isStatsView) setIsStatsView(false);
                                             else setSelectedStudent(null);
                                         }}
                                         className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all"
@@ -342,6 +357,10 @@ export default function StudentManagement() {
                                             <button type="submit" className="flex-1 py-3.5 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 active:scale-95 transition-all">수정완료</button>
                                         </div>
                                     </form>
+                                </div>
+                            ) : isStatsView ? (
+                                <div className="flex-1 overflow-y-auto p-5">
+                                    <StudentStats studentId={selectedStudent.id} studentName={selectedStudent.name} />
                                 </div>
                             ) : (
                                 <div className="flex-1 overflow-y-auto p-5 space-y-4">
