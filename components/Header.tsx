@@ -89,7 +89,7 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                 </h1>
                 <button
                     onClick={() => setIsNoticeOpen(true)}
-                    className="p-2.5 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all active:scale-90 relative"
+                    className="ml-2.5 p-2.5 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all active:scale-90 relative"
                 >
                     <Bell size={26} strokeWidth={2.2} className={hasUnread ? 'bell-wiggle' : ''} />
                     {hasUnread && (
@@ -101,7 +101,7 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
             <div className="flex flex-col items-end gap-3 w-full md:w-auto flex-1">
                 {/* 💡 로그인 정보 표시줄 및 로그아웃 버튼 (우측 정렬) */}
                 {session && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 justify-end w-full md:w-auto">
                         {/* 접속 정보 배지 */}
                         <div className="flex items-center gap-2 bg-slate-100/50 px-3 py-1.5 rounded-full border border-slate-200">
                             {userRole === 'admin' ? (
