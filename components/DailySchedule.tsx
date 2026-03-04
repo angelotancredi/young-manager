@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Plus, CheckCircle2, XCircle, RefreshCw, Calendar as CalendarIcon, Loader2, UserPlus, Trash2 } from 'lucide-react';
+import { X, Plus, CheckCircle2, XCircle, RefreshCw, Calendar as CalendarIcon, Loader2, UserPlus, Trash2, Send } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import AlertModal from './AlertModal';
 
 export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd, onRefresh, userId, userRole }: any) {
     const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -11,6 +12,13 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
     const [isFetching, setIsFetching] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<{ id: string; studentId: string; name: string } | null>(null);
+    const [requestTarget, setRequestTarget] = useState<any>(null);
+    const [requestDate, setRequestDate] = useState('');
+    const [requestContent, setRequestContent] = useState('');
+    const [requestSaving, setRequestSaving] = useState(false);
+    const [requestHour, setRequestHour] = useState('14');
+    const [requestMinute, setRequestMinute] = useState('00');
+    const [requestAlert, setRequestAlert] = useState('');
 
     // 💡 1. 컴포넌트 로드 시 해당 날짜의 출석 데이터 및 전체 학생 목록 불러올 것
     const fetchInitialData = useCallback(async () => {
@@ -223,7 +231,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                             schedules.map((s: any) => {
                                 const currentStatus = getStudentStatus(s.student_id);
                                 return (
-                                    <div key={s.id} className="bg-white p-2.5 rounded-xl border border-slate-100 shadow-sm transition-all text-black">
+                                    <div key={s.id} className="bg-white p-2.5 pl-5 rounded-xl border border-slate-100 shadow-sm transition-all text-black">
                                         <div className="flex items-center justify-between gap-1.5">
                                             {/* 좌측: 2줄 구조 */}
                                             <div className="flex flex-col gap-1 min-w-0 flex-1">
@@ -249,61 +257,90 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                 </div>
                                             </div>
 
-                                            <div className="flex gap-1 shrink-0">
-                                                <button
-                                                    disabled={loadingId === s.student_id || !s.student_id}
-                                                    onClick={() => updateStatus(s.student_id, '출석', s.teacher_id)}
-                                                    className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '출석'
-                                                        ? 'bg-emerald-500 text-white shadow-md'
-                                                        : 'bg-slate-50 text-emerald-600 border border-emerald-100'}`}
-                                                >
-                                                    <CheckCircle2 size={20} strokeWidth={2.5} />
-                                                    <span className="text-[12px] font-semibold mt-0.5">출석</span>
-                                                </button>
-                                                <button
-                                                    disabled={loadingId === s.student_id || !s.student_id}
-                                                    onClick={() => updateStatus(s.student_id, '결석', s.teacher_id)}
-                                                    className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '결석'
-                                                        ? 'bg-rose-500 text-white shadow-md'
-                                                        : 'bg-slate-50 text-rose-600 border border-rose-100'}`}
-                                                >
-                                                    <XCircle size={20} strokeWidth={2.5} />
-                                                    <span className="text-[12px] font-semibold mt-0.5">결석</span>
-                                                </button>
-                                                <button
-                                                    disabled={loadingId === s.student_id || !s.student_id}
-                                                    onClick={() => updateStatus(s.student_id, '보강', s.teacher_id)}
-                                                    className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '보강'
-                                                        ? 'bg-amber-500 text-white shadow-md'
-                                                        : 'bg-slate-50 text-amber-600 border border-amber-100'}`}
-                                                >
-                                                    <RefreshCw size={20} strokeWidth={2.5} />
-                                                    <span className="text-[12px] font-semibold mt-0.5">보강</span>
-                                                </button>
-                                                <button
-                                                    disabled={deletingId === s.id}
-                                                    onClick={() => {
-                                                        askDelete(s.id, s.student_id, s.students?.name || '학생');
-                                                    }}
-                                                    className="flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 bg-slate-50 text-red-400 border border-red-100 hover:bg-red-500 hover:text-white hover:border-red-500"
-                                                >
-                                                    {deletingId === s.id ? (
-                                                        <Loader2 size={20} className="animate-spin" />
-                                                    ) : (
-                                                        <Trash2 size={20} strokeWidth={2.5} />
-                                                    )}
-                                                    <span className="text-[12px] font-semibold mt-0.5">삭제</span>
-                                                </button>
-                                            </div>
+                                            {userRole === 'admin' ? (
+                                                <div className="flex gap-1 shrink-0">
+                                                    <button
+                                                        disabled={loadingId === s.student_id || !s.student_id}
+                                                        onClick={() => updateStatus(s.student_id, '출석', s.teacher_id)}
+                                                        className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '출석'
+                                                            ? 'bg-emerald-500 text-white shadow-md'
+                                                            : 'bg-slate-50 text-emerald-600 border border-emerald-100'}`}
+                                                    >
+                                                        <CheckCircle2 size={20} strokeWidth={2.5} />
+                                                        <span className="text-[12px] font-semibold mt-0.5">출석</span>
+                                                    </button>
+                                                    <button
+                                                        disabled={loadingId === s.student_id || !s.student_id}
+                                                        onClick={() => updateStatus(s.student_id, '결석', s.teacher_id)}
+                                                        className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '결석'
+                                                            ? 'bg-rose-500 text-white shadow-md'
+                                                            : 'bg-slate-50 text-rose-600 border border-rose-100'}`}
+                                                    >
+                                                        <XCircle size={20} strokeWidth={2.5} />
+                                                        <span className="text-[12px] font-semibold mt-0.5">결석</span>
+                                                    </button>
+                                                    <button
+                                                        disabled={loadingId === s.student_id || !s.student_id}
+                                                        onClick={() => updateStatus(s.student_id, '보강', s.teacher_id)}
+                                                        className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '보강'
+                                                            ? 'bg-amber-500 text-white shadow-md'
+                                                            : 'bg-slate-50 text-amber-600 border border-amber-100'}`}
+                                                    >
+                                                        <RefreshCw size={20} strokeWidth={2.5} />
+                                                        <span className="text-[12px] font-semibold mt-0.5">보강</span>
+                                                    </button>
+                                                    <button
+                                                        disabled={deletingId === s.id}
+                                                        onClick={() => {
+                                                            askDelete(s.id, s.student_id, s.students?.name || '학생');
+                                                        }}
+                                                        className="flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 bg-slate-50 text-red-400 border border-red-100 hover:bg-red-500 hover:text-white hover:border-red-500"
+                                                    >
+                                                        {deletingId === s.id ? (
+                                                            <Loader2 size={20} className="animate-spin" />
+                                                        ) : (
+                                                            <Trash2 size={20} strokeWidth={2.5} />
+                                                        )}
+                                                        <span className="text-[12px] font-semibold mt-0.5">삭제</span>
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="shrink-0">
+                                                    <button
+                                                        onClick={async () => {
+                                                            // 중복 요청 체크
+                                                            const { data: existing } = await supabase
+                                                                .from('schedule_requests')
+                                                                .select('id')
+                                                                .eq('schedule_id', s.id)
+                                                                .eq('status', 'pending')
+                                                                .limit(1);
+                                                            if (existing && existing.length > 0) {
+                                                                const ok = window.confirm('이미 요청된 수업입니다.\n다시 요청하시겠습니까?');
+                                                                if (!ok) return;
+                                                            }
+                                                            setRequestTarget(s);
+                                                            setRequestDate('');
+                                                            setRequestContent('');
+                                                            setRequestHour('14');
+                                                            setRequestMinute('00');
+                                                        }}
+                                                        className="flex items-center justify-center gap-1.5 h-12 px-4 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 font-bold text-[12px] transition-all active:scale-95 hover:bg-blue-100"
+                                                    >
+                                                        <CalendarIcon size={16} />
+                                                        <span>일정변경요청</span>
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {currentStatus === '결석' && (
                                             <div className="mt-3 p-3 bg-rose-50 rounded-2xl border border-rose-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                                                <div className="flex items-center justify-between text-[11px] font-medium text-rose-500 mb-2 px-1">
+                                                <div className="flex items-center justify-between text-[12px] font-medium text-rose-500 mb-2 px-1">
                                                     <span>보강 예정일</span>
                                                     <span className="bg-white px-2 py-0.5 rounded-full border border-rose-200">{s.makeup_date || '미정'}</span>
                                                 </div>
-                                                <button className="w-full py-2.5 bg-white text-rose-500 text-[11px] font-semibold rounded-xl border border-rose-200 shadow-sm flex items-center justify-center gap-1.5 active:bg-rose-50 transition-colors">
+                                                <button className="w-full py-2.5 bg-white text-rose-500 text-[12px] font-semibold rounded-xl border border-rose-200 shadow-sm flex items-center justify-center gap-1.5 active:bg-rose-50 transition-colors">
                                                     <CalendarIcon size={14} /> 보강 일정 잡기
                                                 </button>
                                             </div>
@@ -322,30 +359,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                         )}
                     </div>
 
-                    {/* 하단 영역: 학생 선택 및 추가 (Requirement 1 대응) */}
-                    <div className="p-6 bg-white border-t border-slate-100 space-y-3 pb-10">
-                        {/* 빠른 출석 등록용 학생 선택 */}
-                        <div className="relative">
-                            <select
-                                onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (val) {
-                                        // 💡 해당 학생의 오늘 수업 스케줄이 있다면 해당 선생님 ID 사용
-                                        const schedule = schedules.find((s: any) => s.student_id === val);
-                                        updateStatus(val, '출석', schedule?.teacher_id);
-                                    }
-                                    e.target.value = "";
-                                }}
-                                className="w-full py-4 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-600 outline-none appearance-none focus:ring-2 focus:ring-emerald-500/10 transition-all shadow-sm"
-                            >
-                                <option value="">직접 출석 체크 (학생 선택)</option>
-                                {students.map(st => <option key={st.id} value={st.id}>{st.name}</option>)}
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-500">
-                                <Plus size={18} />
-                            </div>
-                        </div>
-
+                    {/* 하단 영역 */}
+                    <div className="p-6 bg-white border-t border-slate-100 pb-10">
                         <button
                             onClick={onAdd}
                             className="w-full py-5 bg-emerald-600 text-white rounded-2xl shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all text-lg font-bold"
@@ -384,6 +399,100 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                     </div>
                 </div>
             )}
+            {/* 일정변경요청 모달 */}
+            {requestTarget && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-6">
+                    <div className="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl">
+                        <div className="bg-amber-500 p-5 text-white">
+                            <h3 className="text-lg font-bold">일정변경 요청</h3>
+                            <p className="text-amber-100 text-sm mt-1">
+                                {requestTarget.students?.name} · {date} · {requestTarget.time?.substring(0, 5)}
+                            </p>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="text-sm font-bold text-slate-700 mb-1.5 block">변경 희망일</label>
+                                <input
+                                    type="date"
+                                    value={requestDate}
+                                    onChange={(e) => setRequestDate(e.target.value)}
+                                    className="w-full p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 font-medium"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm font-bold text-slate-700 mb-1.5 block">변경 희망 시간</label>
+                                <div className="flex gap-3 items-center">
+                                    <select
+                                        value={requestHour}
+                                        onChange={(e) => setRequestHour(e.target.value)}
+                                        className="flex-1 p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-center font-bold text-lg"
+                                    >
+                                        {Array.from({ length: 14 }, (_, i) => String(i + 9).padStart(2, '0')).map(h => <option key={h} value={h}>{h}시</option>)}
+                                    </select>
+                                    <span className="font-bold text-slate-400">:</span>
+                                    <select
+                                        value={requestMinute}
+                                        onChange={(e) => setRequestMinute(e.target.value)}
+                                        className="flex-1 p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-center font-bold text-lg"
+                                    >
+                                        {['00', '10', '20', '30', '40', '50'].map(m => <option key={m} value={m}>{m}분</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-bold text-slate-700 mb-1.5 block">요청 사유</label>
+                                <textarea
+                                    value={requestContent}
+                                    onChange={(e) => setRequestContent(e.target.value)}
+                                    placeholder="변경 사유를 입력하세요"
+                                    rows={3}
+                                    className="w-full p-3.5 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 font-medium resize-none"
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => setRequestTarget(null)}
+                                    className="flex-1 py-3.5 font-bold text-slate-400 hover:text-slate-600 transition-colors rounded-xl"
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    disabled={!requestDate || requestSaving}
+                                    onClick={async () => {
+                                        setRequestSaving(true);
+                                        const { error } = await supabase.from('schedule_requests').insert([{
+                                            requester_id: userId,
+                                            student_id: requestTarget.student_id,
+                                            schedule_id: requestTarget.id,
+                                            request_type: 'reschedule',
+                                            content: `희망시간: ${requestHour}:${requestMinute}${requestContent ? '\n사유: ' + requestContent : ''}`,
+                                            requested_date: requestDate,
+                                            status: 'pending'
+                                        }]);
+                                        setRequestSaving(false);
+                                        if (!error) {
+                                            setRequestTarget(null);
+                                            setRequestAlert('일정변경 요청이\n전송되었습니다.');
+                                        } else {
+                                            console.error('요청 실패:', error);
+                                            setRequestAlert('요청 실패: ' + error.message);
+                                        }
+                                    }}
+                                    className="flex-1 py-3.5 bg-amber-500 text-white rounded-xl font-bold shadow-lg shadow-amber-100 hover:bg-amber-600 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                >
+                                    {requestSaving ? <Loader2 size={18} className="animate-spin" /> : <><Send size={16} /> 요청하기</>}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <AlertModal
+                isOpen={!!requestAlert}
+                onClose={() => setRequestAlert('')}
+                title="일정변경 요청"
+                message={requestAlert}
+            />
         </>
     );
 }

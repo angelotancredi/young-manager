@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Bell, Plus, Send, Loader2, Trash2, ChevronDown } from 'lucide-react';
+import { X, Bell, Plus, Send, Loader2, Trash2, ChevronDown, CalendarDays, Check, XCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface NoticePanelProps {
@@ -23,6 +23,9 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId }: Notic
     const [readStatus, setReadStatus] = useState<Record<string, string[]>>({});
     const [allTeachers, setAllTeachers] = useState<any[]>([]);
     const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<'notices' | 'requests'>('notices');
+    const [requests, setRequests] = useState<any[]>([]);
+    const [requestsLoading, setRequestsLoading] = useState(false);
 
     // 공지사항 불러오기
     const fetchNotices = async () => {
@@ -94,6 +97,39 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId }: Notic
             markAllAsRead();
         }
     }, [isOpen]);
+
+    // 일정변경 요청 불러오기
+    const fetchRequests = async () => {
+        setRequestsLoading(true);
+        try {
+            let query = supabase
+                .from('schedule_requests')
+                .select('*, profiles:requester_id(full_name), students:student_id(name)')
+                .order('created_at', { ascending: false });
+
+            // 교사는 본인 요청만
+            if (userRole !== 'admin' && userId) {
+                query = query.eq('requester_id', userId);
+            }
+
+            const { data, error } = await query;
+            if (error) console.error('요청 조회 에러:', error);
+            setRequests(data || []);
+        } catch (err) {
+            console.error('요청 조회 예외:', err);
+        } finally {
+            setRequestsLoading(false);
+        }
+    };
+
+    // 관리자: 요청 승인/거절
+    const handleRequestAction = async (requestId: string, action: 'approved' | 'rejected') => {
+        const { error } = await supabase
+            .from('schedule_requests')
+            .update({ status: action, processed_at: new Date().toISOString() })
+            .eq('id', requestId);
+        if (!error) fetchRequests();
+    };
 
     // 읽음 처리: 모든 공지에 대해 notice_reads 삽입
     const markAllAsRead = async () => {
@@ -211,143 +247,223 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId }: Notic
                         </button>
                     </div>
 
-                    {/* 공지 리스트 */}
-                    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-                        {isLoading ? (
-                            <div className="flex justify-center py-10"><Loader2 className="animate-spin text-emerald-600" /></div>
-                        ) : isWriting ? (
-                            /* 작성 폼 */
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label className="text-xs font-bold text-slate-400 ml-1 mb-1 block">제목</label>
-                                    <input
-                                        value={title}
-                                        onChange={(e) => setTitle(e.target.value)}
-                                        placeholder="공지 제목을 입력하세요"
-                                        required
-                                        className="w-full p-4 bg-white rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold text-slate-900 transition-all"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-bold text-slate-400 ml-1 mb-1 block">내용</label>
-                                    <textarea
-                                        value={content}
-                                        onChange={(e) => setContent(e.target.value)}
-                                        placeholder="공지 내용을 입력하세요"
-                                        required
-                                        rows={6}
-                                        className="w-full p-4 bg-white rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium text-slate-900 transition-all resize-none"
-                                    />
-                                </div>
-                                <div className="flex gap-3 pt-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsWriting(false)}
-                                        className="flex-1 py-3.5 font-bold text-slate-400 hover:text-slate-600 transition-colors"
-                                    >
-                                        취소
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={isSaving}
-                                        className="flex-1 py-3.5 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 active:scale-95 transition-all flex items-center justify-center gap-2"
-                                    >
-                                        {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Send size={16} />}
-                                        등록하기
-                                    </button>
-                                </div>
-                            </form>
-                        ) : notices.length > 0 ? (
-                            notices.map((notice: any) => (
-                                <div key={notice.id} className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-                                    {/* 제목 줄 (클릭 가능) */}
-                                    <div
-                                        className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50/50 transition-colors"
-                                        onClick={() => setExpandedId(expandedId === notice.id ? null : notice.id)}
-                                    >
-                                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                                            <ChevronDown
-                                                size={16}
-                                                className={`text-slate-400 shrink-0 transition-transform duration-200 ${expandedId === notice.id ? 'rotate-180' : ''}`}
-                                            />
-                                            <h3 className="font-bold text-slate-900 text-[15px] truncate">{notice.title}</h3>
-                                        </div>
-                                        <div className="flex items-center gap-2 shrink-0 ml-2">
-                                            <span className="text-[10px] text-slate-400 font-medium">
-                                                {formatDate(notice.created_at)}
-                                            </span>
-                                            {userRole === 'admin' && (
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(notice.id); }}
-                                                    disabled={deleteNoticeId === notice.id}
-                                                    className="text-slate-300 hover:text-red-500 transition-colors active:scale-90"
-                                                >
-                                                    {deleteNoticeId === notice.id
-                                                        ? <Loader2 size={14} className="animate-spin" />
-                                                        : <Trash2 size={14} />}
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
+                    {/* 탭 */}
+                    <div className="px-4 pt-3 bg-white border-b border-slate-100">
+                        <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+                            <button
+                                onClick={() => setActiveTab('notices')}
+                                className={`flex-1 py-2.5 rounded-lg text-[13px] font-bold transition-all ${activeTab === 'notices' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}
+                            >
+                                📢 공지사항
+                            </button>
+                            <button
+                                onClick={() => { setActiveTab('requests'); fetchRequests(); }}
+                                className={`flex-1 py-2.5 rounded-lg text-[13px] font-bold transition-all ${activeTab === 'requests' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400'}`}
+                            >
+                                📅 일정변경
+                            </button>
+                        </div>
+                    </div>
 
-                                    {/* 내용 (CSS grid 트랜지션 아코디언) */}
-                                    <div
-                                        className="transition-[grid-template-rows] duration-200 ease-out"
-                                        style={{ display: 'grid', gridTemplateRows: expandedId === notice.id ? '1fr' : '0fr' }}
-                                    >
-                                        <div className="overflow-hidden">
-                                            <div className="px-4 pb-4 pt-0">
-                                                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line border-t border-slate-100 pt-3">{notice.content}</p>
-                                                {userRole === 'admin' && (
-                                                    <div className="mt-3 pt-2.5 border-t border-slate-100">
-                                                        <div className="flex items-center gap-1 flex-wrap">
-                                                            <span className="text-[10px] font-bold text-slate-400">읽음:</span>
-                                                            {(readStatus[notice.id] || []).length > 0
-                                                                ? readStatus[notice.id].map((name, i) => (
-                                                                    <span key={i} className="text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-600 font-semibold rounded-md">{name}</span>
-                                                                ))
-                                                                : <span className="text-[10px] text-slate-300">없음</span>
-                                                            }
-                                                        </div>
-                                                        {allTeachers.filter(t => !(readStatus[notice.id] || []).includes(t.full_name)).length > 0 && (
-                                                            <div className="flex items-center gap-1 flex-wrap mt-1.5">
-                                                                <span className="text-[10px] font-bold text-red-400">읽지않음:</span>
-                                                                {allTeachers
-                                                                    .filter(t => !(readStatus[notice.id] || []).includes(t.full_name))
-                                                                    .map(t => (
-                                                                        <span key={t.id} className="text-[10px] px-1.5 py-0.5 bg-red-50 text-red-400 font-semibold rounded-md">{t.full_name}</span>
-                                                                    ))
-                                                                }
+                    {/* 본문 */}
+                    {activeTab === 'notices' ? (
+                        <>
+                            {/* 공지 리스트 */}
+                            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+                                {isLoading ? (
+                                    <div className="flex justify-center py-10"><Loader2 className="animate-spin text-emerald-600" /></div>
+                                ) : isWriting ? (
+                                    /* 작성 폼 */
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-400 ml-1 mb-1 block">제목</label>
+                                            <input
+                                                value={title}
+                                                onChange={(e) => setTitle(e.target.value)}
+                                                placeholder="공지 제목을 입력하세요"
+                                                required
+                                                className="w-full p-4 bg-white rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold text-slate-900 transition-all"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-400 ml-1 mb-1 block">내용</label>
+                                            <textarea
+                                                value={content}
+                                                onChange={(e) => setContent(e.target.value)}
+                                                placeholder="공지 내용을 입력하세요"
+                                                required
+                                                rows={6}
+                                                className="w-full p-4 bg-white rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium text-slate-900 transition-all resize-none"
+                                            />
+                                        </div>
+                                        <div className="flex gap-3 pt-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsWriting(false)}
+                                                className="flex-1 py-3.5 font-bold text-slate-400 hover:text-slate-600 transition-colors"
+                                            >
+                                                취소
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                disabled={isSaving}
+                                                className="flex-1 py-3.5 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Send size={16} />}
+                                                등록하기
+                                            </button>
+                                        </div>
+                                    </form>
+                                ) : notices.length > 0 ? (
+                                    notices.map((notice: any) => (
+                                        <div key={notice.id} className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+                                            {/* 제목 줄 (클릭 가능) */}
+                                            <div
+                                                className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50/50 transition-colors"
+                                                onClick={() => setExpandedId(expandedId === notice.id ? null : notice.id)}
+                                            >
+                                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                    <ChevronDown
+                                                        size={16}
+                                                        className={`text-slate-400 shrink-0 transition-transform duration-200 ${expandedId === notice.id ? 'rotate-180' : ''}`}
+                                                    />
+                                                    <h3 className="font-bold text-slate-900 text-[15px] truncate">{notice.title}</h3>
+                                                </div>
+                                                <div className="flex items-center gap-2 shrink-0 ml-2">
+                                                    <span className="text-[10px] text-slate-400 font-medium">
+                                                        {formatDate(notice.created_at)}
+                                                    </span>
+                                                    {userRole === 'admin' && (
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(notice.id); }}
+                                                            disabled={deleteNoticeId === notice.id}
+                                                            className="text-slate-300 hover:text-red-500 transition-colors active:scale-90"
+                                                        >
+                                                            {deleteNoticeId === notice.id
+                                                                ? <Loader2 size={14} className="animate-spin" />
+                                                                : <Trash2 size={14} />}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* 내용 (CSS grid 트랜지션 아코디언) */}
+                                            <div
+                                                className="transition-[grid-template-rows] duration-200 ease-out"
+                                                style={{ display: 'grid', gridTemplateRows: expandedId === notice.id ? '1fr' : '0fr' }}
+                                            >
+                                                <div className="overflow-hidden">
+                                                    <div className="px-4 pb-4 pt-0">
+                                                        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line border-t border-slate-100 pt-3">{notice.content}</p>
+                                                        {userRole === 'admin' && (
+                                                            <div className="mt-3 pt-2.5 border-t border-slate-100">
+                                                                <div className="flex items-center gap-1 flex-wrap">
+                                                                    <span className="text-[10px] font-bold text-slate-400">읽음:</span>
+                                                                    {(readStatus[notice.id] || []).length > 0
+                                                                        ? readStatus[notice.id].map((name, i) => (
+                                                                            <span key={i} className="text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-600 font-semibold rounded-md">{name}</span>
+                                                                        ))
+                                                                        : <span className="text-[10px] text-slate-300">없음</span>
+                                                                    }
+                                                                </div>
+                                                                {allTeachers.filter(t => !(readStatus[notice.id] || []).includes(t.full_name)).length > 0 && (
+                                                                    <div className="flex items-center gap-1 flex-wrap mt-1.5">
+                                                                        <span className="text-[10px] font-bold text-red-400">읽지않음:</span>
+                                                                        {allTeachers
+                                                                            .filter(t => !(readStatus[notice.id] || []).includes(t.full_name))
+                                                                            .map(t => (
+                                                                                <span key={t.id} className="text-[10px] px-1.5 py-0.5 bg-red-50 text-red-400 font-semibold rounded-md">{t.full_name}</span>
+                                                                            ))
+                                                                        }
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </div>
-                                                )}
+                                                </div>
                                             </div>
                                         </div>
+                                    ))
+                                ) : (
+                                    <div className="h-64 flex flex-col items-center justify-center text-slate-300 text-center">
+                                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                                            <Bell size={30} strokeWidth={1.5} className="text-slate-200" />
+                                        </div>
+                                        <p className="font-medium text-slate-400">아직 공지사항이 없습니다.</p>
                                     </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="h-64 flex flex-col items-center justify-center text-slate-300 text-center">
-                                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                                    <Bell size={30} strokeWidth={1.5} className="text-slate-200" />
-                                </div>
-                                <p className="font-medium text-slate-400">아직 공지사항이 없습니다.</p>
+                                )}
                             </div>
-                        )}
-                    </div>
 
-                    {/* 하단: 관리자 작성 버튼 */}
-                    {userRole === 'admin' && !isWriting && (
-                        <div className="p-6 bg-white border-t border-slate-100 pb-10">
-                            <button
-                                onClick={() => setIsWriting(true)}
-                                className="w-full py-5 bg-emerald-600 text-white rounded-2xl shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all text-lg font-bold"
-                            >
-                                <Plus size={22} strokeWidth={2.5} />
-                                <span>새 공지 작성</span>
-                            </button>
-                        </div>
+                            {/* 하단: 관리자 작성 버튼 */}
+                            {userRole === 'admin' && !isWriting && (
+                                <div className="p-6 bg-white border-t border-slate-100 pb-10">
+                                    <button
+                                        onClick={() => setIsWriting(true)}
+                                        className="w-full py-5 bg-emerald-600 text-white rounded-2xl shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 active:scale-95 transition-all text-lg font-bold"
+                                    >
+                                        <Plus size={22} strokeWidth={2.5} />
+                                        <span>새 공지 작성</span>
+                                    </button>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            {/* 일정변경 요청 리스트 */}
+                            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+                                {requestsLoading ? (
+                                    <div className="flex justify-center py-10"><Loader2 className="animate-spin text-blue-600" /></div>
+                                ) : requests.length > 0 ? (
+                                    requests.map((req: any) => (
+                                        <div key={req.id} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <CalendarDays size={16} className="text-blue-500" />
+                                                    <span className="font-bold text-slate-900 text-[14px]">{req.students?.name || '학생'}</span>
+                                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-600">
+                                                        {req.request_type === 'reschedule' ? '일정 변경' : req.request_type === 'makeup' ? '보강 요청' : '수업 취소'}
+                                                    </span>
+                                                </div>
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${req.status === 'pending' ? 'bg-amber-50 text-amber-600' :
+                                                    req.status === 'approved' ? 'bg-emerald-50 text-emerald-600' :
+                                                        'bg-red-50 text-red-500'
+                                                    }`}>
+                                                    {req.status === 'pending' ? '대기중' : req.status === 'approved' ? '승인' : '거절'}
+                                                </span>
+                                            </div>
+                                            <div className="text-[12px] text-slate-500 space-y-1">
+                                                <p>요청자: <span className="font-semibold text-slate-700">{req.profiles?.full_name}</span></p>
+                                                <p>변경 희망일: <span className="font-semibold text-blue-600">{req.requested_date}</span></p>
+                                                {req.content && <p className="text-slate-400 mt-1">사유: {req.content}</p>}
+                                            </div>
+                                            {userRole === 'admin' && req.status === 'pending' && (
+                                                <div className="flex gap-2 mt-3 pt-2.5 border-t border-slate-100">
+                                                    <button
+                                                        onClick={() => handleRequestAction(req.id, 'approved')}
+                                                        className="flex-1 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-emerald-100"
+                                                    >
+                                                        <Check size={14} /> 승인
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleRequestAction(req.id, 'rejected')}
+                                                        className="flex-1 py-2 bg-red-50 text-red-500 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-red-100"
+                                                    >
+                                                        <XCircle size={14} /> 거절
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="h-64 flex flex-col items-center justify-center text-slate-300 text-center">
+                                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                                            <CalendarDays size={30} strokeWidth={1.5} className="text-slate-200" />
+                                        </div>
+                                        <p className="font-medium text-slate-400">일정변경 요청이 없습니다.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </>
                     )}
                 </div>
             </div>
