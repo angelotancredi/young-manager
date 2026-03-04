@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { UserPlus, Phone, Calendar as CalendarIcon, ArrowLeft, Search, UserCircle, Loader2, X, ChevronRight, FileText } from 'lucide-react';
 import Link from 'next/link';
 import AlertModal from '@/components/AlertModal';
-
+import { useBackClose } from '@/hooks/useBackClose';
 export default function StudentManagement() {
     const [students, setStudents] = useState<any[]>([]);
     const [userRole, setUserRole] = useState<string | null>(null);
@@ -14,6 +14,9 @@ export default function StudentManagement() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [selectedStudent, setSelectedStudent] = useState<any>(null);
+
+    useBackClose(!!selectedStudent, () => setSelectedStudent(null));
+    useBackClose(isModalOpen, () => setIsModalOpen(false));
 
     // 입력 폼 상태
     const [name, setName] = useState('');

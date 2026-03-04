@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Users, ArrowLeft, Search, UserCircle, Loader2, ShieldCheck, Mail, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 import Link from 'next/link';
 import AlertModal from '@/components/AlertModal';
-
+import { useBackClose } from '@/hooks/useBackClose';
 export default function TeacherManagement() {
     const [teachers, setTeachers] = useState<any[]>([]);
     const [userRole, setUserRole] = useState<string | null>(null);
@@ -13,6 +13,8 @@ export default function TeacherManagement() {
     const [isLoading, setIsLoading] = useState(true);
     const [alertMessage, setAlertMessage] = useState<{ title: string; message: string } | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<any>(null);
+
+    useBackClose(!!deleteTarget, () => setDeleteTarget(null));
 
     const fetchTeachers = async () => {
         try {

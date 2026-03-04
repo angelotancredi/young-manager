@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { X, Loader2, Calendar as CalendarIcon, Clock, User } from 'lucide-react';
 import AlertModal from './AlertModal';
-
+import { useBackClose } from '@/hooks/useBackClose';
 export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave, userId, userRole }: any) {
+    useBackClose(isOpen, onClose);
     const [students, setStudents] = useState<any[]>([]);
     const [teachers, setTeachers] = useState<any[]>([]);
     const [studentId, setStudentId] = useState('');

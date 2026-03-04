@@ -4,8 +4,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { X, Plus, CheckCircle2, XCircle, RefreshCw, Calendar as CalendarIcon, Loader2, UserPlus, Trash2, Send } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import AlertModal from './AlertModal';
+import { useBackClose } from '@/hooks/useBackClose';
 
 export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd, onRefresh, userId, userRole }: any) {
+    useBackClose(isOpen, onClose);
     const [loadingId, setLoadingId] = useState<string | null>(null);
     const [attendanceList, setAttendanceList] = useState<any[]>([]);
     const [students, setStudents] = useState<any[]>([]);

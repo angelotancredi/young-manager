@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Bell, Plus, Send, Loader2, Trash2, ChevronDown, CalendarDays, Check, XCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useBackClose } from '@/hooks/useBackClose';
 
 interface NoticePanelProps {
     isOpen: boolean;
@@ -13,6 +14,7 @@ interface NoticePanelProps {
 }
 
 export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatusChange }: NoticePanelProps) {
+    useBackClose(isOpen, onClose);
     const [notices, setNotices] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isWriting, setIsWriting] = useState(false);
