@@ -367,10 +367,10 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                             setRequestHour('14');
                                                             setRequestMinute('00');
                                                         }}
-                                                        className="flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 transition-all active:scale-95 hover:bg-blue-100"
+                                                        className="flex items-center justify-center gap-1.5 h-12 px-4 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 font-bold text-[12px] transition-all active:scale-95 hover:bg-blue-100"
                                                     >
-                                                        <CalendarIcon size={20} strokeWidth={2.5} />
-                                                        <span className="text-[12px] font-semibold mt-0.5">변경</span>
+                                                        <CalendarIcon size={16} />
+                                                        <span>일정변경요청</span>
                                                     </button>
                                                 </div>
                                             )}
