@@ -228,6 +228,15 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
 
             if (error) throw error;
 
+            // 💡 현재 수업의 출석 기록에 보강 예정일 업데이트
+            const { error: attError } = await supabase
+                .from('attendance')
+                .update({ makeup_date: makeupDate })
+                .eq('student_id', makeupTarget.student_id)
+                .eq('lesson_date', date);
+
+            if (attError) console.error('출석부 보강일 저장 에러:', attError);
+
             setMakeupTarget(null);
             if (onRefresh) onRefresh();
             alert('보강 일정이 등록되었습니다.');
@@ -295,7 +304,9 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                         {s.students?.name}
                                                     </div>
                                                     {s.is_makeup && (
-                                                        <span className="px-1 py-0.5 bg-amber-100 text-amber-600 text-[8px] font-bold rounded-md shrink-0">보</span>
+                                                        <span className="px-1.5 py-0.5 bg-amber-100 text-amber-600 text-[14px] font-bold rounded-md shrink-0 flex items-center gap-1">
+                                                            보 <span className="text-[10px] font-medium opacity-80">{s.date.substring(5).replace('-', '/')}</span>
+                                                        </span>
                                                     )}
                                                 </div>
                                                 {/* 2줄: 담당 + 교사이름 */}
@@ -416,8 +427,15 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                             currentStatus === '결석' && (
                                                 <div className="mt-3 p-3 bg-rose-50 rounded-2xl border border-rose-100 animate-in fade-in slide-in-from-top-2 duration-300">
                                                     <div className="flex items-center justify-between text-[12px] font-medium text-rose-500 mb-2 px-1">
-                                                        <span>보강 예정일</span>
-                                                        <span className="bg-white px-2 py-0.5 rounded-full border border-rose-200">{s.makeup_date || '미정'}</span>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="px-1 py-0.5 bg-amber-100 text-amber-600 text-[10px] font-bold rounded-md">보</span>
+                                                            <span>보강 예정일</span>
+                                                        </div>
+                                                        <span className="bg-white px-2 py-0.5 rounded-full border border-rose-200">
+                                                            {attendanceList.find(a => a.student_id === s.student_id)?.makeup_date
+                                                                ? attendanceList.find(a => a.student_id === s.student_id).makeup_date.substring(5).replace('-', '/')
+                                                                : '미정'}
+                                                        </span>
                                                     </div>
                                                     <button
                                                         onClick={() => {
