@@ -235,7 +235,16 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                 .eq('student_id', makeupTarget.student_id)
                 .eq('lesson_date', date);
 
-            if (attError) console.error('출석부 보강일 저장 에러:', attError);
+            if (attError) {
+                console.error('출석부 보강일 저장 에러:', attError);
+            } else {
+                // 실시간 변경 반영 (로컬 상태 업데이트)
+                setAttendanceList(prev => prev.map(a =>
+                    (a.student_id === makeupTarget.student_id && a.lesson_date === date)
+                        ? { ...a, makeup_date: makeupDate }
+                        : a
+                ));
+            }
 
             setMakeupTarget(null);
             if (onRefresh) onRefresh();
