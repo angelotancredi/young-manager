@@ -23,6 +23,8 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
     const [isDailyOpen, setIsDailyOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDateStr, setSelectedDateStr] = useState(format(new Date(), 'yyyy-MM-dd'));
+    const [touchStart, setTouchStart] = useState<number | null>(null);
+    const [dragStart, setDragStart] = useState<number | null>(null);
 
     const holidays = [
         '2025-01-01', '2025-01-28', '2025-01-29', '2025-01-30', '2025-03-01', '2025-03-03',
@@ -101,6 +103,41 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
         setSelectedDateStr(format(date, 'yyyy-MM-dd'));
         setIsDailyOpen(true);
     };
+
+    // --- 드래그/스와이프 월 이동 로직 ---
+    const SWIPE_THRESHOLD = 50;
+
+    const onSwipeLeft = () => setCurrentMonth(addMonths(currentMonth, 1));
+    const onSwipeRight = () => setCurrentMonth(subMonths(currentMonth, 1));
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (!touchStart) return;
+        const touchEnd = e.changedTouches[0].clientX;
+        const diff = touchStart - touchEnd;
+
+        if (diff > SWIPE_THRESHOLD) onSwipeLeft();
+        if (diff < -SWIPE_THRESHOLD) onSwipeRight();
+        setTouchStart(null);
+    };
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        setDragStart(e.clientX);
+    };
+
+    const handleMouseUp = (e: React.MouseEvent) => {
+        if (!dragStart) return;
+        const dragEnd = e.clientX;
+        const diff = dragStart - dragEnd;
+
+        if (diff > SWIPE_THRESHOLD) onSwipeLeft();
+        if (diff < -SWIPE_THRESHOLD) onSwipeRight();
+        setDragStart(null);
+    };
+    // ---------------------------------
 
     const renderCells = () => {
         const monthStart = startOfMonth(currentMonth);
@@ -197,7 +234,13 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
                     <div className="text-blue-500">토</div>
                 </div>
 
-                <div className="max-h-[460px] overflow-y-auto">
+                <div
+                    className="max-h-[460px] overflow-y-auto select-none touch-pan-y"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                    onMouseDown={handleMouseDown}
+                    onMouseUp={handleMouseUp}
+                >
                     {renderCells()}
                 </div>
             </div>
