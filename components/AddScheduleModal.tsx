@@ -117,7 +117,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
 
     return (
         <>
-            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all">
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[80] p-4 transition-all">
                 <div className="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
 
                     {/* 상단 디자인 헤더 */}
