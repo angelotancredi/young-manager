@@ -19,6 +19,9 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
     const [loading, setLoading] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
 
+    // 💡 드롭다운 상호 배타적 열림 관리를 위한 상태
+    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
     // 시간 옵션 (09시~22시)
     const hours = Array.from({ length: 14 }, (_, i) => String(i + 9).padStart(2, '0'));
     // 분 옵션 (10분 단위)
@@ -32,6 +35,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
             setHour('14');
             setMinute('00');
             setIsMakeup(false);
+            setOpenDropdownId(null);
 
             if (userRole === 'teacher' && userId) {
                 setTeacherId(userId);
@@ -117,8 +121,8 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
 
     return (
         <>
-            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[80] p-4 transition-all">
-                <div className="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[80] p-4 transition-all" onClick={() => setOpenDropdownId(null)}>
+                <div className="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
 
                     {/* 상단 디자인 헤더 */}
                     <div className="bg-emerald-600 p-6 text-white relative">
@@ -140,6 +144,9 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                                 <User size={16} className="text-emerald-500" /> 대상 학생
                             </label>
                             <CustomDropdown
+                                id="student"
+                                openId={openDropdownId}
+                                setOpenId={setOpenDropdownId}
                                 value={studentId}
                                 options={students}
                                 onChange={setStudentId}
@@ -154,6 +161,9 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                                 <User size={16} className="text-emerald-500" /> 담당 선생님
                             </label>
                             <CustomDropdown
+                                id="teacher"
+                                openId={openDropdownId}
+                                setOpenId={setOpenDropdownId}
                                 value={teacherId}
                                 options={teachers}
                                 onChange={setTeacherId}
@@ -171,6 +181,9 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             </label>
                             <div className="flex gap-3 items-center">
                                 <CustomDropdown
+                                    id="hour"
+                                    openId={openDropdownId}
+                                    setOpenId={setOpenDropdownId}
                                     value={hour}
                                     options={hours.map(h => ({ id: h, label: `${h}시` }))}
                                     onChange={setHour}
@@ -179,6 +192,9 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                                 />
                                 <span className="font-bold text-slate-400">:</span>
                                 <CustomDropdown
+                                    id="minute"
+                                    openId={openDropdownId}
+                                    setOpenId={setOpenDropdownId}
                                     value={minute}
                                     options={minutes.map(m => ({ id: m, label: `${m}분` }))}
                                     onChange={setMinute}
@@ -225,24 +241,22 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
 }
 
 // --- 커스텀 드롭다운 컴포넌트 ---
-function CustomDropdown({ value, options, onChange, placeholder, labelField = 'label', labelSubField, disabled, className = '', alignCenter = false }: any) {
-    const [isOpen, setIsOpen] = useState(false);
+function CustomDropdown({ id, openId, setOpenId, value, options, onChange, placeholder, labelField = 'label', labelSubField, disabled, className = '', alignCenter = false }: any) {
+    const isOpen = openId === id;
     const selectedOption = options.find((o: any) => o.id === value);
 
-    // 외부 클릭 시 닫기
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleClose = () => setIsOpen(false);
-        window.addEventListener('click', handleClose);
-        return () => window.removeEventListener('click', handleClose);
-    }, [isOpen]);
+    const toggle = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (disabled) return;
+        setOpenId(isOpen ? null : id);
+    };
 
     return (
-        <div className={`relative ${className}`} onClick={(e) => e.stopPropagation()}>
+        <div className={`relative ${className}`}>
             <button
                 type="button"
                 disabled={disabled}
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={toggle}
                 className={`w-full p-4 bg-slate-50 border-none rounded-2xl outline-none transition-all text-slate-800 font-medium flex items-center justify-between
                     ${isOpen ? 'ring-2 ring-emerald-500 bg-white shadow-md' : ''}
                     ${disabled ? 'opacity-70 cursor-not-allowed' : 'hover:bg-slate-100'}
@@ -265,7 +279,7 @@ function CustomDropdown({ value, options, onChange, placeholder, labelField = 'l
             </button>
 
             {isOpen && (
-                <div className="absolute top-full mt-2 w-[70%] left-[15%] bg-white shadow-2xl rounded-2xl max-h-60 overflow-y-auto z-[90] border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-full mt-2 w-full left-0 bg-white shadow-2xl rounded-2xl max-h-60 overflow-y-auto z-[90] border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="py-2">
                         {options.length === 0 ? (
                             <div className="px-4 py-3 text-sm text-slate-400 text-center italic">데이터가 없습니다</div>
@@ -273,9 +287,10 @@ function CustomDropdown({ value, options, onChange, placeholder, labelField = 'l
                             options.map((option: any) => (
                                 <div
                                     key={option.id}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         onChange(option.id);
-                                        setIsOpen(false);
+                                        setOpenId(null);
                                     }}
                                     className={`px-5 py-3.5 text-sm cursor-pointer transition-colors flex items-center justify-between
                                         ${value === option.id ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}
