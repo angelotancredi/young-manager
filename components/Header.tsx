@@ -151,14 +151,14 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                                 className={`flex-1 md:flex-none flex items-center justify-center gap-1.5 px-4 py-3 bg-white text-slate-900 rounded-2xl font-bold text-sm shadow-sm hover:bg-slate-50 transition-all border border-slate-100 active:scale-95`}
                                 onClick={handleStudentManagementClick}
                             >
-                                <UserPlus size={16} className={userRole === 'owner' ? 'text-blue-600' : 'text-emerald-600'} />
+                                <UserPlus size={16} className="text-emerald-600" />
                                 학생 관리
                             </Link>
                             <Link
                                 href="/teachers"
                                 className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-4 py-3 bg-white text-slate-900 rounded-2xl font-bold text-sm shadow-sm hover:bg-slate-50 transition-all border border-slate-100 active:scale-95"
                             >
-                                <Users size={16} className="text-blue-600" />
+                                <Users size={16} className="text-emerald-600" />
                                 선생님 관리
                             </Link>
                         </>
