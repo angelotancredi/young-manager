@@ -139,16 +139,18 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
                                 <User size={16} className="text-emerald-500" /> 대상 학생
                             </label>
-                            <select
-                                value={studentId}
-                                onChange={(e) => setStudentId(e.target.value)}
-                                required
-                                className="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 font-medium appearance-none"
-                                style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
-                            >
-                                <option value="">학생을 선택하세요</option>
-                                {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                            </select>
+                            <div className="max-w-[70%] mx-auto">
+                                <select
+                                    value={studentId}
+                                    onChange={(e) => setStudentId(e.target.value)}
+                                    required
+                                    className="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 font-medium appearance-none"
+                                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
+                                >
+                                    <option value="">학생을 선택하세요</option>
+                                    {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                </select>
+                            </div>
                         </div>
 
                         {/* 선생님 선택 */}
@@ -156,17 +158,19 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
                                 <User size={16} className="text-emerald-500" /> 담당 선생님
                             </label>
-                            <select
-                                value={teacherId}
-                                onChange={(e) => setTeacherId(e.target.value)}
-                                required
-                                disabled={userRole === 'teacher'}
-                                className={`w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 font-medium appearance-none ${userRole === 'teacher' ? 'opacity-70 cursor-not-allowed' : ''}`}
-                                style={{ backgroundImage: userRole === 'teacher' ? 'none' : 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
-                            >
-                                {userRole !== 'teacher' && <option value="">선생님을 선택하세요</option>}
-                                {teachers.map(t => <option key={t.id} value={t.id}>{t.full_name} ({t.role === 'admin' ? '원장' : '교사'})</option>)}
-                            </select>
+                            <div className="max-w-[70%] mx-auto">
+                                <select
+                                    value={teacherId}
+                                    onChange={(e) => setTeacherId(e.target.value)}
+                                    required
+                                    disabled={userRole === 'teacher'}
+                                    className={`w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 font-medium appearance-none ${userRole === 'teacher' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    style={{ backgroundImage: userRole === 'teacher' ? 'none' : 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
+                                >
+                                    {userRole !== 'teacher' && <option value="">선생님을 선택하세요</option>}
+                                    {teachers.map(t => <option key={t.id} value={t.id}>{t.full_name} ({t.role === 'admin' ? '원장' : '교사'})</option>)}
+                                </select>
+                            </div>
                         </div>
 
                         {/* 시간 선택 (10분 단위 커스텀) */}
@@ -174,7 +178,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
                                 <Clock size={16} className="text-emerald-500" /> 수업 시간
                             </label>
-                            <div className="flex gap-3 items-center">
+                            <div className="flex gap-3 items-center max-w-[70%] mx-auto">
                                 <select
                                     value={hour}
                                     onChange={(e) => setHour(e.target.value)}
