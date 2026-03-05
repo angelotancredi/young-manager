@@ -54,10 +54,20 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                         (a.name || '').localeCompare(b.name || '', 'ko')
                     );
 
-                    // 교사 정렬: 원장(admin) 최상위, 나머지는 가나다순
+                    // 교사 정렬: 
+                    // 1. 원장님 (role='admin', 이름 != '관리자') 최상위
+                    // 2. 일반 강사 (role='teacher') 중간
+                    // 3. 시스템 관리자 (이름 = '관리자') 최하단
                     const sortedTeachers = (tc || []).sort((a: any, b: any) => {
+                        // '관리자'는 무조건 맨 아래
+                        if (a.full_name === '관리자') return 1;
+                        if (b.full_name === '관리자') return -1;
+
+                        // 일반 원장님(admin)은 강사(teacher)보다 위
                         if (a.role === 'admin' && b.role !== 'admin') return -1;
                         if (a.role !== 'admin' && b.role === 'admin') return 1;
+
+                        // 나머지는 이름순
                         return (a.full_name || '').localeCompare(b.full_name || '', 'ko');
                     });
 
@@ -297,7 +307,7 @@ function CustomDropdown({ id, openId, setOpenId, value, options, onChange, place
                                         ${alignCenter ? 'justify-center border-b border-slate-50 last:border-none' : ''}
                                     `}
                                 >
-                                    <span>
+                                    <span className={`${option[labelField] === '관리자' ? 'opacity-40 grayscale' : ''}`}>
                                         {option[labelField]}
                                         {labelSubField && !alignCenter && (
                                             <span className="text-[10px] ml-1.5 opacity-60 font-normal">
