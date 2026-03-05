@@ -130,10 +130,9 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
     return (
         <>
             <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[80] p-4 transition-all" onClick={() => setOpenDropdownId(null)}>
-                <div className="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
-
+                <div className="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90dvh]" onClick={(e) => e.stopPropagation()}>
                     {/* 상단 디자인 헤더 */}
-                    <div className="bg-emerald-600 p-6 text-white relative">
+                    <div className="bg-emerald-600 p-6 text-white relative shrink-0">
                         <button onClick={onClose} className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition">
                             <X size={20} />
                         </button>
@@ -144,7 +143,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                         <h2 className="text-2xl font-bold">새 수업 등록</h2>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                    <form onSubmit={handleSubmit} className="p-8 pb-32 space-y-6 overflow-y-auto">
 
                         {/* 학생 선택 */}
                         <div>
