@@ -205,7 +205,7 @@ export default function StudentManagement() {
                     <div className="flex items-center gap-3 w-full md:w-auto">
                         <button
                             onClick={() => {
-                                if (userRole !== 'admin') {
+                                if (userRole !== 'admin' && userRole !== 'owner') {
                                     setIsAlertOpen(true);
                                     return;
                                 }
@@ -298,7 +298,7 @@ export default function StudentManagement() {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    {!isEditing && !isStatsView && (
+                                    {(userRole === 'admin' || userRole === 'owner') && (
                                         <>
                                             <button
                                                 onClick={() => setIsStatsView(true)}
@@ -411,25 +411,27 @@ export default function StudentManagement() {
                                     </div>
 
                                     {/* 비활성화 / 데이터 삭제 */}
-                                    <div className="flex gap-3 pt-6 pb-2">
-                                        <button
-                                            onClick={() => setDeleteTarget({ student: selectedStudent, mode: 'deactivate' })}
-                                            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl transition-all text-[14px] font-bold border ${selectedStudent.is_active === false
-                                                ? 'text-emerald-500 hover:bg-emerald-50 border-emerald-200'
-                                                : 'text-amber-500 hover:bg-amber-50 border-amber-200'
-                                                }`}
-                                        >
-                                            <UserX size={18} />
-                                            {selectedStudent.is_active === false ? '활성화' : '비활성화'}
-                                        </button>
-                                        <button
-                                            onClick={() => setDeleteTarget({ student: selectedStudent, mode: 'delete' })}
-                                            className="flex-1 flex items-center justify-center gap-2 py-3 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all text-[14px] font-bold border border-rose-200"
-                                        >
-                                            <Trash2 size={18} />
-                                            데이터 삭제
-                                        </button>
-                                    </div>
+                                    {(userRole === 'admin' || userRole === 'owner') && (
+                                        <div className="flex gap-3 pt-6 pb-2">
+                                            <button
+                                                onClick={() => setDeleteTarget({ student: selectedStudent, mode: 'deactivate' })}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl transition-all text-[14px] font-bold border ${selectedStudent.is_active === false
+                                                    ? 'text-emerald-500 hover:bg-emerald-50 border-emerald-200'
+                                                    : 'text-amber-500 hover:bg-amber-50 border-amber-200'
+                                                    }`}
+                                            >
+                                                <UserX size={18} />
+                                                {selectedStudent.is_active === false ? '활성화' : '비활성화'}
+                                            </button>
+                                            <button
+                                                onClick={() => setDeleteTarget({ student: selectedStudent, mode: 'delete' })}
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all text-[14px] font-bold border border-rose-200"
+                                            >
+                                                <Trash2 size={18} />
+                                                데이터 삭제
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -554,7 +556,7 @@ export default function StudentManagement() {
             <AlertModal
                 isOpen={isAlertOpen}
                 onClose={() => setIsAlertOpen(false)}
-                message={`신규 학생 등록은 관리자(원장님) 계정으로만\n가능합니다.`}
+                message={`신규 학생 등록 및 관리는\n관리자 계정으로만 가능합니다.`}
             />
         </div>
     );
