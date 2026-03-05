@@ -20,8 +20,12 @@ export function useBackClose(isOpen: boolean, onClose: () => void) {
         const hash = `modal-${Math.random().toString(36).substr(2, 9)}`;
         window.history.pushState({ hash }, '');
 
-        const handlePopState = () => {
-            onCloseRef.current();
+        const handlePopState = (event: PopStateEvent) => {
+            // 💡 현재 팝된 스테이트의 해시가 내 해시가 아니라면, 
+            // 내가 뒤로가기에 의해 제거되어야 할 대상임을 의미함
+            if (event.state?.hash !== hash) {
+                onCloseRef.current();
+            }
         };
 
         window.addEventListener('popstate', handlePopState);

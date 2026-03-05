@@ -253,7 +253,6 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
                 userId={userId}
                 userRole={userRole}
                 onAdd={() => {
-                    setIsDailyOpen(false);
                     setIsModalOpen(true);
                 }}
                 onRefresh={fetchSchedules}
