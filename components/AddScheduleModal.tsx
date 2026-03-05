@@ -139,18 +139,13 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
                                 <User size={16} className="text-emerald-500" /> 대상 학생
                             </label>
-                            <div className="max-w-[70%] mx-auto">
-                                <select
-                                    value={studentId}
-                                    onChange={(e) => setStudentId(e.target.value)}
-                                    required
-                                    className="w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 font-medium appearance-none"
-                                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
-                                >
-                                    <option value="">학생을 선택하세요</option>
-                                    {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                                </select>
-                            </div>
+                            <CustomDropdown
+                                value={studentId}
+                                options={students}
+                                onChange={setStudentId}
+                                placeholder="학생을 선택하세요"
+                                labelField="name"
+                            />
                         </div>
 
                         {/* 선생님 선택 */}
@@ -158,19 +153,15 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
                                 <User size={16} className="text-emerald-500" /> 담당 선생님
                             </label>
-                            <div className="max-w-[70%] mx-auto">
-                                <select
-                                    value={teacherId}
-                                    onChange={(e) => setTeacherId(e.target.value)}
-                                    required
-                                    disabled={userRole === 'teacher'}
-                                    className={`w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 font-medium appearance-none ${userRole === 'teacher' ? 'opacity-70 cursor-not-allowed' : ''}`}
-                                    style={{ backgroundImage: userRole === 'teacher' ? 'none' : 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%2364748b\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
-                                >
-                                    {userRole !== 'teacher' && <option value="">선생님을 선택하세요</option>}
-                                    {teachers.map(t => <option key={t.id} value={t.id}>{t.full_name} ({t.role === 'admin' ? '원장' : '교사'})</option>)}
-                                </select>
-                            </div>
+                            <CustomDropdown
+                                value={teacherId}
+                                options={teachers}
+                                onChange={setTeacherId}
+                                placeholder="선생님을 선택하세요"
+                                labelField="full_name"
+                                labelSubField={(t: any) => t.role === 'admin' ? '원장' : '교사'}
+                                disabled={userRole === 'teacher'}
+                            />
                         </div>
 
                         {/* 시간 선택 (10분 단위 커스텀) */}
@@ -178,22 +169,22 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
                                 <Clock size={16} className="text-emerald-500" /> 수업 시간
                             </label>
-                            <div className="flex gap-3 items-center max-w-[70%] mx-auto">
-                                <select
+                            <div className="flex gap-3 items-center">
+                                <CustomDropdown
                                     value={hour}
-                                    onChange={(e) => setHour(e.target.value)}
-                                    className="flex-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 text-center font-bold text-lg"
-                                >
-                                    {hours.map(h => <option key={h} value={h}>{h}시</option>)}
-                                </select>
+                                    options={hours.map(h => ({ id: h, label: `${h}시` }))}
+                                    onChange={setHour}
+                                    className="flex-1"
+                                    alignCenter
+                                />
                                 <span className="font-bold text-slate-400">:</span>
-                                <select
+                                <CustomDropdown
                                     value={minute}
-                                    onChange={(e) => setMinute(e.target.value)}
-                                    className="flex-1 p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 text-center font-bold text-lg"
-                                >
-                                    {minutes.map(m => <option key={m} value={m}>{m}분</option>)}
-                                </select>
+                                    options={minutes.map(m => ({ id: m, label: `${m}분` }))}
+                                    onChange={setMinute}
+                                    className="flex-1"
+                                    alignCenter
+                                />
                             </div>
                         </div>
 
@@ -230,5 +221,84 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                 message={alertMessage}
             />
         </>
+    );
+}
+
+// --- 커스텀 드롭다운 컴포넌트 ---
+function CustomDropdown({ value, options, onChange, placeholder, labelField = 'label', labelSubField, disabled, className = '', alignCenter = false }: any) {
+    const [isOpen, setIsOpen] = useState(false);
+    const selectedOption = options.find((o: any) => o.id === value);
+
+    // 외부 클릭 시 닫기
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleClose = () => setIsOpen(false);
+        window.addEventListener('click', handleClose);
+        return () => window.removeEventListener('click', handleClose);
+    }, [isOpen]);
+
+    return (
+        <div className={`relative ${className}`} onClick={(e) => e.stopPropagation()}>
+            <button
+                type="button"
+                disabled={disabled}
+                onClick={() => setIsOpen(!isOpen)}
+                className={`w-full p-4 bg-slate-50 border-none rounded-2xl outline-none transition-all text-slate-800 font-medium flex items-center justify-between
+                    ${isOpen ? 'ring-2 ring-emerald-500 bg-white shadow-md' : ''}
+                    ${disabled ? 'opacity-70 cursor-not-allowed' : 'hover:bg-slate-100'}
+                    ${alignCenter ? 'justify-center font-bold text-lg' : ''}
+                `}
+            >
+                <span className="truncate">
+                    {selectedOption
+                        ? (labelSubField
+                            ? `${selectedOption[labelField]} (${labelSubField(selectedOption)})`
+                            : selectedOption[labelField])
+                        : placeholder
+                    }
+                </span>
+                {!alignCenter && (
+                    <svg className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                )}
+            </button>
+
+            {isOpen && (
+                <div className="absolute top-full mt-2 w-[70%] left-[15%] bg-white shadow-2xl rounded-2xl max-h-60 overflow-y-auto z-[90] border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="py-2">
+                        {options.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-slate-400 text-center italic">데이터가 없습니다</div>
+                        ) : (
+                            options.map((option: any) => (
+                                <div
+                                    key={option.id}
+                                    onClick={() => {
+                                        onChange(option.id);
+                                        setIsOpen(false);
+                                    }}
+                                    className={`px-5 py-3.5 text-sm cursor-pointer transition-colors flex items-center justify-between
+                                        ${value === option.id ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}
+                                        ${alignCenter ? 'justify-center border-b border-slate-50 last:border-none' : ''}
+                                    `}
+                                >
+                                    <span>
+                                        {option[labelField]}
+                                        {labelSubField && !alignCenter && (
+                                            <span className="text-[10px] ml-1.5 opacity-60 font-normal">
+                                                ({labelSubField(option)})
+                                            </span>
+                                        )}
+                                    </span>
+                                    {value === option.id && !alignCenter && (
+                                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                                    )}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
