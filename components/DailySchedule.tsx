@@ -323,7 +323,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                 </div>
                                             </div>
 
-                                            {userRole === 'admin' ? (
+                                            {userRole === 'admin' || userRole === 'owner' ? (
                                                 <div className="flex gap-1 shrink-0">
                                                     <button
                                                         disabled={loadingId === s.student_id || !s.student_id}
@@ -461,13 +461,13 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                     <Plus size={30} strokeWidth={1.5} className="text-slate-200" />
                                 </div>
                                 <p className="font-medium text-slate-400">등록된 수업이 없습니다.</p>
-                                {userRole === 'admin' && <p className="text-[11px] mt-1 text-slate-300">아래 버튼을 눌러 수업을 추가하세요.</p>}
+                                {userRole === 'admin' || userRole === 'owner' && <p className="text-[11px] mt-1 text-slate-300">아래 버튼을 눌러 수업을 추가하세요.</p>}
                             </div>
                         )}
                     </div>
 
                     {/* 하단 영역 */}
-                    {userRole === 'admin' && (
+                    {userRole === 'admin' || userRole === 'owner' ? (
                         <div className="p-6 bg-white border-t border-slate-100 pb-10">
                             <button
                                 onClick={onAdd}
@@ -477,7 +477,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                 <span>새 수업 등록하기</span>
                             </button>
                         </div>
-                    )}
+                    ) : null}
                 </div>
             </div >
             {/* 삭제 확인 모달 */}

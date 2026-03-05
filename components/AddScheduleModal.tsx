@@ -44,7 +44,10 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                 setLoading(true);
                 try {
                     const { data: st, error: stError } = await supabase.from('students').select('*').eq('is_active', true);
-                    const { data: tc, error: tcError } = await supabase.from('profiles').select('*');
+                    const { data: tc, error: tcError } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .in('role', ['admin', 'teacher']);
 
                     if (stError) console.error("Students fetch error:", stError);
                     if (tcError) console.error("Teachers fetch error:", tcError);
@@ -55,15 +58,10 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                     );
 
                     // 교사 정렬: 
-                    // 1. 원장님 (role='admin', 이름 != '관리자') 최상위
-                    // 2. 일반 강사 (role='teacher') 중간
-                    // 3. 시스템 관리자 (이름 = '관리자') 최하단
+                    // 1. 원장님 (role='admin') 최상위
+                    // 2. 일반 강사 (role='teacher') 하단
                     const sortedTeachers = (tc || []).sort((a: any, b: any) => {
-                        // '관리자'는 무조건 맨 아래
-                        if (a.full_name === '관리자') return 1;
-                        if (b.full_name === '관리자') return -1;
-
-                        // 일반 원장님(admin)은 강사(teacher)보다 위
+                        // 원장님(admin)은 강사(teacher)보다 위
                         if (a.role === 'admin' && b.role !== 'admin') return -1;
                         if (a.role !== 'admin' && b.role === 'admin') return 1;
 
@@ -307,7 +305,7 @@ function CustomDropdown({ id, openId, setOpenId, value, options, onChange, place
                                         ${alignCenter ? 'justify-center border-b border-slate-50 last:border-none' : ''}
                                     `}
                                 >
-                                    <span className={`${option[labelField] === '관리자' ? 'opacity-40 grayscale' : ''}`}>
+                                    <span>
                                         {option[labelField]}
                                         {labelSubField && !alignCenter && (
                                             <span className="text-[10px] ml-1.5 opacity-60 font-normal">

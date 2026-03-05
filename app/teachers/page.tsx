@@ -21,6 +21,7 @@ export default function TeacherManagement() {
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
+                .in('role', ['admin', 'teacher'])
                 .order('full_name', { ascending: true });
 
             if (error) {
@@ -201,7 +202,7 @@ export default function TeacherManagement() {
                                         </div>
 
                                         {/* 하단 액션 버튼 */}
-                                        {userRole === 'admin' && (
+                                        {(userRole === 'admin' || userRole === 'owner') && (
                                             <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
                                                 <button
                                                     onClick={() => handleToggleRole(teacher)}

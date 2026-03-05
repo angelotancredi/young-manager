@@ -44,7 +44,7 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
             if (error) console.error('공지 조회 에러:', error);
             const list = data || [];
             setNotices(list);
-            if (userRole === 'admin' && list.length > 0) {
+            if ((userRole === 'admin' || userRole === 'owner') && list.length > 0) {
                 fetchReadStatus(list.map((n: any) => n.id));
             }
         } catch (err) {
@@ -57,7 +57,7 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
 
     // 관리자용: 공지별 읽음 현황 + 교사 목록 가져오기
     const fetchReadStatus = async (noticeIds: string[]) => {
-        if (userRole !== 'admin' || noticeIds.length === 0) return;
+        if ((userRole !== 'admin' && userRole !== 'owner') || noticeIds.length === 0) return;
         try {
             // 1. 전체 사용자 목록(관리자 포함) 가져오기
             const { data: teachers } = await supabase
@@ -111,7 +111,7 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (userRole !== 'admin' && userId) {
+            if (userRole !== 'admin' && userRole !== 'owner' && userId) {
                 query = query.eq('requester_id', userId);
             }
 
@@ -337,7 +337,7 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
                                 onClick={() => {
                                     setActiveTab('requests');
                                     fetchRequests();
-                                    if (userRole !== 'admin') {
+                                    if (userRole !== 'admin' && userRole !== 'owner') {
                                         localStorage.setItem('requests_last_seen', new Date().toISOString());
                                         onStatusChange?.();
                                     }
@@ -417,7 +417,7 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
                                                     <span className="text-[10px] text-slate-400 font-medium">
                                                         {formatDate(notice.created_at)}
                                                     </span>
-                                                    {userRole === 'admin' && (
+                                                    {(userRole === 'admin' || userRole === 'owner') && (
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(notice.id); }}
                                                             disabled={deleteNoticeId === notice.id}
@@ -439,7 +439,7 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
                                                 <div className="overflow-hidden">
                                                     <div className="px-4 pb-4 pt-0">
                                                         <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line border-t border-slate-100 pt-3">{notice.content}</p>
-                                                        {userRole === 'admin' && (
+                                                        {(userRole === 'admin' || userRole === 'owner') && (
                                                             <div className="mt-3 pt-2.5 border-t border-slate-100">
                                                                 <div className="flex items-center gap-1 flex-wrap">
                                                                     <span className="text-[10px] font-bold text-slate-400">읽음:</span>
@@ -479,7 +479,7 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
                             </div>
 
                             {/* 하단: 관리자 작성 버튼 */}
-                            {userRole === 'admin' && !isWriting && (
+                            {(userRole === 'admin' || userRole === 'owner') && !isWriting && (
                                 <div className="p-6 bg-white border-t border-slate-100 pb-10">
                                     <button
                                         onClick={() => setIsWriting(true)}
@@ -524,7 +524,7 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
                                                     <p className="mt-1.5 px-2.5 py-1.5 bg-red-50 rounded-lg text-red-500 font-semibold">거절 사유: {req.admin_comment}</p>
                                                 )}
                                             </div>
-                                            {userRole === 'admin' && (
+                                            {(userRole === 'admin' || userRole === 'owner') && (
                                                 <div className="flex gap-2 mt-3 pt-2.5 border-t border-slate-100">
                                                     {req.status === 'pending' && (
                                                         <>

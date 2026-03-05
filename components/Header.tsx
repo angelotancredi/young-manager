@@ -40,7 +40,7 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
 
             // 관리자: pending 요청 체크 / 교사: 처리된 요청 체크
             let hasRequestAlert = false;
-            if (userRole === 'admin') {
+            if (userRole === 'admin' || userRole === 'owner') {
                 const { count: pendingCount } = await supabase
                     .from('schedule_requests')
                     .select('*', { count: 'exact', head: true })
@@ -90,7 +90,7 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
     };
 
     const handleStudentManagementClick = (e: React.MouseEvent) => {
-        if (userRole !== 'admin') {
+        if (userRole !== 'admin' && userRole !== 'owner') {
             e.preventDefault();
             setIsAlertOpen(true);
         }
@@ -119,14 +119,16 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                     <div className="flex items-center gap-2 justify-end w-full md:w-auto">
                         {/* 접속 정보 배지 */}
                         <div className="flex items-center gap-2 bg-slate-100/50 px-3 py-1.5 rounded-full border border-slate-200">
-                            {userRole === 'admin' ? (
+                            {userRole === 'owner' ? (
+                                <ShieldCheck size={14} className="text-blue-600" />
+                            ) : userRole === 'admin' ? (
                                 <ShieldCheck size={14} className="text-emerald-600" />
                             ) : (
                                 <UserCircle size={14} className="text-slate-500" />
                             )}
                             <span className="text-xs font-bold text-slate-600">
-                                <span className="text-emerald-700 font-bold">{userName}</span>
-                                {userRole === 'admin' ? ' 원장님' : ' 선생님'}으로 접속 중
+                                <span className={`${userRole === 'owner' ? 'text-blue-700' : 'text-emerald-700'} font-bold`}>{userName}</span>
+                                {userRole === 'owner' ? ' 개발자' : userRole === 'admin' ? ' 원장님' : ' 선생님'}으로 접속 중
                             </span>
                         </div>
 
@@ -142,13 +144,14 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                 )}
 
                 <div className="flex items-center gap-2 w-full md:w-auto justify-end">
-                    {userRole === 'admin' ? (
+                    {userRole === 'admin' || userRole === 'owner' ? (
                         <>
                             <Link
                                 href="/students"
-                                className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-4 py-3 bg-white text-slate-900 rounded-2xl font-bold text-sm shadow-sm hover:bg-slate-50 transition-all border border-slate-100 active:scale-95"
+                                className={`flex-1 md:flex-none flex items-center justify-center gap-1.5 px-4 py-3 bg-white text-slate-900 rounded-2xl font-bold text-sm shadow-sm hover:bg-slate-50 transition-all border border-slate-100 active:scale-95`}
+                                onClick={handleStudentManagementClick}
                             >
-                                <UserPlus size={16} className="text-emerald-600" />
+                                <UserPlus size={16} className={userRole === 'owner' ? 'text-blue-600' : 'text-emerald-600'} />
                                 학생 관리
                             </Link>
                             <Link
