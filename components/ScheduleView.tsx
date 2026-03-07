@@ -169,16 +169,16 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                     </h2>
 
                     <div className="flex items-center gap-1.5 shrink-0 h-8 md:h-10">
-                        <button onClick={handlePrevWeek} title="이전 주" className="flex items-center justify-center px-4 md:px-6 h-full bg-white border border-slate-200 rounded-lg md:rounded-xl hover:bg-slate-50 transition-all active:scale-90 shadow-sm">
+                        <button onClick={handlePrevWeek} title="이전 주" className="flex items-center justify-center px-2 md:px-6 h-full bg-white border border-slate-200 rounded-lg md:rounded-xl hover:bg-slate-50 transition-all active:scale-90 shadow-sm">
                             <ChevronLeft size={16} className="text-slate-600" />
                         </button>
                         <button
                             onClick={handleToday}
-                            className="flex items-center justify-center px-3 md:px-4 h-full bg-white border border-slate-200 rounded-lg md:rounded-xl text-[13px] md:text-sm font-bold text-slate-600 hover:bg-slate-50 font-sans transition-all active:scale-95 shadow-sm"
+                            className="flex items-center justify-center px-2 md:px-4 h-full bg-white border border-slate-200 rounded-lg md:rounded-xl text-[11px] md:text-sm font-bold text-slate-600 hover:bg-slate-50 font-sans transition-all active:scale-95 shadow-sm"
                         >
                             오늘
                         </button>
-                        <button onClick={handleNextWeek} title="다음 주" className="flex items-center justify-center px-4 md:px-6 h-full bg-white border border-slate-200 rounded-lg md:rounded-xl hover:bg-slate-50 transition-all active:scale-90 shadow-sm">
+                        <button onClick={handleNextWeek} title="다음 주" className="flex items-center justify-center px-2 md:px-6 h-full bg-white border border-slate-200 rounded-lg md:rounded-xl hover:bg-slate-50 transition-all active:scale-90 shadow-sm">
                             <ChevronRight size={16} className="text-slate-600" />
                         </button>
                     </div>
