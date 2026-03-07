@@ -315,30 +315,32 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                     <div className="w-10 h-7 bg-slate-50 rounded-md flex items-center justify-center text-slate-700 shrink-0">
                                                         <span className="text-[15px] font-extrabold leading-tight">{s.time.substring(0, 5)}</span>
                                                     </div>
-                                                    <div className="flex items-baseline gap-1.5 truncate">
-                                                        <span className="font-extrabold text-black text-[17px] leading-tight flex-shrink-0">{s.students?.name}</span>
-                                                        {s.students?.subject && (
-                                                            <span className="text-[12px] font-bold text-slate-400 truncate">({s.students.subject})</span>
-                                                        )}
+                                                    <div className="font-extrabold text-black text-[17px] leading-tight truncate">
+                                                        {s.students?.name}
                                                     </div>
                                                     {s.is_makeup && (
                                                         <span className="px-1.5 py-0.5 bg-amber-100 text-amber-600 text-[14px] font-bold rounded-md shrink-0">
-                                                            보
+                                                            보강
                                                         </span>
                                                     )}
                                                 </div>
-                                                {/* 2줄: 담당 + 교사이름 */}
-                                                <div className="flex items-center">
+                                                {/* 2줄: 담당 + 교사이름 + 과목 */}
+                                                <div className="flex items-center gap-1.5">
                                                     <div className="flex items-center gap-1.5 px-2.5 h-7 bg-slate-100 text-black text-[14px] font-bold rounded-md border border-slate-200 shrink-0">
                                                         <span className="text-slate-400 text-[12px] font-semibold">담당</span>
                                                         <span className="w-px h-3.5 bg-slate-300"></span>
                                                         <span>{s.profiles?.full_name || '담당자 없음'}</span>
                                                     </div>
+                                                    {s.students?.subject && (
+                                                        <div className="flex items-center px-2 h-7 bg-emerald-50 text-emerald-700 text-[12px] font-bold rounded-md border border-emerald-100 shrink-0">
+                                                            {s.students.subject}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
 
                                             {userRole === 'admin' || userRole === 'owner' ? (
-                                                <div className="flex gap-1 shrink-0">
+                                                <div className="flex gap-1 shrink-0 ml-auto">
                                                     <button
                                                         disabled={loadingId === s.id || !s.student_id}
                                                         onClick={() => updateStatus(s.student_id, '출석', s.teacher_id, s.id)}
@@ -360,16 +362,6 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                         <span className="text-[12px] font-semibold mt-0.5">결석</span>
                                                     </button>
                                                     <button
-                                                        disabled={loadingId === s.id || !s.student_id}
-                                                        onClick={() => updateStatus(s.student_id, '보강', s.teacher_id, s.id)}
-                                                        className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '보강'
-                                                            ? 'bg-amber-500 text-white shadow-md'
-                                                            : 'bg-slate-50 text-amber-600 border border-amber-100'}`}
-                                                    >
-                                                        <RefreshCw size={20} strokeWidth={2.5} />
-                                                        <span className="text-[12px] font-semibold mt-0.5">보강</span>
-                                                    </button>
-                                                    <button
                                                         disabled={deletingId === s.id}
                                                         onClick={() => {
                                                             askDelete(s.id, s.student_id, s.students?.name || '학생');
@@ -385,7 +377,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <div className="flex gap-1 shrink-0">
+                                                <div className="flex gap-1 shrink-0 ml-auto">
                                                     <button
                                                         disabled={loadingId === s.id || !s.student_id}
                                                         onClick={() => updateStatus(s.student_id, '출석', s.teacher_id, s.id)}
