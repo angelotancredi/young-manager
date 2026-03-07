@@ -80,9 +80,11 @@ export default function NoticePanel({ isOpen, onClose, userRole, userId, onStatu
             const teacherMap = new Map((teachers || []).map((t: any) => [t.id, t.full_name]));
             const map: Record<string, string[]> = {};
             (reads || []).forEach((r: any) => {
-                if (!map[r.notice_id]) map[r.notice_id] = [];
-                const name = teacherMap.get(r.user_id) || '미상';
-                map[r.notice_id].push(name);
+                const name = teacherMap.get(r.user_id);
+                if (name) {
+                    if (!map[r.notice_id]) map[r.notice_id] = [];
+                    map[r.notice_id].push(name);
+                }
             });
             setReadStatus(map);
         } catch (err) {
