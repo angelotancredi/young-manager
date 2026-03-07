@@ -164,7 +164,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
             {/* 상단 컨트롤러 */}
             <div className="p-4 md:p-6 border-b border-slate-100 flex flex-row justify-start items-center gap-3 md:gap-6 bg-slate-50/30">
                 <div className="flex flex-row items-center justify-between w-full">
-                    <h2 className="text-sm md:text-2xl font-bold text-slate-900 tracking-tight whitespace-nowrap">
+                    <h2 className="text-lg md:text-2xl font-bold text-slate-900 tracking-tight whitespace-nowrap">
                         {format(weekDays[0], 'yyyy년 M월 d일')} - {format(weekDays[5], 'M월 d일')}
                     </h2>
 
