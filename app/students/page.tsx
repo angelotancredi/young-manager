@@ -481,7 +481,7 @@ export default function StudentManagement() {
                                 ? (deleteTarget.student.is_active === false
                                     ? '활성화하시겠습니까?'
                                     : '비활성화하시겠습니까?\n(이전 자료는 보존됩니다)')
-                                : '완전히 삭제하시겠습니까?\n(이전 자료도 모두 삭제됩니다)'}
+                                : '정말 삭제하시겠습니까?\n(관련된 모든 수업 및 출석 데이터도\n함께 삭제됩니다!)'}
                         </p>
                         <div className="flex gap-3">
                             <button
@@ -492,19 +492,29 @@ export default function StudentManagement() {
                             </button>
                             <button
                                 onClick={async () => {
-                                    let result;
-                                    if (deleteTarget.mode === 'deactivate') {
-                                        const newActive = deleteTarget.student.is_active === false ? true : false;
-                                        result = await supabase.from('students').update({ is_active: newActive }).eq('id', deleteTarget.student.id);
-                                    } else {
-                                        result = await supabase.from('students').delete().eq('id', deleteTarget.student.id);
-                                    }
-                                    if (result.error) {
-                                        alert('처리 실패: ' + result.error.message);
-                                    } else {
+                                    try {
+                                        if (deleteTarget.mode === 'deactivate') {
+                                            const newActive = deleteTarget.student.is_active === false ? true : false;
+                                            const { error } = await supabase.from('students').update({ is_active: newActive }).eq('id', deleteTarget.student.id);
+                                            if (error) throw error;
+                                        } else {
+                                            const studentId = deleteTarget.student.id;
+
+                                            // 1. 연쇄 삭제 (Cascading Delete)
+                                            await supabase.from('attendance').delete().eq('student_id', studentId);
+                                            await supabase.from('schedule_requests').delete().eq('student_id', studentId);
+                                            await supabase.from('schedules').delete().eq('student_id', studentId);
+
+                                            // 2. 최종 학생 삭제
+                                            const { error } = await supabase.from('students').delete().eq('id', studentId);
+                                            if (error) throw error;
+                                        }
+
                                         setDeleteTarget(null);
                                         setSelectedStudent(null);
                                         fetchStudents();
+                                    } catch (err: any) {
+                                        alert('처리 실패: ' + (err.message || '알 수 없는 오류'));
                                     }
                                 }}
                                 className={`flex-1 py-3 text-white rounded-2xl font-bold active:scale-95 transition-all ${deleteTarget.mode === 'deactivate'

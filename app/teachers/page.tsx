@@ -125,16 +125,27 @@ export default function TeacherManagement() {
     // 삭제
     const handleDelete = async () => {
         if (!deleteTarget) return;
-        const { error } = await supabase
-            .from('profiles')
-            .delete()
-            .eq('id', deleteTarget.id);
+        const teacherId = deleteTarget.id;
 
-        if (!error) {
-            setAlertMessage({ title: '삭제 완료', message: `${deleteTarget.full_name}님이 삭제되었습니다.` });
+        try {
+            // 1. 연쇄 삭제 (Cascading Delete)
+            // 강사가 작성한 출석 기록, 요청, 스케줄을 순차적으로 삭제
+            await supabase.from('attendance').delete().eq('teacher_id', teacherId);
+            await supabase.from('schedule_requests').delete().eq('requester_id', teacherId);
+            await supabase.from('schedules').delete().eq('teacher_id', teacherId);
+
+            // 2. 최종 프로필 삭제
+            const { error } = await supabase
+                .from('profiles')
+                .delete()
+                .eq('id', teacherId);
+
+            if (error) throw error;
+
+            setAlertMessage({ title: '삭제 완료', message: `${deleteTarget.full_name}님이 삭제되었습니다.\n(관련 모든 수업 데이터가 정리되었습니다)` });
             fetchTeachers();
-        } else {
-            setAlertMessage({ title: '삭제 실패', message: error.message });
+        } catch (err: any) {
+            setAlertMessage({ title: '삭제 실패', message: err.message || '알 수 없는 오류가 발생했습니다.' });
         }
         setDeleteTarget(null);
     };
@@ -368,7 +379,8 @@ export default function TeacherManagement() {
                         </div>
                         <h3 className="text-lg font-bold text-slate-900 mb-2">선생님 삭제</h3>
                         <p className="text-slate-500 text-sm font-medium mb-6">
-                            <span className="font-bold text-slate-700">{deleteTarget.full_name}</span>님을<br />정말 삭제하시겠습니까?
+                            <span className="font-bold text-slate-700">{deleteTarget.full_name}</span>님을 정말 삭제하시겠습니까?<br />
+                            <span className="text-red-400 text-xs mt-1 block">(관련된 모든 수업 및 출석 데이터도 삭제됩니다)</span>
                         </p>
                         <div className="flex gap-3">
                             <button
