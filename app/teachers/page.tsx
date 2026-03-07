@@ -2,18 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Users, ArrowLeft, Search, UserCircle, Loader2, ShieldCheck, Mail, Trash2, ToggleLeft, ToggleRight, Palette, Check } from 'lucide-react';
+import { Users, ArrowLeft, Search, UserCircle, Loader2, ShieldCheck, Mail, Trash2, ToggleLeft, ToggleRight, Palette, Check, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import AlertModal from '@/components/AlertModal';
 import { useBackClose } from '@/hooks/useBackClose';
+import ScheduleView from '@/components/ScheduleView'; // 실제 경로에 맞게 수정
+
 export default function TeacherManagement() {
     const [teachers, setTeachers] = useState<any[]>([]);
     const [userRole, setUserRole] = useState<string | null>(null);
+    const [userId, setUserId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [alertMessage, setAlertMessage] = useState<{ title: string; message: string } | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<any>(null);
     const [colorPickerTarget, setColorPickerTarget] = useState<any>(null);
+    const [selectedTeacherSchedule, setSelectedTeacherSchedule] = useState<any>(null);
 
     const PASTEL_COLORS = [
         '#DCFCE7', // Emerald 100
@@ -38,10 +42,14 @@ export default function TeacherManagement() {
         '#FDF4FF', // Fuchsia 50
     ];
 
-    useBackClose(!!deleteTarget || !!colorPickerTarget, () => {
-        setDeleteTarget(null);
-        setColorPickerTarget(null);
-    });
+    useBackClose(
+        !!deleteTarget || !!colorPickerTarget || !!selectedTeacherSchedule,
+        () => {
+            setDeleteTarget(null);
+            setColorPickerTarget(null);
+            setSelectedTeacherSchedule(null);
+        }
+    );
 
     const fetchTeachers = async () => {
         try {
@@ -75,6 +83,7 @@ export default function TeacherManagement() {
                 .single();
 
             setUserRole(data?.role || 'teacher');
+            setUserId(user.id);
         } catch (err) {
             console.error('fetchUserRole exception:', err);
         }
@@ -170,13 +179,10 @@ export default function TeacherManagement() {
 
     // 관리자 → 교사 → 비활성, 각 그룹 내 가나다순
     const sortedTeachers = [...filteredTeachers].sort((a, b) => {
-        // 비활성은 항상 맨 뒤
         if (a.is_active === false && b.is_active !== false) return 1;
         if (a.is_active !== false && b.is_active === false) return -1;
-        // 관리자 우선
         if (a.role === 'admin' && b.role !== 'admin') return -1;
         if (a.role !== 'admin' && b.role === 'admin') return 1;
-        // 가나다순
         return (a.full_name || '').localeCompare(b.full_name || '', 'ko');
     });
 
@@ -214,26 +220,35 @@ export default function TeacherManagement() {
                     </div>
 
                     {isLoading ? (
-                        <div className="flex justify-center p-20 shrink-0"><Loader2 className="animate-spin text-blue-600" size={40} /></div>
+                        <div className="flex justify-center p-20 shrink-0">
+                            <Loader2 className="animate-spin text-blue-600" size={40} />
+                        </div>
                     ) : (
                         <div className="flex-1 overflow-y-auto pb-10 -mx-2 px-2">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {sortedTeachers.map((teacher) => (
-                                    <div key={teacher.id} className={`bg-white py-4 px-5 rounded-3xl border shadow-sm hover:shadow-md transition-all group relative overflow-hidden ${teacher.is_active === false ? 'opacity-50 border-slate-200 bg-slate-50' : 'border-slate-100 hover:border-blue-100'}`}>
+                                    <div
+                                        key={teacher.id}
+                                        className={`bg-white py-4 px-5 rounded-3xl border shadow-sm hover:shadow-md transition-all group relative overflow-hidden ${teacher.is_active === false ? 'opacity-50 border-slate-200 bg-slate-50' : 'border-slate-100 hover:border-blue-100'}`}
+                                    >
                                         <div className="flex items-center gap-4">
                                             {/* 아바타 */}
                                             <div
-                                                className={`p-2.5 rounded-2xl shadow-sm relative group/avatar cursor-pointer transition-transform active:scale-95`}
+                                                className="p-2.5 rounded-2xl shadow-sm relative group/avatar cursor-pointer transition-transform active:scale-95"
                                                 style={{ backgroundColor: teacher.color || (teacher.role === 'admin' ? '#ecfdf5' : '#eff6ff') }}
                                                 onClick={() => (userRole === 'admin' || userRole === 'owner') && setColorPickerTarget(teacher)}
                                             >
-                                                {teacher.role === 'admin' ? <ShieldCheck size={28} className="text-emerald-600" /> : <UserCircle size={28} className="text-blue-600" />}
+                                                {teacher.role === 'admin'
+                                                    ? <ShieldCheck size={28} className="text-emerald-600" />
+                                                    : <UserCircle size={28} className="text-blue-600" />
+                                                }
                                                 {(userRole === 'admin' || userRole === 'owner') && (
                                                     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover/avatar:opacity-100 rounded-2xl flex items-center justify-center transition-opacity">
                                                         <Palette size={14} className="text-slate-600" />
                                                     </div>
                                                 )}
                                             </div>
+
                                             {/* 정보 */}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2">
@@ -250,6 +265,14 @@ export default function TeacherManagement() {
                                                     <span className="text-xs font-medium truncate">{teacher.email || '-'}</span>
                                                 </div>
                                             </div>
+
+                                            {/* 시간표 버튼 — 이름 우측 */}
+                                            <button
+                                                onClick={() => setSelectedTeacherSchedule(teacher)}
+                                                className="p-2.5 rounded-2xl shadow-sm bg-blue-50 text-blue-500 hover:bg-blue-100 active:scale-95 transition-all shrink-0"
+                                            >
+                                                <CalendarDays size={28} />
+                                            </button>
                                         </div>
 
                                         {/* 하단 액션 버튼 */}
@@ -262,7 +285,10 @@ export default function TeacherManagement() {
                                                         : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
                                                         }`}
                                                 >
-                                                    {teacher.role === 'admin' ? <><ToggleRight size={14} /> 교사로 변경</> : <><ToggleLeft size={14} /> 관리자로 변경</>}
+                                                    {teacher.role === 'admin'
+                                                        ? <><ToggleRight size={14} /> 교사로 변경</>
+                                                        : <><ToggleLeft size={14} /> 관리자로 변경</>
+                                                    }
                                                 </button>
                                                 <button
                                                     onClick={() => handleToggleActive(teacher)}
@@ -295,6 +321,41 @@ export default function TeacherManagement() {
                             </div>
                         </div>
                     )}
+                </div>
+            </div>
+
+            {/* 선생님 시간표 슬라이드 패널 */}
+            <div className={`fixed inset-0 z-[90] transition-all duration-300 ${selectedTeacherSchedule ? 'visible' : 'invisible'}`}>
+                {/* 배경 딤 */}
+                <div
+                    className={`absolute inset-0 bg-black/30 backdrop-blur-[2px] transition-opacity duration-300 ${selectedTeacherSchedule ? 'opacity-100' : 'opacity-0'}`}
+                    onClick={() => setSelectedTeacherSchedule(null)}
+                />
+
+                {/* 슬라이드 패널 */}
+                <div className={`absolute top-0 right-0 h-full w-full max-w-2xl bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-out ${selectedTeacherSchedule ? 'translate-x-0' : 'translate-x-full'}`}>
+                    {/* 패널 헤더 */}
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
+                        <p className="text-[15px] font-bold text-slate-900">
+                            <span className="text-blue-600">{selectedTeacherSchedule?.full_name}</span> 선생님의 주간 스케줄입니다.
+                        </p>
+                        <button
+                            onClick={() => setSelectedTeacherSchedule(null)}
+                            className="p-2 rounded-xl hover:bg-slate-100 transition-colors active:scale-95 shrink-0"
+                        >
+                            <ArrowLeft size={20} className="text-slate-600" />
+                        </button>
+                    </div>
+
+                    {/* ScheduleView */}
+                    <div className="flex-1 min-h-0 p-3">
+                        {selectedTeacherSchedule && (
+                            <ScheduleView
+                                userId={selectedTeacherSchedule.id}
+                                userRole="teacher"
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
 

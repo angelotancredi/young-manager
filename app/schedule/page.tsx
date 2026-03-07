@@ -71,7 +71,7 @@ export default function SchedulePage() {
                             <p className="text-slate-500 font-bold mt-1.5 flex items-center gap-1.5 px-1">
                                 <span className="inline-block w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
                                 {userRole === 'admin' || userRole === 'owner'
-                                    ? '전체 선생님의 수업 일정을 확인합니다.'
+                                    ? '주간 수업 일정을 확인합니다.'
                                     : userName
                                         ? `${userName} 선생님의 수업 일정을 확인합니다.`
                                         : '수업 일정을 확인합니다.'}

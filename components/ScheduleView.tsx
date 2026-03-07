@@ -261,7 +261,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                                                             {schedule.time.substring(0, 5)}
                                                         </span>
                                                         <span className="text-[10px] md:text-[11.5px] font-bold truncate flex-1 text-center md:text-right">
-                                                            {schedule.profiles?.full_name}
+                                                            {schedule.students?.name}
                                                         </span>
                                                     </div>
                                                 );
