@@ -163,8 +163,8 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
         <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden font-sans text-black">
             {/* 상단 컨트롤러 */}
             <div className="p-4 md:p-6 border-b border-slate-100 flex flex-row justify-start items-center gap-3 md:gap-6 bg-slate-50/30">
-                <div className="flex flex-row items-center gap-3 md:gap-6 w-full overflow-x-auto no-scrollbar">
-                    <h2 className="text-sm md:text-2xl font-bold text-slate-900 tracking-tight whitespace-nowrap">
+                <div className="flex flex-row items-center justify-between w-full">
+                    <h2 className="text-[11px] md:text-2xl font-bold text-slate-900 tracking-tight whitespace-nowrap">
                         {format(weekDays[0], 'yyyy년 M월 d일')} - {format(weekDays[5], 'M월 d일')}
                     </h2>
 
@@ -202,7 +202,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                         {weekDays.map((day, i) => (
                             <div key={i} className={`p-1.5 md:p-3 text-center border-r border-slate-100 last:border-r-0 ${isSameDay(day, new Date()) ? 'bg-emerald-50/30' : ''}`}>
                                 <div className="flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-2 whitespace-nowrap">
-                                    <span className={`text-[12px] md:text-base font-extrabold ${isSameDay(day, new Date()) ? 'text-emerald-600' : 'text-slate-900'}`}>
+                                    <span className={`text-[15px] md:text-lg font-extrabold ${isSameDay(day, new Date()) ? 'text-emerald-600' : 'text-slate-900'}`}>
                                         {format(day, 'd')}
                                     </span>
                                     <span className={`text-[10px] md:text-base font-extrabold ${isSameDay(day, new Date()) ? 'text-emerald-600' : day.getDay() === 0 ? 'text-red-500' : day.getDay() === 6 ? 'text-blue-500' : 'text-slate-500'}`}>
@@ -218,7 +218,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                         {hours.map(hour => (
                             <div key={hour} className="grid grid-cols-[2.5rem_repeat(6,minmax(0,1fr))] md:grid-cols-[3.5rem_repeat(6,minmax(0,1fr))] h-auto min-h-[72px] md:min-h-[96px] border-b border-slate-200">
                                 {/* 시간 열 */}
-                                <div className="border-r border-slate-100 bg-slate-50/30 flex items-start justify-center pt-2 md:pt-3 text-[10px] md:text-sm font-extrabold text-slate-800">
+                                <div className="border-r border-slate-100 bg-slate-50/30 flex items-start justify-center pt-2 md:pt-3 text-[15px] md:text-lg font-extrabold text-slate-800">
                                     {hour.toString().padStart(2, '0')}
                                 </div>
 
