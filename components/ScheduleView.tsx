@@ -193,19 +193,19 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
             >
-                <div className="min-w-[600px] flex flex-col">
+                <div className="flex flex-col">
                     {/* 요일 헤더 */}
-                    <div className="grid grid-cols-[3.5rem_repeat(6,minmax(0,1fr))] border-b border-slate-100 bg-slate-50/50 sticky top-0 z-20 font-sans shadow-sm">
-                        <div className="w-[3.5rem] border-r border-slate-100 bg-slate-50/50 flex items-center justify-center">
-                            <Clock size={16} className="text-emerald-500" />
+                    <div className="grid grid-cols-[2.5rem_repeat(6,minmax(0,1fr))] md:grid-cols-[3.5rem_repeat(6,minmax(0,1fr))] border-b border-slate-100 bg-slate-50/50 sticky top-0 z-20 font-sans shadow-sm">
+                        <div className="border-r border-slate-100 bg-slate-50/50 flex items-center justify-center">
+                            <Clock size={16} className="text-emerald-500 hidden md:block" />
                         </div>
                         {weekDays.map((day, i) => (
-                            <div key={i} className={`p-3 text-center border-r border-slate-100 last:border-r-0 ${isSameDay(day, new Date()) ? 'bg-emerald-50/30' : ''}`}>
-                                <div className="flex flex-row items-center justify-center gap-1.5 md:gap-2 whitespace-nowrap">
-                                    <span className={`text-[14px] md:text-base font-extrabold ${isSameDay(day, new Date()) ? 'text-emerald-600' : 'text-slate-900'}`}>
+                            <div key={i} className={`p-1.5 md:p-3 text-center border-r border-slate-100 last:border-r-0 ${isSameDay(day, new Date()) ? 'bg-emerald-50/30' : ''}`}>
+                                <div className="flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-2 whitespace-nowrap">
+                                    <span className={`text-[12px] md:text-base font-extrabold ${isSameDay(day, new Date()) ? 'text-emerald-600' : 'text-slate-900'}`}>
                                         {format(day, 'd')}
                                     </span>
-                                    <span className={`text-[14px] md:text-base font-extrabold ${isSameDay(day, new Date()) ? 'text-emerald-600' : day.getDay() === 0 ? 'text-red-500' : day.getDay() === 6 ? 'text-blue-500' : 'text-slate-500'}`}>
+                                    <span className={`text-[10px] md:text-base font-extrabold ${isSameDay(day, new Date()) ? 'text-emerald-600' : day.getDay() === 0 ? 'text-red-500' : day.getDay() === 6 ? 'text-blue-500' : 'text-slate-500'}`}>
                                         {format(day, 'EEEE', { locale: ko }).replace('요일', '')}
                                     </span>
                                 </div>
@@ -216,9 +216,9 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                     {/* 시간표 본체 그리드 (행 중심) */}
                     <div className="flex flex-col">
                         {hours.map(hour => (
-                            <div key={hour} className="grid grid-cols-[3.5rem_repeat(6,minmax(0,1fr))] h-auto min-h-[96px] border-b border-slate-100">
+                            <div key={hour} className="grid grid-cols-[2.5rem_repeat(6,minmax(0,1fr))] md:grid-cols-[3.5rem_repeat(6,minmax(0,1fr))] h-auto min-h-[72px] md:min-h-[96px] border-b border-slate-100">
                                 {/* 시간 열 */}
-                                <div className="w-[3.5rem] border-r border-slate-100 bg-slate-50/30 flex items-start justify-center pt-3 text-[13px] md:text-sm font-extrabold text-slate-800">
+                                <div className="border-r border-slate-100 bg-slate-50/30 flex items-start justify-center pt-2 md:pt-3 text-[10px] md:text-sm font-extrabold text-slate-800">
                                     {hour.toString().padStart(2, '0')}
                                 </div>
 
@@ -232,7 +232,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                                     return (
                                         <div
                                             key={dayIndex}
-                                            className={`border-r border-slate-100 last:border-r-0 p-1 flex flex-col gap-1 transition-colors hover:bg-slate-50/50 cursor-pointer min-w-0 ${isSameDay(day, new Date()) ? 'bg-emerald-50/10' : ''}`}
+                                            className={`border-r border-slate-100 last:border-r-0 p-0.5 md:p-1 flex flex-col gap-1 transition-colors hover:bg-slate-50/50 cursor-pointer min-w-0 ${isSameDay(day, new Date()) ? 'bg-emerald-50/10' : ''}`}
                                             onClick={() => {
                                                 if (userRole === 'admin' || userRole === 'owner') {
                                                     setSelectedAddDate(dateStr);
@@ -252,15 +252,15 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                                                             e.stopPropagation();
                                                             setSelectedSchedule(schedule);
                                                         }}
-                                                        className={`px-2 h-[22px] rounded-md border shadow-sm flex flex-row items-center justify-between gap-1 transition-all hover:scale-[1.02] hover:z-20 cursor-pointer active:scale-95 ${contrastStyles} overflow-hidden`}
+                                                        className={`px-1 md:px-2 h-[20px] md:h-[22px] rounded-md border shadow-sm flex flex-row items-center justify-between gap-0.5 transition-all hover:scale-[1.02] hover:z-20 cursor-pointer active:scale-95 ${contrastStyles} overflow-hidden`}
                                                         style={{
                                                             backgroundColor: teacherColor || '#F8FAFC'
                                                         }}
                                                     >
-                                                        <span className="text-[10px] font-bold opacity-90 whitespace-nowrap shrink-0">
+                                                        <span className="text-[10px] font-bold opacity-90 whitespace-nowrap shrink-0 hidden md:inline">
                                                             {schedule.time.substring(0, 5)}
                                                         </span>
-                                                        <span className="text-[10.5px] font-bold truncate flex-1 text-right ml-1">
+                                                        <span className="text-[9px] md:text-[10.5px] font-bold truncate flex-1 text-center md:text-right">
                                                             {schedule.profiles?.full_name}
                                                         </span>
                                                     </div>
