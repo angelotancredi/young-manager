@@ -91,7 +91,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
 
             let query = supabase
                 .from('schedules')
-                .select(`*, students (name), profiles (full_name, color)`)
+                .select(`*, students (name, subject), profiles (full_name, color)`)
                 .eq('status', 'confirmed')
                 .gte('date', startDate)
                 .lte('date', endDate);
@@ -335,7 +335,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-medium text-slate-400 leading-none mb-1">과목</p>
-                                    <p className="text-[14px] font-bold text-slate-900">-</p>
+                                    <p className="text-[14px] font-bold text-slate-900">{selectedSchedule.students?.subject || '-'}</p>
                                 </div>
                             </div>
 

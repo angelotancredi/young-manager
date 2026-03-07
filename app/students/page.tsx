@@ -31,6 +31,7 @@ export default function StudentManagement() {
     const [name, setName] = useState('');
     const [studentContact, setStudentContact] = useState('');
     const [contact, setContact] = useState('');
+    const [subject, setSubject] = useState('');
     const [tuitionDay, setTuitionDay] = useState('');
     const [memo, setMemo] = useState('');
 
@@ -39,6 +40,7 @@ export default function StudentManagement() {
         setName('');
         setStudentContact('');
         setContact('');
+        setSubject('');
         setTuitionDay('');
         setMemo('');
     };
@@ -124,6 +126,7 @@ export default function StudentManagement() {
                 name,
                 student_contact: studentContact,
                 parent_contact: contact,
+                subject,
                 tuition_day: tuitionDay ? parseInt(tuitionDay) : null,
                 memo,
                 teacher_id: user?.id
@@ -142,6 +145,7 @@ export default function StudentManagement() {
         setName(selectedStudent.name || '');
         setStudentContact(selectedStudent.student_contact || '');
         setContact(selectedStudent.parent_contact || '');
+        setSubject(selectedStudent.subject || '');
         setTuitionDay(selectedStudent.tuition_day ? selectedStudent.tuition_day.toString() : '');
         setMemo(selectedStudent.memo || '');
         setIsEditing(true);
@@ -155,6 +159,7 @@ export default function StudentManagement() {
             name,
             student_contact: studentContact,
             parent_contact: contact,
+            subject,
             tuition_day: tuitionDay ? parseInt(tuitionDay) : null,
             memo
         };
@@ -508,40 +513,44 @@ export default function StudentManagement() {
             {/* 등록 모달 */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-6 z-50">
-                    <div className="bg-white w-full max-w-md rounded-[2.5rem] p-5 md:p-6 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
+                    <div className="bg-white w-full max-w-md rounded-[2.5rem] p-4 md:p-5 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
                         {/* 모달 장식 */}
                         <div className="absolute top-0 left-0 w-full h-2 bg-emerald-500"></div>
 
-                        <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-3">
+                        <h2 className="text-2xl font-bold text-slate-900 mb-3 flex items-center gap-3">
                             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
                                 <UserPlus size={24} />
                             </div>
                             신규 학생 등록
                         </h2>
 
-                        <form onSubmit={handleAddStudent} className="space-y-4">
+                        <form onSubmit={handleAddStudent} className="space-y-2.5">
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">이름</label>
-                                <input placeholder="이름을 입력하세요" value={name} onChange={e => setName(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" required />
+                                <input placeholder="이름을 입력하세요" value={name} onChange={e => setName(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" required />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">연락처</label>
-                                <input placeholder="010-0000-0000" value={studentContact} onChange={e => setStudentContact(formatPhone(e.target.value))} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                                <input placeholder="010-0000-0000" value={studentContact} onChange={e => setStudentContact(formatPhone(e.target.value))} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">학부모 연락처</label>
-                                <input placeholder="010-0000-0000" value={contact} onChange={e => setContact(formatPhone(e.target.value))} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                                <input placeholder="010-0000-0000" value={contact} onChange={e => setContact(formatPhone(e.target.value))} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-medium text-slate-400 ml-1">과목</label>
+                                <input placeholder="예: 수학, 영어, 피아노" value={subject} onChange={e => setSubject(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">수강료 결제일 (1~31)</label>
-                                <input type="number" placeholder="일자만 입력 (예: 15)" value={tuitionDay} onChange={e => setTuitionDay(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                                <input type="number" placeholder="일자만 입력 (예: 15)" value={tuitionDay} onChange={e => setTuitionDay(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">특이사항 (메모)</label>
-                                <textarea placeholder="학생에 대한 간단한 메모를 남겨주세요" value={memo} onChange={e => setMemo(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all h-32 text-slate-900" />
+                                <textarea placeholder="학생에 대한 간단한 메모를 남겨주세요" value={memo} onChange={e => setMemo(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all h-20 text-slate-900" />
                             </div>
 
-                            <div className="flex gap-3 pt-2">
+                            <div className="flex gap-3 pt-1">
                                 <button type="button" onClick={() => {
                                     setIsModalOpen(false);
                                     resetForm();
