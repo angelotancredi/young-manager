@@ -197,7 +197,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                     {/* 요일 헤더 */}
                     <div className="grid grid-cols-[2.5rem_repeat(6,minmax(0,1fr))] md:grid-cols-[3.5rem_repeat(6,minmax(0,1fr))] border-b border-slate-100 bg-slate-50/50 sticky top-0 z-20 font-sans shadow-sm">
                         <div className="border-r border-slate-100 bg-slate-50/50 flex items-center justify-center">
-                            <Clock size={16} className="text-emerald-500 hidden md:block" />
+                            <Clock size={14} className="text-emerald-500" />
                         </div>
                         {weekDays.map((day, i) => (
                             <div key={i} className={`p-1.5 md:p-3 text-center border-r border-slate-100 last:border-r-0 ${isSameDay(day, new Date()) ? 'bg-emerald-50/30' : ''}`}>
