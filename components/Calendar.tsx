@@ -60,7 +60,7 @@ export default function Calendar({ userId, userRole }: CalendarProps) {
         try {
             let query = supabase
                 .from('schedules')
-                .select(`*, students (name), profiles (full_name)`)
+                .select(`*, students (name, subject), profiles (full_name)`)
                 .eq('status', 'confirmed')
                 .order('time', { ascending: true });
 

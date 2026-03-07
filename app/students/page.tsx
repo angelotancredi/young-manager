@@ -148,6 +148,7 @@ export default function StudentManagement() {
         setSubject(selectedStudent.subject || '');
         setTuitionDay(selectedStudent.tuition_day ? selectedStudent.tuition_day.toString() : '');
         setMemo(selectedStudent.memo || '');
+        setIsStatsView(false);
         setIsEditing(true);
     };
 
@@ -307,13 +308,13 @@ export default function StudentManagement() {
                                         <>
                                             <button
                                                 onClick={() => { setIsStatsView(true); setIsEditing(false); }}
-                                                className={`p-2 rounded-xl transition-all ${isStatsView ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
+                                                className={`p-2 rounded-xl transition-all ${isStatsView ? 'bg-emerald-100 text-emerald-600' : 'text-slate-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
                                             >
                                                 <BarChart2 size={20} />
                                             </button>
                                             <button
                                                 onClick={handleEditClick}
-                                                className={`p-2 rounded-xl transition-all ${isEditing ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
+                                                className={`p-2 rounded-xl transition-all ${isEditing ? 'bg-emerald-100 text-emerald-600' : 'text-slate-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
                                             >
                                                 <Edit2 size={20} />
                                             </button>

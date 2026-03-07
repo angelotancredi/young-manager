@@ -315,8 +315,11 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                     <div className="w-10 h-7 bg-slate-50 rounded-md flex items-center justify-center text-slate-700 shrink-0">
                                                         <span className="text-[15px] font-extrabold leading-tight">{s.time.substring(0, 5)}</span>
                                                     </div>
-                                                    <div className="font-extrabold text-black text-[17px] leading-tight truncate">
-                                                        {s.students?.name}
+                                                    <div className="flex items-baseline gap-1.5 truncate">
+                                                        <span className="font-extrabold text-black text-[17px] leading-tight flex-shrink-0">{s.students?.name}</span>
+                                                        {s.students?.subject && (
+                                                            <span className="text-[12px] font-bold text-slate-400 truncate">({s.students.subject})</span>
+                                                        )}
                                                     </div>
                                                     {s.is_makeup && (
                                                         <span className="px-1.5 py-0.5 bg-amber-100 text-amber-600 text-[14px] font-bold rounded-md shrink-0">
