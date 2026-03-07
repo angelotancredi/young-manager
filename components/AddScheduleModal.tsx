@@ -82,7 +82,8 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
         }
 
         setLoading(false);
-        setRepeatResult({ success: successCount, skip: skipCount });
+        // 💡 오늘 수업을 포함한 전체 성공 개수로 전달
+        setRepeatResult({ success: successCount + 1, skip: skipCount });
         onSave();
     };
 
@@ -343,8 +344,8 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
             <AlertModal
                 isOpen={!!repeatResult}
                 onClose={() => { setRepeatResult(null); onClose(); }}
-                title="전체 등록 완료"
-                message={`${repeatResult?.success}개 등록 완료${repeatResult?.skip ? `\n(${repeatResult.skip}개는 오늘 수업 포함 중복으로 건너뜀)` : ''}`}
+                title="등록 완료"
+                message={`총 ${repeatResult?.success}개의 수업이 등록되었습니다.\n(오늘 수업 포함)`}
             />
         </>
     );
