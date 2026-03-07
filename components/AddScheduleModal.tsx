@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { X, Loader2, Calendar as CalendarIcon, Clock, User } from 'lucide-react';
 import AlertModal from './AlertModal';
 import { useBackClose } from '@/hooks/useBackClose';
-export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave, userId, userRole }: any) {
+export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave, userId, userRole, initialHour, initialMinute }: any) {
     useBackClose(isOpen, onClose);
     const [students, setStudents] = useState<any[]>([]);
     const [teachers, setTeachers] = useState<any[]>([]);
@@ -13,8 +13,8 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
     const [teacherId, setTeacherId] = useState(userId || '');
 
     // 시간/분 분리 선택
-    const [hour, setHour] = useState('14');
-    const [minute, setMinute] = useState('00');
+    const [hour, setHour] = useState(initialHour || '14');
+    const [minute, setMinute] = useState(initialMinute || '00');
     const [isMakeup, setIsMakeup] = useState(false);
     const [loading, setLoading] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
@@ -32,8 +32,8 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
             // 💡 모달이 열릴 때 상태 초기화
             setStudentId('');
             setTeacherId(userId || '');
-            setHour('14');
-            setMinute('00');
+            setHour(initialHour || '14');
+            setMinute(initialMinute || '00');
             setIsMakeup(false);
             setOpenDropdownId(null);
 

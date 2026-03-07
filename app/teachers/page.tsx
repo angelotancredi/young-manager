@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Users, ArrowLeft, Search, UserCircle, Loader2, ShieldCheck, Mail, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Users, ArrowLeft, Search, UserCircle, Loader2, ShieldCheck, Mail, Trash2, ToggleLeft, ToggleRight, Palette, Check } from 'lucide-react';
 import Link from 'next/link';
 import AlertModal from '@/components/AlertModal';
 import { useBackClose } from '@/hooks/useBackClose';
@@ -13,8 +13,35 @@ export default function TeacherManagement() {
     const [isLoading, setIsLoading] = useState(true);
     const [alertMessage, setAlertMessage] = useState<{ title: string; message: string } | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<any>(null);
+    const [colorPickerTarget, setColorPickerTarget] = useState<any>(null);
 
-    useBackClose(!!deleteTarget, () => setDeleteTarget(null));
+    const PASTEL_COLORS = [
+        '#DCFCE7', // Emerald 100
+        '#DBEAFE', // Blue 100
+        '#EDE9FE', // Violet 100
+        '#F3E8FF', // Purple 100
+        '#FCE7F3', // Pink 100
+        '#FFE4E6', // Rose 100
+        '#FFEDD5', // Orange 100
+        '#FEF9C3', // Yellow 100
+        '#D1FAE5', // Teal 100
+        '#CFFAFE', // Cyan 100
+        '#F1F5F9', // Slate 100
+        '#F5F5F4', // Stone 100
+        '#FEF3C7', // Amber 100
+        '#E0F2FE', // Sky 100
+        '#E0E7FF', // Indigo 100
+        '#FAE8FF', // Fuchsia 100
+        '#CCFBF1', // Teal 100 (more blue)
+        '#DCFCE7', // Emerald 100 (more green)
+        '#FEE2E2', // Red 100
+        '#FDF4FF', // Fuchsia 50
+    ];
+
+    useBackClose(!!deleteTarget || !!colorPickerTarget, () => {
+        setDeleteTarget(null);
+        setColorPickerTarget(null);
+    });
 
     const fetchTeachers = async () => {
         try {
@@ -117,6 +144,21 @@ export default function TeacherManagement() {
         }
     };
 
+    // 컬러 변경
+    const handleUpdateColor = async (teacher: any, color: string) => {
+        const { error } = await supabase
+            .from('profiles')
+            .update({ color })
+            .eq('id', teacher.id);
+
+        if (!error) {
+            setTeachers(prev => prev.map(t => t.id === teacher.id ? { ...t, color } : t));
+            setColorPickerTarget(null);
+        } else {
+            setAlertMessage({ title: '오류', message: '색상 변경에 실패했습니다.' });
+        }
+    };
+
     const filteredTeachers = teachers.filter(t =>
         (t.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (t.email || '').toLowerCase().includes(searchQuery.toLowerCase())
@@ -180,8 +222,17 @@ export default function TeacherManagement() {
                                     <div key={teacher.id} className={`bg-white py-4 px-5 rounded-3xl border shadow-sm hover:shadow-md transition-all group relative overflow-hidden ${teacher.is_active === false ? 'opacity-50 border-slate-200 bg-slate-50' : 'border-slate-100 hover:border-blue-100'}`}>
                                         <div className="flex items-center gap-4">
                                             {/* 아바타 */}
-                                            <div className={`p-2.5 rounded-2xl shadow-sm ${teacher.is_active === false ? 'bg-slate-100 text-slate-400' : teacher.role === 'admin' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
-                                                {teacher.role === 'admin' ? <ShieldCheck size={28} /> : <UserCircle size={28} />}
+                                            <div
+                                                className={`p-2.5 rounded-2xl shadow-sm relative group/avatar cursor-pointer transition-transform active:scale-95`}
+                                                style={{ backgroundColor: teacher.color || (teacher.role === 'admin' ? '#ecfdf5' : '#eff6ff') }}
+                                                onClick={() => (userRole === 'admin' || userRole === 'owner') && setColorPickerTarget(teacher)}
+                                            >
+                                                {teacher.role === 'admin' ? <ShieldCheck size={28} className="text-emerald-600" /> : <UserCircle size={28} className="text-blue-600" />}
+                                                {(userRole === 'admin' || userRole === 'owner') && (
+                                                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover/avatar:opacity-100 rounded-2xl flex items-center justify-center transition-opacity">
+                                                        <Palette size={14} className="text-slate-600" />
+                                                    </div>
+                                                )}
                                             </div>
                                             {/* 정보 */}
                                             <div className="flex-1 min-w-0">
@@ -282,6 +333,44 @@ export default function TeacherManagement() {
                 title={alertMessage?.title || ''}
                 message={alertMessage?.message || ''}
             />
+
+            {/* 컬러 피커 모달 */}
+            {colorPickerTarget && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-6">
+                    <div className="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-slate-900">선생님 고유 컬러 지정</h3>
+                            <button onClick={() => setColorPickerTarget(null)} className="text-slate-400 hover:text-slate-600">
+                                <ArrowLeft size={20} />
+                            </button>
+                        </div>
+                        <p className="text-slate-500 text-sm font-medium mb-6 text-center">
+                            <span className="font-bold text-slate-700">{colorPickerTarget.full_name}</span>님에게<br />배정할 색상을 선택해주세요.
+                        </p>
+                        <div className="grid grid-cols-4 gap-3 mb-8">
+                            {PASTEL_COLORS.map((color) => (
+                                <button
+                                    key={color}
+                                    onClick={() => handleUpdateColor(colorPickerTarget, color)}
+                                    className="w-full aspect-square rounded-2xl border-2 transition-all active:scale-90 flex items-center justify-center"
+                                    style={{
+                                        backgroundColor: color,
+                                        borderColor: colorPickerTarget.color === color ? '#3b82f6' : 'transparent'
+                                    }}
+                                >
+                                    {colorPickerTarget.color === color && <Check size={20} className="text-blue-600" />}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => setColorPickerTarget(null)}
+                            className="w-full py-3.5 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                        >
+                            닫기
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
-import { LogOut, ShieldCheck, UserCircle, UserPlus, Bell, Users } from 'lucide-react';
+import { LogOut, ShieldCheck, UserCircle, UserPlus, Bell, Users, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AlertModal from './AlertModal';
@@ -131,6 +131,15 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                                 {userRole === 'owner' ? ' 개발자' : userRole === 'admin' ? ' 원장님' : ' 선생님'}으로 접속 중
                             </span>
                         </div>
+
+                        {/* 스케줄 버튼 추가 */}
+                        <Link
+                            href="/schedule"
+                            className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
+                        >
+                            <CalendarDays size={12} className="text-emerald-600" />
+                            스케줄
+                        </Link>
 
                         {/* 로그아웃 버튼 */}
                         <button
