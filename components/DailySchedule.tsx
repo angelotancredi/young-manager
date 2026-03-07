@@ -231,7 +231,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                     teacher_id: makeupTarget.teacher_id,
                     date: makeupDate,
                     time: fullTime,
-                    is_makeup: true
+                    is_makeup: true,
+                    origin_date: date // 💡 현재 출결 페이지의 날짜를 원래 수업일로 저장
                 }]);
 
             if (error) throw error;
@@ -319,8 +320,13 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                         {s.students?.name}
                                                     </div>
                                                     {s.is_makeup && (
-                                                        <span className="px-1.5 py-0.5 bg-amber-100 text-amber-600 text-[14px] font-bold rounded-md shrink-0">
+                                                        <span className="px-1.5 py-0.5 bg-amber-100 text-amber-600 text-[13px] font-extrabold rounded-md shrink-0 flex items-center gap-1">
                                                             보강
+                                                            {s.origin_date && (
+                                                                <span className="text-[10px] opacity-70 border-l border-amber-300 pl-1 ml-0.5">
+                                                                    {s.origin_date.substring(5).replace('-', '/')}
+                                                                </span>
+                                                            )}
                                                         </span>
                                                     )}
                                                 </div>
