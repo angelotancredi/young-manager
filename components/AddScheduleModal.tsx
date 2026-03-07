@@ -18,6 +18,72 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
     const [isMakeup, setIsMakeup] = useState(false);
     const [loading, setLoading] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
+    const [repeatResult, setRepeatResult] = useState<{ success: number; skip: number } | null>(null);
+
+    // 이번 달 같은 요일 전체 등록
+    const handleRepeatMonth = async () => {
+        if (!studentId || !teacherId) {
+            setAlertMessage('학생과 선생님을 먼저 선택해주세요.');
+            return;
+        }
+        setLoading(true);
+
+        const timeValue = `${hour}:${minute}:00`;
+        const base = new Date(selectedDate);
+        const targetDayOfWeek = base.getDay();
+        const year = base.getFullYear();
+        const month = base.getMonth();
+
+        // 해당 월의 같은 요일 날짜 전부 수집
+        const sameDayDates: string[] = [];
+        const d = new Date(year, month, 1);
+        while (d.getMonth() === month) {
+            if (d.getDay() === targetDayOfWeek) {
+                // 💡 타임존 이슈 방지를 위해 로컬 날짜 문자열 직접 생성
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${yyyy}-${mm}-${dd}`;
+                sameDayDates.push(dateStr);
+            }
+            d.setDate(d.getDate() + 1);
+        }
+
+        let successCount = 0;
+        let skipCount = 0;
+
+        for (const dateStr of sameDayDates) {
+            // 중복 체크
+            const { data: existing } = await supabase
+                .from('schedules')
+                .select('id')
+                .eq('date', dateStr)
+                .eq('time', timeValue)
+                .eq('student_id', studentId)
+                .limit(1);
+
+            if (existing && existing.length > 0) {
+                skipCount++;
+                continue;
+            }
+
+            const { error } = await supabase.from('schedules').insert([{
+                date: dateStr,
+                time: timeValue,
+                student_id: studentId,
+                teacher_id: teacherId,
+                is_makeup: false,
+                status: 'confirmed'
+            }]);
+
+            if (!error) successCount++;
+            else skipCount++;
+        }
+
+        setLoading(false);
+        setRepeatResult({ success: successCount, skip: skipCount });
+        onSave();
+    };
 
     // 💡 드롭다운 상호 배타적 열림 관리를 위한 상태
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
@@ -211,6 +277,30 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                             </div>
                         </div>
 
+                        {/* 이번 달 같은 요일 전체 등록 */}
+                        <div className="flex items-center gap-3 p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50">
+                            <label className="flex items-center gap-3 cursor-pointer select-none w-full">
+                                <div className="flex-1">
+                                    <span className="font-bold text-slate-700 text-sm">이번 달 같은 요일 전체 등록</span>
+                                    <p className="text-[10px] text-slate-400">
+                                        {selectedDate ? (() => {
+                                            const d = new Date(selectedDate);
+                                            const days = ['일', '월', '화', '수', '목', '금', '토'];
+                                            return `${d.getMonth() + 1}월의 모든 ${days[d.getDay()]}요일에 등록합니다`;
+                                        })() : ''}
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    disabled={loading || !studentId || !teacherId}
+                                    onClick={handleRepeatMonth}
+                                    className="px-4 py-2 bg-emerald-500 text-white text-sm font-bold rounded-xl hover:bg-emerald-600 active:scale-95 transition-all disabled:opacity-40 shrink-0"
+                                >
+                                    {loading ? <Loader2 size={16} className="animate-spin" /> : '전체 등록'}
+                                </button>
+                            </label>
+                        </div>
+
                         {/* 보강 수업 체크박스 */}
                         <div className="flex items-center gap-3 p-4 bg-amber-50/50 rounded-2xl border border-amber-100/50">
                             <label className="flex items-center gap-3 cursor-pointer select-none w-full">
@@ -240,8 +330,14 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
             <AlertModal
                 isOpen={!!alertMessage}
                 onClose={() => setAlertMessage('')}
-                title="중복 등록"
+                title="알림"
                 message={alertMessage}
+            />
+            <AlertModal
+                isOpen={!!repeatResult}
+                onClose={() => { setRepeatResult(null); onClose(); }}
+                title="전체 등록 완료"
+                message={`${repeatResult?.success}개 등록 완료${repeatResult?.skip ? `\n${repeatResult.skip}개는 중복으로 건너뜀` : ''}`}
             />
         </>
     );
