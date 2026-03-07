@@ -260,7 +260,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                                                         <span className="text-[10px] font-bold opacity-90 whitespace-nowrap shrink-0 hidden md:inline">
                                                             {schedule.time.substring(0, 5)}
                                                         </span>
-                                                        <span className="text-[9px] md:text-[10.5px] font-bold truncate flex-1 text-center md:text-right">
+                                                        <span className="text-[10px] md:text-[11.5px] font-bold truncate flex-1 text-center md:text-right">
                                                             {schedule.profiles?.full_name}
                                                         </span>
                                                     </div>
