@@ -216,7 +216,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                     {/* 시간표 본체 그리드 (행 중심) */}
                     <div className="flex flex-col">
                         {hours.map(hour => (
-                            <div key={hour} className="grid grid-cols-[2.5rem_repeat(6,minmax(0,1fr))] md:grid-cols-[3.5rem_repeat(6,minmax(0,1fr))] h-auto min-h-[72px] md:min-h-[96px] border-b border-slate-100">
+                            <div key={hour} className="grid grid-cols-[2.5rem_repeat(6,minmax(0,1fr))] md:grid-cols-[3.5rem_repeat(6,minmax(0,1fr))] h-auto min-h-[72px] md:min-h-[96px] border-b border-slate-200">
                                 {/* 시간 열 */}
                                 <div className="border-r border-slate-100 bg-slate-50/30 flex items-start justify-center pt-2 md:pt-3 text-[10px] md:text-sm font-extrabold text-slate-800">
                                     {hour.toString().padStart(2, '0')}
