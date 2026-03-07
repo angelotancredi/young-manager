@@ -15,7 +15,6 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
     // 시간/분 분리 선택
     const [hour, setHour] = useState(initialHour || '14');
     const [minute, setMinute] = useState(initialMinute || '00');
-    const [isMakeup, setIsMakeup] = useState(false);
     const [loading, setLoading] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [repeatResult, setRepeatResult] = useState<{ success: number; skip: number } | null>(null);
@@ -102,7 +101,6 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
             setTeacherId(userId || '');
             setHour(initialHour || '14');
             setMinute(initialMinute || '00');
-            setIsMakeup(false);
             setIsRepeatMonth(false);
             setOpenDropdownId(null);
 
@@ -179,7 +177,6 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                 time: timeValue,
                 student_id: studentId,
                 teacher_id: teacherId,
-                is_makeup: isMakeup,
                 status: 'confirmed'
             }
         ]);
@@ -305,22 +302,6 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                                             return `${d.getMonth() + 1}월의 모든 ${days[d.getDay()]}요일, 같은 시간에 등록합니다.`;
                                         })() : ''}
                                     </p>
-                                </div>
-                            </label>
-                        </div>
-
-                        {/* 보강 수업 체크박스 */}
-                        <div className="flex items-center gap-3 p-4 bg-amber-50/50 rounded-2xl border border-amber-100/50">
-                            <label className="flex items-center gap-3 cursor-pointer select-none w-full">
-                                <input
-                                    type="checkbox"
-                                    checked={isMakeup}
-                                    onChange={(e) => setIsMakeup(e.target.checked)}
-                                    className="w-5 h-5 rounded-md border-amber-300 text-amber-600 focus:ring-amber-500"
-                                />
-                                <div>
-                                    <span className="font-bold text-slate-700 text-sm">보강 수업인가요?</span>
-                                    <p className="text-[10px] text-slate-400">보강 수업으로 등록됩니다</p>
                                 </div>
                             </label>
                         </div>
