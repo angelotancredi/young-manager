@@ -19,6 +19,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
     const [loading, setLoading] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [repeatResult, setRepeatResult] = useState<{ success: number; skip: number } | null>(null);
+    const [isRepeatMonth, setIsRepeatMonth] = useState(false);
 
     // 이번 달 같은 요일 전체 등록
     const handleRepeatMonth = async () => {
@@ -101,6 +102,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
             setHour(initialHour || '14');
             setMinute(initialMinute || '00');
             setIsMakeup(false);
+            setIsRepeatMonth(false);
             setOpenDropdownId(null);
 
             if (userRole === 'teacher' && userId) {
@@ -184,11 +186,18 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
         if (error) {
             console.error('저장 실패:', error.message);
             setAlertMessage('수업 저장에 실패했습니다.\n다시 시도해주세요.');
+            setLoading(false);
+            return;
+        }
+
+        // 💡 이번 달 같은 요일 전체 등록이 체크된 경우
+        if (isRepeatMonth) {
+            await handleRepeatMonth();
         } else {
             onSave();
             onClose();
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     if (!isOpen) return null;
@@ -280,24 +289,22 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                         {/* 이번 달 같은 요일 전체 등록 */}
                         <div className="flex items-center gap-3 p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50">
                             <label className="flex items-center gap-3 cursor-pointer select-none w-full">
+                                <input
+                                    type="checkbox"
+                                    checked={isRepeatMonth}
+                                    onChange={(e) => setIsRepeatMonth(e.target.checked)}
+                                    className="w-5 h-5 rounded-md border-emerald-300 text-emerald-600 focus:ring-emerald-500"
+                                />
                                 <div className="flex-1">
-                                    <span className="font-bold text-slate-700 text-sm">이번 달 같은 요일 전체 등록</span>
+                                    <span className="font-bold text-slate-700 text-sm">이번 달 같은 요일, 같은 시간에 등록하시겠습니까?</span>
                                     <p className="text-[10px] text-slate-400">
                                         {selectedDate ? (() => {
                                             const d = new Date(selectedDate);
                                             const days = ['일', '월', '화', '수', '목', '금', '토'];
-                                            return `${d.getMonth() + 1}월의 모든 ${days[d.getDay()]}요일에 등록합니다`;
+                                            return `${d.getMonth() + 1}월의 모든 ${days[d.getDay()]}요일, 같은 시간에 등록합니다.`;
                                         })() : ''}
                                     </p>
                                 </div>
-                                <button
-                                    type="button"
-                                    disabled={loading || !studentId || !teacherId}
-                                    onClick={handleRepeatMonth}
-                                    className="px-4 py-2 bg-emerald-500 text-white text-sm font-bold rounded-xl hover:bg-emerald-600 active:scale-95 transition-all disabled:opacity-40 shrink-0"
-                                >
-                                    {loading ? <Loader2 size={16} className="animate-spin" /> : '전체 등록'}
-                                </button>
                             </label>
                         </div>
 
