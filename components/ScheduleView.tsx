@@ -164,7 +164,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
             {/* 상단 컨트롤러 */}
             <div className="p-4 md:p-6 border-b border-slate-100 flex flex-row justify-start items-center gap-3 md:gap-6 bg-slate-50/30">
                 <div className="flex flex-row items-center justify-between w-full">
-                    <h2 className="text-[11px] md:text-2xl font-bold text-slate-900 tracking-tight whitespace-nowrap">
+                    <h2 className="text-sm md:text-2xl font-bold text-slate-900 tracking-tight whitespace-nowrap">
                         {format(weekDays[0], 'yyyy년 M월 d일')} - {format(weekDays[5], 'M월 d일')}
                     </h2>
 
@@ -205,7 +205,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                                     <span className={`text-[15px] md:text-lg font-extrabold ${isSameDay(day, new Date()) ? 'text-emerald-600' : 'text-slate-900'}`}>
                                         {format(day, 'd')}
                                     </span>
-                                    <span className={`text-[10px] md:text-base font-extrabold ${isSameDay(day, new Date()) ? 'text-emerald-600' : day.getDay() === 0 ? 'text-red-500' : day.getDay() === 6 ? 'text-blue-500' : 'text-slate-500'}`}>
+                                    <span className={`text-[11px] md:text-[17px] font-extrabold ${isSameDay(day, new Date()) ? 'text-emerald-600' : day.getDay() === 0 ? 'text-red-500' : day.getDay() === 6 ? 'text-blue-500' : 'text-slate-500'}`}>
                                         {format(day, 'EEEE', { locale: ko }).replace('요일', '')}
                                     </span>
                                 </div>
@@ -218,7 +218,7 @@ export default function ScheduleView({ userId, userRole }: ScheduleViewProps) {
                         {hours.map(hour => (
                             <div key={hour} className="grid grid-cols-[2.5rem_repeat(6,minmax(0,1fr))] md:grid-cols-[3.5rem_repeat(6,minmax(0,1fr))] h-auto min-h-[72px] md:min-h-[96px] border-b border-slate-200">
                                 {/* 시간 열 */}
-                                <div className="border-r border-slate-100 bg-slate-50/30 flex items-start justify-center pt-2 md:pt-3 text-[15px] md:text-lg font-extrabold text-slate-800">
+                                <div className="border-r border-slate-100 bg-slate-50/30 flex items-start justify-center pt-2 md:pt-3 text-[14px] md:text-base font-bold text-slate-800">
                                     {hour.toString().padStart(2, '0')}
                                 </div>
 
