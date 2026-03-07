@@ -306,14 +306,14 @@ export default function StudentManagement() {
                                     {(userRole === 'admin' || userRole === 'owner') && (
                                         <>
                                             <button
-                                                onClick={() => setIsStatsView(true)}
-                                                className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all"
+                                                onClick={() => { setIsStatsView(true); setIsEditing(false); }}
+                                                className={`p-2 rounded-xl transition-all ${isStatsView ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
                                             >
                                                 <BarChart2 size={20} />
                                             </button>
                                             <button
                                                 onClick={handleEditClick}
-                                                className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all"
+                                                className={`p-2 rounded-xl transition-all ${isEditing ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
                                             >
                                                 <Edit2 size={20} />
                                             </button>
@@ -347,6 +347,10 @@ export default function StudentManagement() {
                                         <div className="space-y-1">
                                             <label className="text-xs font-medium text-slate-400 ml-1">학부모 연락처</label>
                                             <input type="tel" placeholder="010-0000-0000" value={contact} onChange={e => setContact(formatPhone(e.target.value))} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-medium text-slate-400 ml-1">과목</label>
+                                            <input placeholder="예: 수학, 영어, 피아노" value={subject} onChange={e => setSubject(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-xs font-medium text-slate-400 ml-1">수강료 결제일 (1~31)</label>
@@ -392,6 +396,15 @@ export default function StudentManagement() {
                                                     <Phone size={16} fill="currentColor" />
                                                 </a>
                                             )}
+                                        </div>
+                                    </div>
+
+                                    {/* 과목 */}
+                                    <div className="bg-slate-50 rounded-2xl p-4">
+                                        <p className="text-xs font-medium text-slate-400 mb-2">과목</p>
+                                        <div className="flex items-center gap-2">
+                                            <FileText size={18} className="text-emerald-500" />
+                                            <span className="text-lg font-bold text-slate-800">{selectedStudent.subject || '-'}</span>
                                         </div>
                                     </div>
 
