@@ -13,7 +13,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
     const [students, setStudents] = useState<any[]>([]);
     const [isFetching, setIsFetching] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
-    const [deleteTarget, setDeleteTarget] = useState<{ id: string; studentId: string; name: string } | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: string; studentId: string; name: string; scheduleId?: string } | null>(null);
     const [requestTarget, setRequestTarget] = useState<any>(null);
     const [requestDate, setRequestDate] = useState('');
     const [requestContent, setRequestContent] = useState('');
@@ -90,9 +90,9 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
     // 💡 2. 출석부(attendance) DB 쓰기 로직 (수동 Upsert 처리)
     // Supabase native upsert의 on_conflict 에러(유니크 제약 조건 누락) 회피를 위해 
     // 존재 여부 확인 후 분기 처리하는 방식으로 안정성 확보
-    const updateStatus = async (studentId: string, statusText: string, assignedTeacherId?: string) => {
+    const updateStatus = async (studentId: string, statusText: string, assignedTeacherId?: string, scheduleId?: string) => {
         if (!studentId) return;
-        setLoadingId(studentId);
+        setLoadingId(scheduleId || studentId);
 
         const statusMap: { [key: string]: string } = {
             '출석': 'present',
@@ -106,13 +106,16 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
         const finalTeacherId = assignedTeacherId || userId || (await supabase.auth.getUser()).data.user?.id;
 
         try {
-            // 🔍 먼저 해당 날짜/학생 기록이 있는지 확인
-            const { data: existing, error: findError } = await supabase
+            // 🔍 먼저 해당 날짜/학생/수업 기록이 있는지 확인
+            let query = supabase
                 .from('attendance')
                 .select('id')
                 .eq('student_id', studentId)
-                .eq('lesson_date', date)
-                .maybeSingle();
+                .eq('lesson_date', date);
+
+            if (scheduleId) query = query.eq('schedule_id', scheduleId);
+
+            const { data: existing, error: findError } = await query.maybeSingle();
 
             if (findError) console.error("Find attendance error:", findError);
 
@@ -134,7 +137,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                         student_id: studentId,
                         lesson_date: date,
                         status,
-                        teacher_id: finalTeacherId
+                        teacher_id: finalTeacherId,
+                        ...(scheduleId ? { schedule_id: scheduleId } : {})
                     }]);
                 if (inError) throw inError;
             }
@@ -160,24 +164,28 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
 
     // 💡 삭제 확인 모달 표시
     const askDelete = (scheduleId: string, studentId: string, studentName: string) => {
-        setDeleteTarget({ id: scheduleId, studentId, name: studentName });
+        setDeleteTarget({ id: scheduleId, studentId, name: studentName, scheduleId });
     };
 
     // 💡 실제 삭제 로직
     const confirmDelete = async () => {
         if (!deleteTarget) return;
-        const { id: scheduleId, studentId } = deleteTarget;
+        const { id: scheduleId, studentId, scheduleId: sid } = deleteTarget;
         setDeleteTarget(null);
         setDeletingId(scheduleId);
 
         try {
             // 1. 해당 수업의 출석 데이터 먼저 삭제 (데이터 무결성)
             if (studentId) {
-                const { error: attErr } = await supabase
+                let delQuery = supabase
                     .from('attendance')
                     .delete()
                     .eq('student_id', studentId)
                     .eq('lesson_date', date);
+
+                if (sid) delQuery = delQuery.eq('schedule_id', sid);
+
+                const { error: attErr } = await delQuery;
                 if (attErr) console.error('출석 삭제 에러:', attErr);
                 else console.log('출석 데이터 삭제 완료');
             }
@@ -253,8 +261,11 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
     };
 
     // 로컬 출석 리스트에서 상태 확인
-    const getStudentStatus = (studentId: string) => {
-        const record = attendanceList.find(a => a.student_id === studentId);
+    const getStudentStatus = (studentId: string, scheduleId: string) => {
+        const record = attendanceList.find(a =>
+            a.student_id === studentId &&
+            (a.schedule_id ? a.schedule_id === scheduleId : a.lesson_date === date)
+        );
         if (!record) return null;
 
         const reverseMap: { [key: string]: string } = {
@@ -293,7 +304,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                             <div className="flex justify-center py-10"><Loader2 className="animate-spin text-emerald-600" /></div>
                         ) : schedules.length > 0 ? (
                             schedules.map((s: any) => {
-                                const currentStatus = getStudentStatus(s.student_id);
+                                const currentStatus = getStudentStatus(s.student_id, s.id);
                                 return (
                                     <div key={s.id} className="bg-white p-2.5 pl-5 rounded-xl border border-slate-100 shadow-sm transition-all text-black">
                                         <div className="flex items-center justify-between gap-1.5">
@@ -326,8 +337,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                             {userRole === 'admin' || userRole === 'owner' ? (
                                                 <div className="flex gap-1 shrink-0">
                                                     <button
-                                                        disabled={loadingId === s.student_id || !s.student_id}
-                                                        onClick={() => updateStatus(s.student_id, '출석', s.teacher_id)}
+                                                        disabled={loadingId === s.id || !s.student_id}
+                                                        onClick={() => updateStatus(s.student_id, '출석', s.teacher_id, s.id)}
                                                         className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '출석'
                                                             ? 'bg-emerald-500 text-white shadow-md'
                                                             : 'bg-slate-50 text-emerald-600 border border-emerald-100'}`}
@@ -336,8 +347,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                         <span className="text-[12px] font-semibold mt-0.5">출석</span>
                                                     </button>
                                                     <button
-                                                        disabled={loadingId === s.student_id || !s.student_id}
-                                                        onClick={() => updateStatus(s.student_id, '결석', s.teacher_id)}
+                                                        disabled={loadingId === s.id || !s.student_id}
+                                                        onClick={() => updateStatus(s.student_id, '결석', s.teacher_id, s.id)}
                                                         className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '결석'
                                                             ? 'bg-rose-500 text-white shadow-md'
                                                             : 'bg-slate-50 text-rose-600 border border-rose-100'}`}
@@ -346,8 +357,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                         <span className="text-[12px] font-semibold mt-0.5">결석</span>
                                                     </button>
                                                     <button
-                                                        disabled={loadingId === s.student_id || !s.student_id}
-                                                        onClick={() => updateStatus(s.student_id, '보강', s.teacher_id)}
+                                                        disabled={loadingId === s.id || !s.student_id}
+                                                        onClick={() => updateStatus(s.student_id, '보강', s.teacher_id, s.id)}
                                                         className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '보강'
                                                             ? 'bg-amber-500 text-white shadow-md'
                                                             : 'bg-slate-50 text-amber-600 border border-amber-100'}`}
@@ -373,8 +384,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                             ) : (
                                                 <div className="flex gap-1 shrink-0">
                                                     <button
-                                                        disabled={loadingId === s.student_id || !s.student_id}
-                                                        onClick={() => updateStatus(s.student_id, '출석', s.teacher_id)}
+                                                        disabled={loadingId === s.id || !s.student_id}
+                                                        onClick={() => updateStatus(s.student_id, '출석', s.teacher_id, s.id)}
                                                         className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '출석'
                                                             ? 'bg-emerald-500 text-white shadow-md'
                                                             : 'bg-slate-50 text-emerald-600 border border-emerald-100'}`}
@@ -383,8 +394,8 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                                                         <span className="text-[12px] font-semibold mt-0.5">출석</span>
                                                     </button>
                                                     <button
-                                                        disabled={loadingId === s.student_id || !s.student_id}
-                                                        onClick={() => updateStatus(s.student_id, '결석', s.teacher_id)}
+                                                        disabled={loadingId === s.id || !s.student_id}
+                                                        onClick={() => updateStatus(s.student_id, '결석', s.teacher_id, s.id)}
                                                         className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg transition-all active:scale-95 ${currentStatus === '결석'
                                                             ? 'bg-rose-500 text-white shadow-md'
                                                             : 'bg-slate-50 text-rose-600 border border-rose-100'}`}
