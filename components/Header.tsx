@@ -144,10 +144,10 @@ export default function Header({ session, userRole, userName, userId }: HeaderPr
                         {/* 로그아웃 버튼 */}
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-1.5 bg-emerald-600 px-3 py-1.5 rounded-full text-xs font-bold text-white hover:bg-emerald-700 transition-all active:scale-95 shadow-sm"
+                            className="flex items-center justify-center bg-emerald-600 p-2 rounded-full text-white hover:bg-emerald-700 transition-all active:scale-95 shadow-sm"
+                            title="로그아웃"
                         >
-                            <LogOut size={12} />
-                            로그아웃
+                            <LogOut size={16} strokeWidth={2.5} />
                         </button>
                     </div>
                 )}
