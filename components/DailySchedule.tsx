@@ -291,7 +291,7 @@ export default function DailySchedule({ isOpen, onClose, date, schedules, onAdd,
                     {/* 디자인 레이아웃 유지: 헤더 */}
                     <div className="p-6 bg-white border-b border-slate-100 flex justify-between items-center shadow-sm">
                         <div>
-                            <h2 className="text-xl font-semibold text-slate-800 tracking-tight">{date}</h2>
+                            <h2 className="text-xl font-semibold text-slate-800 tracking-tight">{date?.replace(/-/g, '.')}.</h2>
                             <p className="text-[10px] text-emerald-600 font-medium mt-0.5 uppercase tracking-widest">Attendance Management</p>
                         </div>
                         <button onClick={onClose} className="p-2.5 bg-slate-100 text-slate-500 rounded-full active:scale-90 transition-transform">
