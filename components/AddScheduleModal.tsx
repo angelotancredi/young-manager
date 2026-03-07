@@ -344,7 +344,7 @@ export default function AddScheduleModal({ isOpen, onClose, selectedDate, onSave
                 isOpen={!!repeatResult}
                 onClose={() => { setRepeatResult(null); onClose(); }}
                 title="전체 등록 완료"
-                message={`${repeatResult?.success}개 등록 완료${repeatResult?.skip ? `\n${repeatResult.skip}개는 중복으로 건너뜀` : ''}`}
+                message={`${repeatResult?.success}개 등록 완료${repeatResult?.skip ? `\n(${repeatResult.skip}개는 오늘 수업 포함 중복으로 건너뜀)` : ''}`}
             />
         </>
     );
