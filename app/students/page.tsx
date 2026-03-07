@@ -338,23 +338,23 @@ export default function StudentManagement() {
                                     <form id="edit-student-form" onSubmit={handleUpdateStudent} className="space-y-4">
                                         <div className="space-y-1">
                                             <label className="text-xs font-medium text-slate-400 ml-1">이름</label>
-                                            <input placeholder="이름을 입력하세요" value={name} onChange={e => setName(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" required />
+                                            <input placeholder="이름을 입력하세요" value={name} onChange={e => setName(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" required />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-xs font-medium text-slate-400 ml-1">학생 연락처</label>
-                                            <input placeholder="010-0000-0000" value={studentContact} onChange={e => setStudentContact(formatPhone(e.target.value))} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                                            <input type="tel" placeholder="010-0000-0000" value={studentContact} onChange={e => setStudentContact(formatPhone(e.target.value))} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-xs font-medium text-slate-400 ml-1">학부모 연락처</label>
-                                            <input placeholder="010-0000-0000" value={contact} onChange={e => setContact(formatPhone(e.target.value))} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                                            <input type="tel" placeholder="010-0000-0000" value={contact} onChange={e => setContact(formatPhone(e.target.value))} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-xs font-medium text-slate-400 ml-1">수강료 결제일 (1~31)</label>
-                                            <input type="number" placeholder="일자만 입력 (예: 15)" value={tuitionDay} onChange={e => setTuitionDay(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                                            <input type="number" placeholder="일자만 입력 (예: 15)" value={tuitionDay} onChange={e => setTuitionDay(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-xs font-medium text-slate-400 ml-1">특이사항 (메모)</label>
-                                            <textarea placeholder="학생에 대한 간단한 메모를 남겨주세요" value={memo} onChange={e => setMemo(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all h-32 text-slate-900" />
+                                            <textarea placeholder="학생에 대한 간단한 메모를 남겨주세요" value={memo} onChange={e => setMemo(e.target.value)} className="w-full p-4 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all h-32 text-slate-900" />
                                         </div>
 
                                         <div className="flex gap-3 pt-4 pb-4">
@@ -527,27 +527,27 @@ export default function StudentManagement() {
                         <form onSubmit={handleAddStudent} className="space-y-2.5">
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">이름</label>
-                                <input placeholder="이름을 입력하세요" value={name} onChange={e => setName(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" required />
+                                <input placeholder="이름을 입력하세요" value={name} onChange={e => setName(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" required />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">연락처</label>
-                                <input placeholder="010-0000-0000" value={studentContact} onChange={e => setStudentContact(formatPhone(e.target.value))} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                                <input type="tel" placeholder="010-0000-0000" value={studentContact} onChange={e => setStudentContact(formatPhone(e.target.value))} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">학부모 연락처</label>
-                                <input placeholder="010-0000-0000" value={contact} onChange={e => setContact(formatPhone(e.target.value))} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                                <input type="tel" placeholder="010-0000-0000" value={contact} onChange={e => setContact(formatPhone(e.target.value))} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">과목</label>
-                                <input placeholder="예: 수학, 영어, 피아노" value={subject} onChange={e => setSubject(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                                <input placeholder="예: 음악, 미술" value={subject} onChange={e => setSubject(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">수강료 결제일 (1~31)</label>
-                                <input type="number" placeholder="일자만 입력 (예: 15)" value={tuitionDay} onChange={e => setTuitionDay(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all text-slate-900" />
+                                <input type="number" placeholder="일자만 입력 (예: 15)" value={tuitionDay} onChange={e => setTuitionDay(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all text-slate-900" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-medium text-slate-400 ml-1">특이사항 (메모)</label>
-                                <textarea placeholder="학생에 대한 간단한 메모를 남겨주세요" value={memo} onChange={e => setMemo(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-bold transition-all h-20 text-slate-900" />
+                                <textarea placeholder="학생에 대한 간단한 메모를 남겨주세요" value={memo} onChange={e => setMemo(e.target.value)} className="w-full p-3 bg-slate-50 rounded-2xl border border-transparent focus:border-emerald-500 focus:bg-white outline-none font-medium transition-all h-20 text-slate-900" />
                             </div>
 
                             <div className="flex gap-3 pt-1">
